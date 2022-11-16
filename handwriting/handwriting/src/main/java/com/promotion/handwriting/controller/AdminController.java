@@ -2,37 +2,40 @@ package com.promotion.handwriting.controller;
 
 import com.promotion.handwriting.dto.AdminDto;
 import com.promotion.handwriting.service.LoginService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 @RequestMapping("/admin")
 @RestController
+@RequiredArgsConstructor
+@Slf4j
 public class AdminController {
 
-    LoginService loginService;
+    private final LoginService loginService;
 
     @RequestMapping("/isAmend")
     Object isAmendPossible(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         AdminDto adminDto = new AdminDto();
-        adminDto.setAdmin(session != null);
+        adminDto.setAmendAuthority(session != null);
         adminDto.setStatus(true);
         return adminDto;
     }
 
     @PostMapping("/login")
-    Object requestLogin(HttpServletRequest request, @RequestBody String id, @RequestBody String pw) {
+    Object requestLogin(HttpServletRequest request, @RequestParam String id, @RequestParam String pw) throws IOException {
 
+        log.info("input data : [id : " + id + ", pw : " + pw + "]");
         boolean isAdmin = loginService.login(id, pw);
 
         request.getSession(isAdmin);
         AdminDto adminDto = new AdminDto();
-        adminDto.setAdmin(isAdmin);
+        adminDto.setAmendAuthority(isAdmin);
         adminDto.setStatus(true);
         return adminDto;
     }

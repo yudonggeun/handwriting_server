@@ -3,6 +3,7 @@ package com.promotion.handwriting.controller;
 import com.promotion.handwriting.dto.MainPromotionContentDto;
 import com.promotion.handwriting.dto.MainPromotionIntroDto;
 import com.promotion.handwriting.service.DataService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,9 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping("/data")
 @RestController
+@RequiredArgsConstructor
 public class DataController {
 
-    DataService dataService;
+    private final DataService dataService;
     @GetMapping("/content")
     Object getPromotionInformation(){
         return dataService.readMainPromotionContentTextFile();
