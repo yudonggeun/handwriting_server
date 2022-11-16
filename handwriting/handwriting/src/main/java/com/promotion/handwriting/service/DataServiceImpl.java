@@ -2,7 +2,9 @@ package com.promotion.handwriting.service;
 
 import com.promotion.handwriting.dto.MainPromotionContentDto;
 import com.promotion.handwriting.dto.MainPromotionIntroDto;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DataServiceImpl implements DataService{
     @Override
     public MainPromotionContentDto readMainPromotionContentTextFile() {
