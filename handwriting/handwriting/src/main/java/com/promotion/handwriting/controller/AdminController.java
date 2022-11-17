@@ -1,6 +1,7 @@
 package com.promotion.handwriting.controller;
 
 import com.promotion.handwriting.dto.AdminDto;
+import com.promotion.handwriting.dto.LoginDto;
 import com.promotion.handwriting.service.LoginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +29,10 @@ public class AdminController {
     }
 
     @PostMapping("/login")
-    Object requestLogin(HttpServletRequest request, @RequestParam String id, @RequestParam String pw) throws IOException {
+    Object requestLogin(HttpServletRequest request, @RequestBody LoginDto dto) throws IOException {
 
-        log.info("input data : [id : " + id + ", pw : " + pw + "]");
-        boolean isAdmin = loginService.login(id, pw);
+        log.info("input data : " + dto);
+        boolean isAdmin = loginService.login(dto.getId(), dto.getPw());
 
         request.getSession(isAdmin);
         AdminDto adminDto = new AdminDto();

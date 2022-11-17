@@ -25,14 +25,14 @@ public class DataServiceImpl implements DataService {
             File dir = resource.getFile();
             File[] files = dir.listFiles((dir1, name) -> name.endsWith("json"));
 
-            if(files != null) {
+            if (files != null) {
                 for (File file : files) {
                     MainPromotionContentDto dto = new ObjectMapper().readValue(file, MainPromotionContentDto.class);
 
                     File imageDir = new ClassPathResource(imagePath + dto.getId()).getFile();
                     File[] images = imageDir.listFiles((f, name) -> name.endsWith("jpg") || name.endsWith("png"));
 
-                    if(images == null) continue;
+                    if (images == null) continue;
                     int repeat = Math.min(images.length, 8);
                     for (int i = 0; i < repeat; i++) {
                         File image = images[i];
@@ -52,7 +52,19 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public MainPromotionIntroDto readMainPromotionIntroTextFile() {
-        return null;
+        try {
+            ClassPathResource resource = new ClassPathResource("/text/intro/intro.json");
+
+            File file = resource.getFile();
+            MainPromotionIntroDto result = new ObjectMapper().readValue(file, MainPromotionIntroDto.class);
+            result.setImage("/image/intro/" + result.getImage());
+            log.debug(file.getName() + " 조회 : " + result);
+
+            return result;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -76,6 +88,18 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public boolean amendIntro(MainPromotionIntroDto dto) {
-        return true;
+        try {
+            ClassPathResource resource = new ClassPathResource("/text/intro/intro.json");
+            File file = resource.getFile();
+            // create object mapper instance
+            ObjectMapper mapper = new ObjectMapper();
+            // convert map to JSON file
+            mapper.writeValue(file, dto);
+            log.info("intro.json 수정완료");
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 }
