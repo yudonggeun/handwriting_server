@@ -4,19 +4,20 @@ import com.promotion.handwriting.dto.MainPromotionContentDto;
 import com.promotion.handwriting.dto.MainPromotionIntroDto;
 import com.promotion.handwriting.service.DataService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RequestMapping("/data")
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class DataController {
 
     private final DataService dataService;
     @GetMapping("/content")
-    Object getPromotionInformation(){
+    Object getPromotionInformation() throws IOException {
         return dataService.readMainPromotionContentTextFile();
     }
 
@@ -26,7 +27,8 @@ public class DataController {
     }
 
     @PostMapping("/content")
-    Object amendPromotionContent(MainPromotionContentDto dto){
+    Object amendPromotionContent(@RequestBody MainPromotionContentDto dto){
+        log.debug("POST : /data/content [input] >> " + dto);
         return dataService.amendContent(dto);
     }
 

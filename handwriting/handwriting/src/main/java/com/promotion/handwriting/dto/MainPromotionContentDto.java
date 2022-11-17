@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 public class MainPromotionContentDto {
+    String id;
     String title;
     String description;
     List<String> images = new LinkedList<>();
