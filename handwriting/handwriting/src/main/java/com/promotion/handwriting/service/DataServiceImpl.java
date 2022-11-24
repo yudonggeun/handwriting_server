@@ -15,6 +15,25 @@ import java.util.List;
 @Slf4j
 @Service
 public class DataServiceImpl implements DataService {
+
+    @Override
+    public List<String> getImageSrcByContentId(String id, int start, int count) throws IOException {
+        File imageDir = new ClassPathResource("/static/image/content/" + id).getFile();
+
+        List<String> result = new LinkedList<>();
+
+        File[] images = imageDir.listFiles((f, name) -> name.endsWith("jpg") || name.endsWith("png"));
+
+        if (images == null) throw new RuntimeException("image path is not correct");
+
+        for (int i = start; i < start + count; i++) {
+            File image = images[i];
+            result.add("/image/content/" + id + "/" + image.getName());
+        }
+
+        return result;
+    }
+
     @Override
     public List<MainPromotionContentDto> readMainPromotionContentTextFile() {
         List<MainPromotionContentDto> result = new LinkedList<>();
@@ -34,10 +53,17 @@ public class DataServiceImpl implements DataService {
 
                     if (images == null) continue;
                     int repeat = Math.min(images.length, 8);
+                    log.debug("image list size : " + dto.getImages().size());
+                    log.debug(file.getName() + " 조회 : " + dto);
+
                     for (int i = 0; i < repeat; i++) {
                         File image = images[i];
                         dto.addImage("/image/content/" + dto.getId() + "/" + image.getName());
                     }
+                    log.debug("image directory : " + imageDir.getName());
+                    log.debug("repeat : " + repeat);
+                    log.debug("image list size : " + dto.getImages().size());
+                    log.debug("dto hash : " + dto.hashCode());
                     log.debug(file.getName() + " 조회 : " + dto);
                     result.add(dto);
                 }
@@ -74,9 +100,9 @@ public class DataServiceImpl implements DataService {
             log.info("PATH : " + target);
             ClassPathResource resource = new ClassPathResource(target);
             File file = resource.getFile();
-            // create object mapper instance
+
             ObjectMapper mapper = new ObjectMapper();
-            // convert map to JSON file
+            dto.getImages().clear();//image 의존성 삭제
             mapper.writeValue(file, dto);
             log.info(dto.getId() + ".json 수정완료");
             return true;

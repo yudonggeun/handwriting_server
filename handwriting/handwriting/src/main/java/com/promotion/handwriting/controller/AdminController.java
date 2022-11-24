@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
@@ -39,5 +40,13 @@ public class AdminController {
         adminDto.setAmendAuthority(isAdmin);
         adminDto.setStatus(true);
         return adminDto;
+    }
+
+    @RequestMapping("/logout")
+    String requestLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        HttpSession session = request.getSession();
+        session.invalidate();
+        response.sendRedirect("/");
+        return "{}";
     }
 }

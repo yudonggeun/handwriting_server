@@ -49,4 +49,12 @@ public class DataController {
         }
         return success;
     }
+
+    @GetMapping("/content/image")
+    Object getImageList(
+            @RequestParam("content_id") String id,
+            @RequestParam(defaultValue = "0") int start,
+            @RequestParam(defaultValue = "4") int count) throws IOException {
+        return dataService.getImageSrcByContentId(id, start, count);
+    }
 }
