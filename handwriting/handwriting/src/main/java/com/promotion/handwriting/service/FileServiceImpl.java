@@ -14,7 +14,7 @@ import java.nio.file.StandardCopyOption;
 @Slf4j
 public class FileServiceImpl implements FileService {
     @Override
-    public String saveFile(MultipartFile file) throws IOException {
+    public String saveFile(MultipartFile file, String path) throws IOException {
         String fileName = file.getOriginalFilename();
 
         //확장자 추출
@@ -23,13 +23,30 @@ public class FileServiceImpl implements FileService {
             throw new RuntimeException("파일에 확장자가 없습니다.");
         }
 
-        ClassPathResource resource = new ClassPathResource("/static/image/intro");
+        ClassPathResource resource = new ClassPathResource("/static/" + path);
         Path dir = resource.getFile().toPath();
         //파일 저장
         Path location = dir.resolve(file.getOriginalFilename());
 
         Files.copy(file.getInputStream(), location, StandardCopyOption.REPLACE_EXISTING);
 
+        return fileName;
+    }
+
+    @Override
+    public String deleteFile(String fileName, String path) throws IOException {
+
+        //확장자 추출
+        int index = fileName.lastIndexOf('.');
+        if(index == -1){
+            throw new RuntimeException("파일에 확장자가 없습니다.");
+        }
+
+        ClassPathResource resource = new ClassPathResource("/static/" + path);
+        Path dir = resource.getFile().toPath();
+        //파일 저장
+        Path location = dir.resolve(fileName);
+        Files.delete(location);
         return fileName;
     }
 }

@@ -26,7 +26,7 @@ public class DataServiceImpl implements DataService {
 
         if (images == null) throw new RuntimeException("image path is not correct");
 
-        for (int i = start; i < start + count; i++) {
+        for (int i = start; i < start + count && i < images.length; i++) {
             File image = images[i];
             result.add("/image/content/" + id + "/" + image.getName());
         }
