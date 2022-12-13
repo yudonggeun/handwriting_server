@@ -15,29 +15,29 @@ import static java.nio.file.Files.createDirectories;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    private String connectPath = "/**";
-    private String resourcePath = "file:///home/uploadedImage";//TODO
+    private final String resourcePath = System.getProperty("user.dir") + "\\handwriting_resources\\image";
 
     @SneakyThrows
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String connectPath = "image/**";
+        String fileResource = (System.getProperty("os.name").toLowerCase().contains("win") ?
+                "file:///" :
+                "file:/") + resourcePath + "\\";
         makeResourceFile();
         registry.addResourceHandler(connectPath)
-                .addResourceLocations(resourcePath);
+                .addResourceLocations(fileResource);
     }
 
     private void makeResourceFile() throws IOException {
-        log.info("create resource directory start");
-        String rootPath = System.getProperty("user.dir");
-        String resourcePath = "\\handwriting_resources";
         try {
-            createDirectories(Paths.get(rootPath + resourcePath + "\\image\\intro"));
-            createDirectories(Paths.get(rootPath + resourcePath + "\\image\\content"));
+            createDirectories(Paths.get(resourcePath + "\\intro"));
+            createDirectories(Paths.get(resourcePath + "\\content"));
         } catch (IOException e) {
             log.error("create resource directory fail");
             e.printStackTrace();
             throw e;
         }
-        log.info("create resource directory end : [resource path=" + rootPath + resourcePath + "]");
+        log.info("create resource directory : [resource path=" + resourcePath + "]");
     }
 }
