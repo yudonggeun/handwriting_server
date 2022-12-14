@@ -21,7 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String connectPath = "image/**";
-        String filePath = (operateSystem.contains("win") ? "file:///" : "file:/") + resourcePath + "/handwriting_resources/image/";
+        String filePath = (operateSystem.contains("win") ? "file:///" : "file:") + resourcePath + "/handwriting_resources/image/";
         String[] fileResource = {
                 filePath,
                 "classpath:/static/image/"

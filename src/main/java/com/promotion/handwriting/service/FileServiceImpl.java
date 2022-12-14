@@ -2,7 +2,6 @@ package com.promotion.handwriting.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class FileServiceImpl implements FileService {
 
     private final ResourceLoader loader;
 
-    private final String directoryPath = (System.getProperty("os.name").contains("win") ? "file:///" : "file:/")
+    private final String directoryPath = (System.getProperty("os.name").contains("win") ? "file:///" : "file:")
             + System.getProperty("user.dir")
             + "/handwriting_resources";
 

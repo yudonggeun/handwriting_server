@@ -21,10 +21,10 @@ public class DataServiceImpl implements DataService {
 
     private final ResourceLoader loader;
 
-    private final String path = (System.getProperty("os.name").contains("win") ? "file:///" : "file:/")
+    private final String path = (System.getProperty("os.name").toLowerCase().contains("win") ? "file:///" : "file:")
             + System.getProperty("user.dir")
             + "/handwriting_resources";
-
+    
     @Override
     public List<String> getImageSrcByContentId(String id, int start, int count) throws IOException {
         BufferedReader imageReader = new BufferedReader(new InputStreamReader(
