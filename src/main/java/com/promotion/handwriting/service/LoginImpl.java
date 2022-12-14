@@ -1,5 +1,6 @@
 package com.promotion.handwriting.service;
 
+import com.promotion.handwriting.util.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -21,9 +22,7 @@ import java.util.Map;
 public class LoginImpl implements LoginService {
 
     private final ResourceLoader loader;
-    private final String path = (System.getProperty("os.name").toLowerCase().contains("win") ? "file:///" : "file:")
-            + System.getProperty("user.dir")
-            + "/handwriting_resources";;
+    private final String path = FileUtils.getFileResourcePath();
 
     @Override
     public boolean login(String id, String pw) throws IOException {

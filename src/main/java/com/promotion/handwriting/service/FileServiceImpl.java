@@ -1,5 +1,6 @@
 package com.promotion.handwriting.service;
 
+import com.promotion.handwriting.util.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -20,9 +21,7 @@ public class FileServiceImpl implements FileService {
 
     private final ResourceLoader loader;
 
-    private final String directoryPath = (System.getProperty("os.name").contains("win") ? "file:///" : "file:")
-            + System.getProperty("user.dir")
-            + "/handwriting_resources";
+    private final String directoryPath = FileUtils.getFileResourcePath();
 
     @Override
     public String saveFile(MultipartFile file, String path) throws IOException {

@@ -3,6 +3,7 @@ package com.promotion.handwriting.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.promotion.handwriting.dto.MainPromotionContentDto;
 import com.promotion.handwriting.dto.MainPromotionIntroDto;
+import com.promotion.handwriting.util.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -21,9 +22,7 @@ public class DataServiceImpl implements DataService {
 
     private final ResourceLoader loader;
 
-    private final String path = (System.getProperty("os.name").toLowerCase().contains("win") ? "file:///" : "file:")
-            + System.getProperty("user.dir")
-            + "/handwriting_resources";
+    private final String path = FileUtils.getFileResourcePath();
 
     @Override
     public List<String> getImageSrcByContentId(String id, int start, int count) throws IOException {
