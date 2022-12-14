@@ -1,7 +1,10 @@
 package com.promotion.handwriting.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -9,12 +12,19 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
+
+    private final ResourceLoader loader;
+
+    private final String directoryPath = (System.getProperty("os.name").contains("win") ? "file:///" : "file:/")
+            + System.getProperty("user.dir")
+            + "/handwriting_resources";
+
     @Override
     public String saveFile(MultipartFile file, String path) throws IOException {
         String fileName = file.getOriginalFilename();
@@ -25,7 +35,7 @@ public class FileServiceImpl implements FileService {
             throw new RuntimeException("파일에 확장자가 없습니다.");
         }
 
-        ClassPathResource resource = new ClassPathResource("/static/" + path);
+        Resource resource = loader.getResource(directoryPath + "/" + path);
         Path dir = resource.getFile().toPath();
         //파일 저장
         Path location = dir.resolve(file.getOriginalFilename());
@@ -44,7 +54,7 @@ public class FileServiceImpl implements FileService {
             throw new RuntimeException("파일에 확장자가 없습니다.");
         }
 
-        ClassPathResource resource = new ClassPathResource("/static/" + path);
+        Resource resource = loader.getResource(directoryPath + "/" + path);
         Path dir = resource.getFile().toPath();
         //파일 삭제
         File file = new File(dir.toAbsolutePath() + "/" + fileName);

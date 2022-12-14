@@ -35,12 +35,15 @@ public class WebConfig implements WebMvcConfigurer {
 
     private void makeResourceFile() throws IOException {
         String imagePath = "/handwriting_resources/image";
-        String introPath = imagePath + "/intro";
-        String contentPath = imagePath + "/content";
+        String textPath = "/handwriting_resources/text";
+        String introPath = "/intro";
+        String contentPath = "/content";
 
         try {
-            createDirectories(Paths.get(resourcePath + introPath));
-            createDirectories(Paths.get(resourcePath + contentPath));
+            createDirectories(Paths.get(resourcePath + textPath + introPath));
+            createDirectories(Paths.get(resourcePath + textPath + contentPath));
+            createDirectories(Paths.get(resourcePath + imagePath + introPath));
+            createDirectories(Paths.get(resourcePath + imagePath + contentPath));
         } catch (IOException e) {
             log.error("create resource directory fail");
             e.printStackTrace();
