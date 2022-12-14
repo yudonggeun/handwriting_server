@@ -24,7 +24,7 @@ public class DataServiceImpl implements DataService {
     private final String path = (System.getProperty("os.name").toLowerCase().contains("win") ? "file:///" : "file:")
             + System.getProperty("user.dir")
             + "/handwriting_resources";
-    
+
     @Override
     public List<String> getImageSrcByContentId(String id, int start, int count) throws IOException {
         BufferedReader imageReader = new BufferedReader(new InputStreamReader(

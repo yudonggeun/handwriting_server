@@ -1,7 +1,9 @@
 package com.promotion.handwriting.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -15,12 +17,18 @@ import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class LoginImpl implements LoginService {
+
+    private final ResourceLoader loader;
+    private final String path = (System.getProperty("os.name").toLowerCase().contains("win") ? "file:///" : "file:")
+            + System.getProperty("user.dir")
+            + "/handwriting_resources";;
 
     @Override
     public boolean login(String id, String pw) throws IOException {
 
-        ClassPathResource loginPath = new ClassPathResource("/text/login.txt");
+        Resource loginPath = loader.getResource(path + "/text/login.txt");
         Path path = Paths.get(loginPath.getURI());
         List<String> info = Files.readAllLines(path);
         Map<String, String> match = new HashMap<>();
