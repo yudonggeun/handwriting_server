@@ -18,7 +18,7 @@ public class WebConfig implements WebMvcConfigurer {
 
         String connectPath = "image/**";
         String[] fileResource = {
-                FileUtils.getFileResourcePath() + "/",
+                FileUtils.getFileResourcePath() + "/image/",
                 "classpath:/static/image/"
         };
 

@@ -22,15 +22,25 @@ public class DataServiceImpl implements DataService {
 
     private final ResourceLoader loader;
 
-    private final String path = FileUtils.getFileResourcePath();
+    private final String fileResourcePath = FileUtils.getFileResourcePath();
+
+    private final String imageIntroUrlPath = "/api/image/intro/";
+    private final String imageContentUrlPath = "/api/image/content/";
+    private final String textContentUrlPath = "/api/text/content/";
+    private final String textIntroUrlPath = "/api/text/intro/";
+
+    private final String imageIntroPath = "/image/intro/";
+    private final String imageContentPath = "/image/content/";
+    private final String textContentPath = "/text/content/";
+    private final String textIntroPath = "/text/intro/";
 
     @Override
     public List<String> getImageSrcByContentId(String id, int start, int count) throws IOException {
         BufferedReader imageReader = new BufferedReader(new InputStreamReader(
-                loader.getResource(path + "/image/content/" + id).getInputStream()));
+                loader.getResource(fileResourcePath + imageContentPath + id).getInputStream()));
         List<String> allImages = imageReader.lines()
                 .filter(imageFilename -> imageFilename.endsWith("jpg") || imageFilename.endsWith("png"))
-                .map(imageFilename -> "/image/content/" + id + "/" + imageFilename)
+                .map(imageFilename -> imageContentUrlPath + id + "/" + imageFilename)
                 .collect(Collectors.toList());
         int endPoint = Math.min(allImages.size(), start + count);
         return allImages.subList(start, endPoint);
@@ -39,10 +49,11 @@ public class DataServiceImpl implements DataService {
     @Override
     public List<MainPromotionContentDto> readMainPromotionContentTextFile() {
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(loader.getResource(path + "/text/content").getInputStream()));
+            BufferedReader br = new BufferedReader(new InputStreamReader(loader.getResource(fileResourcePath + textContentPath).getInputStream()));
             return br.lines().map(fileName -> {
                         try {
-                            InputStream file = loader.getResource(path + "/text/content/" + fileName).getInputStream();
+
+                            InputStream file = loader.getResource(fileResourcePath + textContentPath + fileName).getInputStream();
                             MainPromotionContentDto dto = new ObjectMapper().readValue(new InputStreamReader(file), MainPromotionContentDto.class);
 
                             getImageSrcByContentId(dto.getId(), 0, 8)
@@ -50,9 +61,7 @@ public class DataServiceImpl implements DataService {
 
                             log.debug("image list size : " + dto.getImages().size());
                             log.debug(dto.getId() + ".json 조회 : " + dto);
-                            log.debug("image directory : " + "/static/image/content/" + dto.getId());
                             log.debug("image list size : " + dto.getImages().size());
-                            log.debug("dto hash : " + dto.hashCode());
 
                             return dto;
                         } catch (IOException e) {
@@ -71,10 +80,10 @@ public class DataServiceImpl implements DataService {
     @Override
     public MainPromotionIntroDto readMainPromotionIntroTextFile() {
         try {
-            Resource resource = loader.getResource(path + "/text/intro/intro.json");
+            Resource resource = loader.getResource(fileResourcePath + textIntroPath + "intro.json");
             InputStream file = resource.getInputStream();
             MainPromotionIntroDto result = new ObjectMapper().readValue(file, MainPromotionIntroDto.class);
-            result.setImage("/image/intro/" + result.getImage());
+            result.setImage(imageIntroUrlPath + result.getImage());
             log.debug("intro.json" + " 조회 : " + result);
 
             return result;
@@ -87,9 +96,9 @@ public class DataServiceImpl implements DataService {
     @Override
     public boolean amendContent(MainPromotionContentDto dto) {
         try {
-            String target = String.format("/text/content/%s.json", dto.getId());
+            String target = String.format(textContentPath + "%s.json", dto.getId());
             log.info("PATH : " + target);
-            Resource resource = loader.getResource(path + target);
+            Resource resource = loader.getResource(fileResourcePath + target);
             File file = resource.getFile();
 
             ObjectMapper mapper = new ObjectMapper();
@@ -106,7 +115,7 @@ public class DataServiceImpl implements DataService {
     @Override
     public boolean amendIntro(MainPromotionIntroDto dto) {
         try {
-            Resource resource = loader.getResource(path + "/text/intro/intro.json");
+            Resource resource = loader.getResource(fileResourcePath + textIntroPath + "intro.json");
             File file = resource.getFile();
             // create object mapper instance
             ObjectMapper mapper = new ObjectMapper();
