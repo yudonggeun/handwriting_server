@@ -1,0 +1,32 @@
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 120MB
+  datasource:
+    url: jdbc:mysql://localhost:3306/handwriting?serverTimezone=UTC&characterEncoding=UTF-8
+    username: root
+    password: qwerasdf
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+      hibernate:
+        ddl-auto: none #스테이징과 운영 서버는 validate 또는 none
+      properties:
+        hiberate:
+          show-sql: true
+          format-sql: true
+
+logging:
+  level:
+    root: info
+    org.hibernate.SQL: info
+    org.hibernate.type: info
