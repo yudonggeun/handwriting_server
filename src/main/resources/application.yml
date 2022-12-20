@@ -17,13 +17,13 @@ spring:
     username: root
     password: qwerasdf
     driver-class-name: com.mysql.cj.jdbc.Driver
-    jpa:
-      hibernate:
-        ddl-auto: none #스테이징과 운영 서버는 validate 또는 none
-      properties:
-        hiberate:
-          show-sql: true
-          format-sql: true
+  jpa:
+    hibernate:
+      ddl-auto: 'create-drop' #스테이징과 운영 서버는 validate 또는 none
+    properties:
+      hiberate:
+        show-sql: true
+        format-sql: true
 
 logging:
   level:

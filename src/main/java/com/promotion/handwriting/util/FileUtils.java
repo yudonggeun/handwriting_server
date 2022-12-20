@@ -33,6 +33,17 @@ public class FileUtils {
         return path;
     }
 
+    public static void createResourcePath(String path) throws IOException {
+        try {
+            createDirectories(Paths.get(resourcePath + imagePath + path));
+        } catch (IOException e) {
+            log.error("create entity resource directory : fail");
+            e.printStackTrace();
+            throw e;
+        }
+        log.info("create entity resource directory : [resource path=" + resourcePath + "]");
+    }
+
     public static void makeResourceFile() throws IOException {
         try {
             createDirectories(Paths.get(resourcePath + textPath + introPath));

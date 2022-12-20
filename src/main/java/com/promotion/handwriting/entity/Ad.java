@@ -1,11 +1,16 @@
 package com.promotion.handwriting.entity;
 
 import com.promotion.handwriting.enums.AdType;
+import com.promotion.handwriting.util.FileUtils;
+import lombok.Getter;
 
 import javax.persistence.*;
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
+@Getter
 public class Ad {
     @Id
     @Column(name = "id", nullable = false)
@@ -18,6 +23,33 @@ public class Ad {
     private String title;
     @Column(name = "DETAIL")
     private String detail;
-    @OneToMany(fetch = FetchType.LAZY)
+    @Column(name = "RESOURCE_PATH")
+    private String resourcePath;
+    @OneToMany(mappedBy = "adId", fetch = FetchType.LAZY)
     private List<Image> images;
+
+    protected Ad() {
+    }
+
+    public Ad(AdType type, String title, String detail, String resourcePath, List<Image> images) throws IOException {
+        this.type = type;
+        this.title = title;
+        this.detail = detail;
+        this.resourcePath = "/" + UUID.randomUUID() + "/";
+        this.images = images;
+
+        FileUtils.createResourcePath(resourcePath);
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
 }

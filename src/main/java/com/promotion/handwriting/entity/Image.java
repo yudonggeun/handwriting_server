@@ -8,6 +8,8 @@ public class Image {
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Column(name = "ad_id")
+    private long adId;
     @Column(name = "PRIORITY")
     private int priority;
     @Column(name = "IMAGE_NAME")

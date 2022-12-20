@@ -97,13 +97,14 @@ public class DataServiceImpl implements DataService {
     public boolean amendContent(MainPromotionContentDto dto) {
         try {
             String target = String.format(textContentPath + "%s.json", dto.getId());
-            log.info("PATH : " + target);
             Resource resource = loader.getResource(fileResourcePath + target);
             File file = resource.getFile();
 
             ObjectMapper mapper = new ObjectMapper();
             dto.getImages().clear();//image 의존성 삭제
             mapper.writeValue(file, dto);
+
+            log.info("PATH : " + target);
             log.info(dto.getId() + ".json 수정완료");
             return true;
         } catch (Exception ex) {
