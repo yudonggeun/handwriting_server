@@ -1,8 +1,8 @@
 package com.promotion.handwriting.controller;
 
 import com.promotion.handwriting.dto.DeleteFileDto;
-import com.promotion.handwriting.dto.MainPromotionContentDto;
-import com.promotion.handwriting.dto.MainPromotionIntroDto;
+import com.promotion.handwriting.dto.ContentDto;
+import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.service.DataService;
 import com.promotion.handwriting.service.FileService;
 import lombok.RequiredArgsConstructor;
@@ -24,30 +24,31 @@ public class DataController {
 
     @GetMapping("/content")
     Object getPromotionInformation() throws IOException {
-        return dataService.readMainPromotionContentTextFile();
+        return dataService.getContentDtos();
     }
 
     @GetMapping("/intro")
     Object getPromotionIntroInformation() {
-        return dataService.readMainPromotionIntroTextFile();
+        return dataService.getIntroDto();
     }
 
     @PostMapping("/content")
-    Object amendPromotionContent(@RequestBody MainPromotionContentDto dto) {
+    Object amendPromotionContent(@RequestBody ContentDto dto) {
         log.debug("POST : /data/content [input] >> " + dto);
         return dataService.amendContent(dto);
     }
 
     @PostMapping("/intro")
     Object amendPromotionIntro(@RequestPart(name = "file", required = false) MultipartFile file,
-                               @RequestPart(name = "dto") MainPromotionIntroDto dto) throws IOException {
+                               @RequestPart(name = "dto") IntroDto dto) throws IOException {
 
         log.info(dto.toString());
-        log.info(file.getOriginalFilename());
+        log.info("file : " + file == null ? "null" : file.getOriginalFilename());
 
         boolean success = dataService.amendIntro(dto);
         if (success) {
-            fileService.saveFile(file, "image/intro");
+//            fileService.saveFile(file, "image/intro");
+            fileService.saveIntroFile(file);
         }
         return success;
     }
@@ -58,7 +59,7 @@ public class DataController {
         log.info("append images at " + id);
 
         for (MultipartFile file : files) {
-            String filename = fileService.saveFile(file, "image/content/" + id);
+            String filename = fileService.saveFile(file, Long.parseLong(id));
             log.info("file save : " + filename);
         }
 
@@ -71,7 +72,8 @@ public class DataController {
         log.info("delete images at " + id);
 
         for (String file : files.getFiles()) {
-            String filename = fileService.deleteFile(file, "");
+            dataService.getIntroDto();
+            String filename = fileService.deleteFile(file, 0);
         }
 
         return true;

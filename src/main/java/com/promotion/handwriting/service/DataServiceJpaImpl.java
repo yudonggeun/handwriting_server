@@ -1,7 +1,7 @@
 package com.promotion.handwriting.service;
 
-import com.promotion.handwriting.dto.MainPromotionContentDto;
-import com.promotion.handwriting.dto.MainPromotionIntroDto;
+import com.promotion.handwriting.dto.ContentDto;
+import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.AdRepository;
@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +23,7 @@ public class DataServiceJpaImpl implements DataService {
 
     @Override
     public List<String> getImageSrcByContentId(String id, int start, int count) {
-        Ad ad = adRepository.getReferenceById(Long.parseLong(id));
+        Ad ad = adRepository.findAdWithImagesById(Long.parseLong(id));
         return ad.getImages()
                 .stream()
                 .map(image -> "/api" + ad.getResourcePath() + image.getImageName())
@@ -32,23 +31,23 @@ public class DataServiceJpaImpl implements DataService {
     }
 
     @Override
-    public List<MainPromotionContentDto> readMainPromotionContentTextFile() {
-        return adRepository.selectType(AdType.CONTENT).stream()
-                .map(MainPromotionContentDto::new)
+    public List<ContentDto> getContentDtos() {
+        return adRepository.findALLByType(AdType.CONTENT).stream()
+                .map(ContentDto::new)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public MainPromotionIntroDto readMainPromotionIntroTextFile() {
-        List<Ad> intros = adRepository.selectType(AdType.INTRO);
+    public IntroDto getIntroDto() {
+        List<Ad> intros = adRepository.findALLByType(AdType.INTRO);
         if (intros.size() != 1) {
             throw new RuntimeException("intro 데이터가 " + intros.size() + " 만큼 존재합니다. intro 데이터는 하나만 있어야 합니다. 데어터를 수정해주세요.");
         }
-        return new MainPromotionIntroDto(intros.get(0));
+        return new IntroDto(intros.get(0));
     }
 
     @Override
-    public boolean amendContent(MainPromotionContentDto dto) {
+    public boolean amendContent(ContentDto dto) {
         try {
             Ad ad = adRepository.getReferenceById(Long.parseLong(dto.getId()));
             ad.setDetail(dto.getDescription());
@@ -60,8 +59,8 @@ public class DataServiceJpaImpl implements DataService {
     }
 
     @Override
-    public boolean amendIntro(MainPromotionIntroDto dto) {
-        List<Ad> intros = adRepository.selectType(AdType.INTRO);
+    public boolean amendIntro(IntroDto dto) {
+        List<Ad> intros = adRepository.findALLByType(AdType.INTRO);
         if (intros.size() != 1) {
             throw new RuntimeException("intro 데이터가 " + intros.size() + " 만큼 존재합니다. intro 데이터는 하나만 있어야 합니다. 데어터를 수정해주세요.");
         }

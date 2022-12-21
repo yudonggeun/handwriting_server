@@ -9,13 +9,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class MainPromotionContentDto {
+public class ContentDto {
     String id;
     String title;
     String description;
     List<String> images = new LinkedList<>();
 
-    public MainPromotionContentDto(Ad ad) {
+    public ContentDto(){}
+
+    public ContentDto(Ad ad) {
         if (ad.getType() != AdType.CONTENT) {
             throw new IllegalArgumentException("AD 객체의 type이 CONTENT이어야 합니다.");
         }

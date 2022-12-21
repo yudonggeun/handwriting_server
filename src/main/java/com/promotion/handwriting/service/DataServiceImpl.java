@@ -1,9 +1,9 @@
 package com.promotion.handwriting.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.promotion.handwriting.dto.MainPromotionContentDto;
-import com.promotion.handwriting.dto.MainPromotionIntroDto;
-import com.promotion.handwriting.util.FileUtils;
+import com.promotion.handwriting.dto.ContentDto;
+import com.promotion.handwriting.dto.IntroDto;
+import com.promotion.handwriting.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -22,7 +22,7 @@ public class DataServiceImpl implements DataService {
 
     private final ResourceLoader loader;
 
-    private final String fileResourcePath = FileUtils.getFileResourcePath();
+    private final String fileResourcePath = FileUtil.getFileResourcePath();
 
     private final String imageIntroUrlPath = "/api/image/intro/";
     private final String imageContentUrlPath = "/api/image/content/";
@@ -47,14 +47,14 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public List<MainPromotionContentDto> readMainPromotionContentTextFile() {
+    public List<ContentDto> getContentDtos() {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(loader.getResource(fileResourcePath + textContentPath).getInputStream()));
             return br.lines().map(fileName -> {
                         try {
 
                             InputStream file = loader.getResource(fileResourcePath + textContentPath + fileName).getInputStream();
-                            MainPromotionContentDto dto = new ObjectMapper().readValue(new InputStreamReader(file), MainPromotionContentDto.class);
+                            ContentDto dto = new ObjectMapper().readValue(new InputStreamReader(file), ContentDto.class);
 
                             getImageSrcByContentId(dto.getId(), 0, 8)
                                     .forEach(dto::addImage);
@@ -78,11 +78,11 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public MainPromotionIntroDto readMainPromotionIntroTextFile() {
+    public IntroDto getIntroDto() {
         try {
             Resource resource = loader.getResource(fileResourcePath + textIntroPath + "intro.json");
             InputStream file = resource.getInputStream();
-            MainPromotionIntroDto result = new ObjectMapper().readValue(file, MainPromotionIntroDto.class);
+            IntroDto result = new ObjectMapper().readValue(file, IntroDto.class);
             result.setImage(imageIntroUrlPath + result.getImage());
             log.debug("intro.json" + " 조회 : " + result);
 
@@ -94,7 +94,7 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public boolean amendContent(MainPromotionContentDto dto) {
+    public boolean amendContent(ContentDto dto) {
         try {
             String target = String.format(textContentPath + "%s.json", dto.getId());
             Resource resource = loader.getResource(fileResourcePath + target);
@@ -114,7 +114,7 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public boolean amendIntro(MainPromotionIntroDto dto) {
+    public boolean amendIntro(IntroDto dto) {
         try {
             Resource resource = loader.getResource(fileResourcePath + textIntroPath + "intro.json");
             File file = resource.getFile();

@@ -1,6 +1,9 @@
 package com.promotion.handwriting.service;
 
-import com.promotion.handwriting.util.FileUtils;
+import com.promotion.handwriting.entity.Ad;
+import com.promotion.handwriting.enums.AdType;
+import com.promotion.handwriting.repository.AdRepository;
+import com.promotion.handwriting.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -21,38 +24,39 @@ public class FileServiceImpl implements FileService {
 
     private final ResourceLoader loader;
 
-    private final String directoryPath = FileUtils.getFileResourcePath();
+    private final String directoryPath = FileUtil.getFileResourcePath();
+
+    private final AdRepository adRepository;
 
     @Override
-    public String saveFile(MultipartFile file, String path) throws IOException {
-        String fileName = file.getOriginalFilename();
-
-        //확장자 추출
-        int index = fileName.lastIndexOf('.');
-        if (index == -1) {
-            throw new RuntimeException("파일에 확장자가 없습니다.");
-        }
-
-        Resource resource = loader.getResource(directoryPath + "/" + path);
+    public String saveIntroFile(MultipartFile file) throws IOException {
+        Ad ad = adRepository.findByType(AdType.INTRO);
+        Resource resource = loader.getResource(directoryPath + ad.getResourcePath());
         Path dir = resource.getFile().toPath();
         //파일 저장
         Path location = dir.resolve(file.getOriginalFilename());
-
         Files.copy(file.getInputStream(), location, StandardCopyOption.REPLACE_EXISTING);
 
-        return fileName;
+        return file.getOriginalFilename();
     }
 
     @Override
-    public String deleteFile(String fileName, String path) throws IOException {
+    public String saveFile(MultipartFile file, long id) throws IOException {
 
-        //확장자 추출
-        int index = fileName.lastIndexOf('.');
-        if (index == -1) {
-            throw new RuntimeException("파일에 확장자가 없습니다.");
-        }
+        Ad ad = adRepository.findById(id).orElseThrow();
+        Resource resource = loader.getResource(directoryPath + ad.getResourcePath());
+        Path dir = resource.getFile().toPath();
+        //파일 저장
+        Path location = dir.resolve(file.getOriginalFilename());
+        Files.copy(file.getInputStream(), location, StandardCopyOption.REPLACE_EXISTING);
 
-        Resource resource = loader.getResource(directoryPath + "/" + path);
+        return file.getOriginalFilename();
+    }
+
+    @Override
+    public String deleteFile(String fileName, long id) throws IOException {
+        Ad ad = adRepository.findById(id).orElseThrow();
+        Resource resource = loader.getResource(directoryPath + ad.getResourcePath());
         Path dir = resource.getFile().toPath();
         //파일 삭제
         File file = new File(dir.toAbsolutePath() + "/" + fileName);

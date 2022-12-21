@@ -2,6 +2,10 @@ package com.promotion.handwriting.repository;
 
 import com.promotion.handwriting.entity.Image;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface ImageRepository extends JpaRepository<Image, Long> {
+    List<Image> findByAdId(@Param("adId") Long id);
 }

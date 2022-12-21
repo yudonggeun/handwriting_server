@@ -1,7 +1,7 @@
 package com.promotion.handwriting.service;
 
-import com.promotion.handwriting.dto.MainPromotionContentDto;
-import com.promotion.handwriting.dto.MainPromotionIntroDto;
+import com.promotion.handwriting.dto.ContentDto;
+import com.promotion.handwriting.dto.IntroDto;
 
 import java.io.IOException;
 import java.util.List;
@@ -9,11 +9,11 @@ import java.util.List;
 public interface DataService {
     List<String> getImageSrcByContentId(String id, int start, int count) throws IOException;
 
-    List<MainPromotionContentDto> readMainPromotionContentTextFile() throws IOException;
+    List<ContentDto> getContentDtos() throws IOException;
 
-    MainPromotionIntroDto readMainPromotionIntroTextFile();
+    IntroDto getIntroDto();
 
-    boolean amendContent(MainPromotionContentDto dto);
+    boolean amendContent(ContentDto dto);
 
-    boolean amendIntro(MainPromotionIntroDto dto);
+    boolean amendIntro(IntroDto dto);
 }

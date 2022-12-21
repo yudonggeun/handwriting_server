@@ -6,16 +6,18 @@ import com.promotion.handwriting.enums.AdType;
 import lombok.Data;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class MainPromotionIntroDto {
+public class IntroDto {
     String image;
     List<String> comments;
 
-    public MainPromotionIntroDto(Ad ad) {
+    public IntroDto() {
+    }
+
+    public IntroDto(Ad ad) {
         if (ad.getType() != AdType.INTRO) {
             throw new IllegalArgumentException("AD 객체의 type 이 INTRO 이어야 합니다.");
         }
