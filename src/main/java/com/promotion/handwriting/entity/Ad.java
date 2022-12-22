@@ -35,7 +35,7 @@ public class Ad {
         this.type = type;
         this.title = title;
         this.detail = detail;
-        this.resourcePath = "/" + resourcePath;
+        this.resourcePath = resourcePath;
         this.images = images;
 
         FileUtil.createImageDirectory(resourcePath);

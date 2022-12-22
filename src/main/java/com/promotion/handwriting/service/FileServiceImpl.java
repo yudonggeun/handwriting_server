@@ -16,6 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -61,7 +64,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public String deleteFile(String fileName, long id) throws IOException {
-        Ad ad = adRepository.findById(id).orElseThrow();
+        Ad ad = adRepository.findAdWithImagesById(id);
         Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
         Path dir = resource.getFile().toPath();
         //파일 삭제
@@ -70,6 +73,31 @@ public class FileServiceImpl implements FileService {
         if (file.exists()) {
             log.info("파일 삭제 : " + file.delete());
         }
+        //파일 db 삭제
+        List<Long> deleteImage = ad.getImages().stream().filter(image -> image.getImageName().equals(fileName)).mapToLong(Image::getId).boxed().collect(Collectors.toList());
+        imageRepository.deleteAllById(deleteImage);
         return fileName;
+    }
+
+    @Override
+    public void deleteFiles(Set<String> fileNames, long id) throws IOException {
+        Ad ad = adRepository.findAdWithImagesById(id);
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
+        Path dir = resource.getFile().toPath();
+        //파일 삭제
+        for (String fileName : fileNames) {
+            File file = new File(dir.toAbsolutePath() + "/" + fileName);
+            log.info(file.getAbsolutePath());
+            if (file.exists()) {
+                log.info("파일 삭제 : " + file.delete());
+            }
+        }
+        //파일 db 삭제
+        List<Long> deleteImage = ad.getImages().stream()
+                .filter(image -> fileNames.contains(image.getImageName()))
+                .mapToLong(Image::getId)
+                .boxed()
+                .collect(Collectors.toList());
+        imageRepository.deleteAllById(deleteImage);
     }
 }

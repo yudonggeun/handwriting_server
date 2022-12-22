@@ -26,4 +26,9 @@ public class UrlUtil {
     public static String getImageUrl(String directory, Image image) {
         return imageUrl + directory + "/" + image.getImageName();
     }
+
+    public static String removeUrlPath(String imageUrl){
+        int startIndex = imageUrl.lastIndexOf("/") + 1;
+        return imageUrl.substring(startIndex);
+    }
 }

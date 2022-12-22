@@ -3,14 +3,17 @@ package com.promotion.handwriting.service;
 import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.entity.Ad;
+import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.AdRepository;
+import com.promotion.handwriting.repository.ImageRepository;
 import com.promotion.handwriting.util.UrlUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 public class DataServiceJpaImpl implements DataService {
 
     private final AdRepository adRepository;
+    private final ImageRepository imageRepository;
 
     @Override
     public List<String> getImageSrcByContentId(String id, int start, int count) {
@@ -40,7 +44,11 @@ public class DataServiceJpaImpl implements DataService {
 
     @Override
     public IntroDto getIntroDto() {
-        return new IntroDto(adRepository.findByType(AdType.INTRO));
+        Ad intro = adRepository.findByType(AdType.INTRO);
+        IntroDto dto = new IntroDto();
+        dto.setComments(Arrays.stream(intro.getDetail().split(IntroDto.separate)).collect(Collectors.toList()));
+        dto.setImage(UrlUtil.getImageUrl(intro.getResourcePath(), intro.getImages().get(0)));
+        return dto;
     }
 
     @Override
@@ -54,8 +62,17 @@ public class DataServiceJpaImpl implements DataService {
     @Override
     public boolean amendIntro(IntroDto dto) {
         Ad intro = adRepository.findByType(AdType.INTRO);
-        String detail = dto.getComment();
-        intro.setDetail(detail);
+
+        StringBuilder sb = new StringBuilder();
+        dto.getComments().forEach(comment -> sb.append(comment).append(IntroDto.separate));
+        sb.deleteCharAt(sb.length()-1);
+
+        intro.setDetail(sb.toString());
+        if(dto.getImage() != null) {
+            List<Image> images = intro.getImages();
+            imageRepository.deleteAllById(images.stream().mapToLong(Image::getId).boxed().collect(Collectors.toList()));
+            imageRepository.save(new Image(intro.getId(), 0, dto.getImage()));
+        }
         return true;
     }
 }

@@ -18,6 +18,10 @@ public class Image {
     protected Image() {
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public Image(long adId, int priority, String imageName) {
         this.adId = adId;
         this.priority = priority;
