@@ -29,7 +29,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public String saveIntroFile(MultipartFile file) throws IOException {
         Ad ad = adRepository.findByType(AdType.INTRO);
-        Resource resource = loader.getResource(FileUtil.getFileResourcePath() + ad.getResourcePath());
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
         Path dir = resource.getFile().toPath();
         //파일 저장
         Path location = dir.resolve(file.getOriginalFilename());
@@ -42,7 +42,7 @@ public class FileServiceImpl implements FileService {
     public String saveFile(MultipartFile file, long id) throws IOException {
 
         Ad ad = adRepository.findById(id).orElseThrow();
-        Resource resource = loader.getResource(FileUtil.getFileResourcePath() + ad.getResourcePath());
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
         Path dir = resource.getFile().toPath();
         //파일 저장
         Path location = dir.resolve(file.getOriginalFilename());
@@ -54,7 +54,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public String deleteFile(String fileName, long id) throws IOException {
         Ad ad = adRepository.findById(id).orElseThrow();
-        Resource resource = loader.getResource(FileUtil.getFileResourcePath() + ad.getResourcePath());
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
         Path dir = resource.getFile().toPath();
         //파일 삭제
         File file = new File(dir.toAbsolutePath() + "/" + fileName);

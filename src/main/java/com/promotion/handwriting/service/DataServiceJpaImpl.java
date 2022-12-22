@@ -5,6 +5,7 @@ import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.AdRepository;
+import com.promotion.handwriting.util.UrlUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class DataServiceJpaImpl implements DataService {
         Ad ad = adRepository.findAdWithImagesById(Long.parseLong(id));
         return ad.getImages()
                 .stream()
-                .map(image -> "/api" + ad.getResourcePath() + image.getImageName())
+                .map(image -> UrlUtil.getImageUrl(ad.getResourcePath(), image))
                 .collect(Collectors.toList());
     }
 
@@ -39,35 +40,23 @@ public class DataServiceJpaImpl implements DataService {
 
     @Override
     public IntroDto getIntroDto() {
-        List<Ad> intros = adRepository.findALLByType(AdType.INTRO);
-        if (intros.size() != 1) {
-            throw new RuntimeException("intro 데이터가 " + intros.size() + " 만큼 존재합니다. intro 데이터는 하나만 있어야 합니다. 데어터를 수정해주세요.");
-        }
-        return new IntroDto(intros.get(0));
+        return new IntroDto(adRepository.findByType(AdType.INTRO));
     }
 
     @Override
     public boolean amendContent(ContentDto dto) {
-        try {
-            Ad ad = adRepository.getReferenceById(Long.parseLong(dto.getId()));
-            ad.setDetail(dto.getDescription());
-            ad.setTitle(dto.getTitle());
-        } catch (Exception e) {
-            return false;
-        }
+        Ad ad = adRepository.getReferenceById(Long.parseLong(dto.getId()));
+        ad.setDetail(dto.getDescription());
+        ad.setTitle(dto.getTitle());
         return true;
     }
 
     @Override
     public boolean amendIntro(IntroDto dto) {
-        List<Ad> intros = adRepository.findALLByType(AdType.INTRO);
-        if (intros.size() != 1) {
-            throw new RuntimeException("intro 데이터가 " + intros.size() + " 만큼 존재합니다. intro 데이터는 하나만 있어야 합니다. 데어터를 수정해주세요.");
-        }
-        Ad intro = intros.get(0);
+        Ad intro = adRepository.findByType(AdType.INTRO);
         String detail = "";
         for (String comment : dto.getComments())
-            detail += comment + "\n\r";
+            detail += comment + "/#";
 
         intro.setDetail(detail);
         return true;

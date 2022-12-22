@@ -19,7 +19,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: 'create-drop' #스테이징과 운영 서버는 validate 또는 none
+      ddl-auto: create #스테이징과 운영 서버는 validate 또는 none
     properties:
       hiberate:
         show-sql: true
@@ -30,3 +30,11 @@ logging:
     root: info
     org.hibernate.SQL: info
     org.hibernate.type: info
+
+directory:
+  root: "/handwriting_resources"
+  image: "/handwriting_resources/image"
+
+url:
+  default: "/api"
+  image: "/api/image"

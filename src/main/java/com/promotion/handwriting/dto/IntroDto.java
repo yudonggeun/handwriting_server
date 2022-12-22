@@ -3,6 +3,7 @@ package com.promotion.handwriting.dto;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.enums.AdType;
+import com.promotion.handwriting.util.UrlUtil;
 import lombok.Data;
 
 import java.util.Arrays;
@@ -21,10 +22,10 @@ public class IntroDto {
         if (ad.getType() != AdType.INTRO) {
             throw new IllegalArgumentException("AD 객체의 type 이 INTRO 이어야 합니다.");
         }
-        comments = Arrays.stream(ad.getDetail().split("\n\r")).collect(Collectors.toList());
+        comments = Arrays.stream(ad.getDetail().split("/#")).collect(Collectors.toList());
         List<Image> images = ad.getImages();
         if(images.size() == 1){
-            image = "/api" + ad.getResourcePath() + images.get(0).getImageName();
+            image = UrlUtil.getImageUrl(ad.getResourcePath(), images.get(0));
         }
     }
 }
