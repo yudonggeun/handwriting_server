@@ -22,8 +22,6 @@ public class DataServiceImpl implements DataService {
 
     private final ResourceLoader loader;
 
-    private final String fileResourcePath = FileUtil.getFileResourcePath();
-
     private final String imageIntroUrlPath = "/api/image/intro/";
     private final String imageContentUrlPath = "/api/image/content/";
     private final String textContentUrlPath = "/api/text/content/";
@@ -37,7 +35,7 @@ public class DataServiceImpl implements DataService {
     @Override
     public List<String> getImageSrcByContentId(String id, int start, int count) throws IOException {
         BufferedReader imageReader = new BufferedReader(new InputStreamReader(
-                loader.getResource(fileResourcePath + imageContentPath + id).getInputStream()));
+                loader.getResource(FileUtil.getFileResourcePath() + imageContentPath + id).getInputStream()));
         List<String> allImages = imageReader.lines()
                 .filter(imageFilename -> imageFilename.endsWith("jpg") || imageFilename.endsWith("png"))
                 .map(imageFilename -> imageContentUrlPath + id + "/" + imageFilename)
@@ -49,11 +47,11 @@ public class DataServiceImpl implements DataService {
     @Override
     public List<ContentDto> getContentDtos() {
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(loader.getResource(fileResourcePath + textContentPath).getInputStream()));
+            BufferedReader br = new BufferedReader(new InputStreamReader(loader.getResource(FileUtil.getFileResourcePath() + textContentPath).getInputStream()));
             return br.lines().map(fileName -> {
                         try {
 
-                            InputStream file = loader.getResource(fileResourcePath + textContentPath + fileName).getInputStream();
+                            InputStream file = loader.getResource(FileUtil.getFileResourcePath() + textContentPath + fileName).getInputStream();
                             ContentDto dto = new ObjectMapper().readValue(new InputStreamReader(file), ContentDto.class);
 
                             getImageSrcByContentId(dto.getId(), 0, 8)
@@ -80,7 +78,7 @@ public class DataServiceImpl implements DataService {
     @Override
     public IntroDto getIntroDto() {
         try {
-            Resource resource = loader.getResource(fileResourcePath + textIntroPath + "intro.json");
+            Resource resource = loader.getResource(FileUtil.getFileResourcePath() + textIntroPath + "intro.json");
             InputStream file = resource.getInputStream();
             IntroDto result = new ObjectMapper().readValue(file, IntroDto.class);
             result.setImage(imageIntroUrlPath + result.getImage());
@@ -97,7 +95,7 @@ public class DataServiceImpl implements DataService {
     public boolean amendContent(ContentDto dto) {
         try {
             String target = String.format(textContentPath + "%s.json", dto.getId());
-            Resource resource = loader.getResource(fileResourcePath + target);
+            Resource resource = loader.getResource(FileUtil.getFileResourcePath() + target);
             File file = resource.getFile();
 
             ObjectMapper mapper = new ObjectMapper();
@@ -116,7 +114,7 @@ public class DataServiceImpl implements DataService {
     @Override
     public boolean amendIntro(IntroDto dto) {
         try {
-            Resource resource = loader.getResource(fileResourcePath + textIntroPath + "intro.json");
+            Resource resource = loader.getResource(FileUtil.getFileResourcePath() + textIntroPath + "intro.json");
             File file = resource.getFile();
             // create object mapper instance
             ObjectMapper mapper = new ObjectMapper();
