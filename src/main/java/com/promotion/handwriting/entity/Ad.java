@@ -1,7 +1,7 @@
 package com.promotion.handwriting.entity;
 
 import com.promotion.handwriting.enums.AdType;
-import com.promotion.handwriting.util.FileUtils;
+import com.promotion.handwriting.util.FileUtil;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -35,10 +35,10 @@ public class Ad {
         this.type = type;
         this.title = title;
         this.detail = detail;
-        this.resourcePath = "/" + UUID.randomUUID() + "/";
+        this.resourcePath = "/" + resourcePath;
         this.images = images;
 
-        FileUtils.createResourcePath(resourcePath);
+        FileUtil.createImageDirectory(resourcePath);
     }
 
     public void setTitle(String title) {

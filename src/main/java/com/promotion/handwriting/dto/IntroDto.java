@@ -15,6 +15,8 @@ public class IntroDto {
     String image;
     List<String> comments;
 
+    static String separate = "#";
+
     public IntroDto() {
     }
 
@@ -22,10 +24,18 @@ public class IntroDto {
         if (ad.getType() != AdType.INTRO) {
             throw new IllegalArgumentException("AD 객체의 type 이 INTRO 이어야 합니다.");
         }
-        comments = Arrays.stream(ad.getDetail().split("/#")).collect(Collectors.toList());
+        comments = Arrays.stream(ad.getDetail().split(separate)).collect(Collectors.toList());
         List<Image> images = ad.getImages();
         if(images.size() == 1){
             image = UrlUtil.getImageUrl(ad.getResourcePath(), images.get(0));
         }
+    }
+
+    public String getComment(){
+        StringBuilder sb = new StringBuilder();
+        for (String comment : this.getComments())
+            sb.append(comment).append(separate);
+        sb.deleteCharAt(sb.length()-1);
+        return sb.toString();
     }
 }

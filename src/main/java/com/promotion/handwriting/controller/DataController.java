@@ -47,7 +47,6 @@ public class DataController {
 
         boolean success = dataService.amendIntro(dto);
         if (success) {
-//            fileService.saveFile(file, "image/intro");
             fileService.saveIntroFile(file);
         }
         return success;

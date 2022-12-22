@@ -2,6 +2,7 @@ package com.promotion.handwriting.dto;
 
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.enums.AdType;
+import com.promotion.handwriting.util.UrlUtil;
 import lombok.Data;
 
 import java.util.LinkedList;
@@ -24,7 +25,7 @@ public class ContentDto {
         id = String.valueOf(ad.getId());
         title = ad.getTitle();
         description = ad.getDetail();
-        images.addAll(ad.getImages().stream().map(image -> "/api" + ad.getResourcePath() + image.getImageName()).collect(Collectors.toList()));
+        images.addAll(ad.getImages().stream().map(image -> UrlUtil.getImageUrl(ad.getResourcePath(), image)).collect(Collectors.toList()));
     }
 
     public boolean addImage(String fileName) {

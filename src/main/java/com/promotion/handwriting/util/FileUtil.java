@@ -18,7 +18,7 @@ public class FileUtil {
 
     private static String fileResourcePath;
     private static String resourcePath;
-    private static String rootPath;
+    private static String projectRootPath;
     private static String imagePath;
 
     @Value("#{systemProperties['user.dir']}")
@@ -28,8 +28,8 @@ public class FileUtil {
 
     @Value("${directory.root}")
     public void setRootPath(String rootPath) throws IOException {
-        FileUtil.rootPath = rootPath;
-        FileUtil.createDirectoryAtPath(FileUtil.rootPath);
+        FileUtil.projectRootPath = rootPath;
+        FileUtil.createDirectoryAtPath(FileUtil.projectRootPath);
     }
 
     @Value("${directory.image}")
@@ -38,17 +38,22 @@ public class FileUtil {
         FileUtil.createDirectoryAtPath(FileUtil.imagePath);
     }
 
-    public static String getFileResourcePath() {
-
-        if (fileResourcePath != null) return fileResourcePath;
-
+    private static void setFileResourcePath(){
         String os = System.getProperty("os.name").toLowerCase();
+        fileResourcePath = (os.contains("win") ? "file:///" : "file:") + resourcePath;
+        if(fileResourcePath.charAt(fileResourcePath.length()-1) == '/'){
+            fileResourcePath = fileResourcePath.substring(0, fileResourcePath.length()-1);
+        }
+    }
 
-        fileResourcePath = (os.contains("win") ? "file:///" : "file:") +
-                resourcePath +
-                (resourcePath.endsWith("/") ? rootPath.substring(1) : rootPath);
+    public static String getFileResourcePath() {
+        if (fileResourcePath != null) return fileResourcePath + projectRootPath;
+        setFileResourcePath();
+        return fileResourcePath + projectRootPath;
+    }
 
-        return fileResourcePath;
+    public static String getImageResourcePath() {
+        return fileResourcePath + imagePath;
     }
 
     /**

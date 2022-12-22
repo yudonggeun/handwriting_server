@@ -15,6 +15,15 @@ public class Image {
     @Column(name = "IMAGE_NAME")
     private String imageName;
 
+    protected Image() {
+    }
+
+    public Image(long adId, int priority, String imageName) {
+        this.adId = adId;
+        this.priority = priority;
+        this.imageName = imageName;
+    }
+
     public int getPriority() {
         return priority;
     }

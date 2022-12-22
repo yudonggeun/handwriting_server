@@ -54,10 +54,7 @@ public class DataServiceJpaImpl implements DataService {
     @Override
     public boolean amendIntro(IntroDto dto) {
         Ad intro = adRepository.findByType(AdType.INTRO);
-        String detail = "";
-        for (String comment : dto.getComments())
-            detail += comment + "/#";
-
+        String detail = dto.getComment();
         intro.setDetail(detail);
         return true;
     }
