@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class FileServiceImpl implements FileService {
 
     private final ResourceLoader loader;
@@ -32,7 +34,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public String saveIntroFile(MultipartFile file) throws IOException {
-        Ad ad = adRepository.findByType(AdType.INTRO);
+        Ad ad = adRepository.findIntroAd();
         Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
         Path dir = resource.getFile().toPath();
         //파일 저장
@@ -41,7 +43,7 @@ public class FileServiceImpl implements FileService {
         if(!saveFile.exists()) saveFile.createNewFile();
         file.transferTo(location);
         //파일 db 저장
-        Image image = new Image(ad.getId(), Integer.MAX_VALUE, file.getOriginalFilename());
+        Image image = new Image(ad, Integer.MAX_VALUE, file.getOriginalFilename());
         imageRepository.save(image);
         return file.getOriginalFilename();
     }
@@ -57,9 +59,26 @@ public class FileServiceImpl implements FileService {
         if(!saveFile.exists()) saveFile.createNewFile();
         file.transferTo(location);
         //파일 db 저장
-        Image image = new Image(ad.getId(), Integer.MAX_VALUE, file.getOriginalFilename());
+        Image image = new Image(ad, Integer.MAX_VALUE, file.getOriginalFilename());
         imageRepository.save(image);
         return file.getOriginalFilename();
+    }
+
+    @Override
+    public void saveFiles(List<MultipartFile> files, long id) throws IOException {
+        Ad ad = adRepository.findById(id).orElseThrow();
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
+        Path dir = resource.getFile().toPath();
+        for (MultipartFile file : files) {
+            //파일 저장
+            Path location = dir.resolve(file.getOriginalFilename());
+            File saveFile = location.toFile();
+            if(!saveFile.exists()) saveFile.createNewFile();
+            file.transferTo(location);
+            //파일 db 저장
+            Image image = new Image(ad, Integer.MAX_VALUE, file.getOriginalFilename());
+            imageRepository.save(image);
+        }
     }
 
     @Override
@@ -74,8 +93,7 @@ public class FileServiceImpl implements FileService {
             log.info("파일 삭제 : " + file.delete());
         }
         //파일 db 삭제
-        List<Long> deleteImage = ad.getImages().stream().filter(image -> image.getImageName().equals(fileName)).mapToLong(Image::getId).boxed().collect(Collectors.toList());
-        imageRepository.deleteAllById(deleteImage);
+        imageRepository.deleteByImageNameAndAd(fileName, ad);
         return fileName;
     }
 
@@ -93,11 +111,9 @@ public class FileServiceImpl implements FileService {
             }
         }
         //파일 db 삭제
-        List<Long> deleteImage = ad.getImages().stream()
+        List<Image> deleteImage = ad.getImages().stream()
                 .filter(image -> fileNames.contains(image.getImageName()))
-                .mapToLong(Image::getId)
-                .boxed()
                 .collect(Collectors.toList());
-        imageRepository.deleteAllById(deleteImage);
+        imageRepository.deleteAllInBatch(deleteImage);
     }
 }

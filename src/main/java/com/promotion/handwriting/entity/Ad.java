@@ -7,7 +7,6 @@ import lombok.Getter;
 import javax.persistence.*;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -15,7 +14,7 @@ public class Ad {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private long id;
     @Enumerated(EnumType.STRING)
     @Column(name = "AD_TYPE")
     private AdType type;
@@ -25,10 +24,18 @@ public class Ad {
     private String detail;
     @Column(name = "RESOURCE_PATH")
     private String resourcePath;
-    @OneToMany(mappedBy = "adId", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "ad", fetch = FetchType.LAZY)
     private List<Image> images;
 
     protected Ad() {
+    }
+
+    public static Ad getProxyAd(long id){
+        return new Ad(id);
+    }
+
+    private Ad(long id){
+        this.id = id;
     }
 
     public Ad(AdType type, String title, String detail, String resourcePath, List<Image> images) throws IOException {

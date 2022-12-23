@@ -11,6 +11,8 @@ public interface FileService {
 
     String saveFile(MultipartFile file, long id) throws IOException;
 
+    void saveFiles(List<MultipartFile> files, long id) throws IOException;
+
     String deleteFile(String fileName, long id) throws IOException;
 
     void deleteFiles(Set<String> fileNames, long id) throws IOException;

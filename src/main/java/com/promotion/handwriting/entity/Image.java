@@ -8,8 +8,9 @@ public class Image {
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(name = "ad_id")
-    private long adId;
+    @JoinColumn(name = "ad_fk")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Ad ad;
     @Column(name = "PRIORITY")
     private int priority;
     @Column(name = "IMAGE_NAME")
@@ -22,8 +23,8 @@ public class Image {
         return id;
     }
 
-    public Image(long adId, int priority, String imageName) {
-        this.adId = adId;
+    public Image(Ad ad, int priority, String imageName) {
+        this.ad = ad;
         this.priority = priority;
         this.imageName = imageName;
     }
