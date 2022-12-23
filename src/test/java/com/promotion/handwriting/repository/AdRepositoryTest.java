@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -63,11 +64,9 @@ class AdRepositoryTest {
     @AfterEach
     void tearDown() {
         log.info("tear down");
-        adRepository.delete(test_intro_ad);
         test_content5.setImages(null);
         imageRepository.deleteAll();
-        adRepository.delete(test_content5);
-        adRepository.deleteAllInBatch(List.of(test_content1, test_content2, test_content3, test_content4));
+        adRepository.deleteAll();
     }
 
     @Test
@@ -80,19 +79,22 @@ class AdRepositoryTest {
         assertThat(test_intro_ad.getImages().size()).isEqualTo(intro.getImages().size());
         List<Image> images = test_intro_ad.getImages();
         List<Image> introImages = intro.getImages();
-        for (int i = 0; i < images.size(); i++) {
-            assertThat(introImages.contains(images.get(i))).isTrue();
+        for (Image image : images) {
+            assertThat(introImages.contains(image)).isTrue();
         }
     }
 
     @Test
-    void findAlByType() throws IOException {
+    void findAlByType() {
         List<Ad> contents = adRepository.findContents();
-        assertThat(contents.size()).isEqualTo(5);
-        level1:
+
         for (Ad content : contents) {
             assertThat(content.getType()).isEqualTo(AdType.CONTENT);
-            for (Ad ad : List.of(test_content1, test_content2, test_content3, test_content4, test_content5)) {
+        }
+
+        level1:
+        for (Ad ad : List.of(test_content1, test_content2, test_content3, test_content4, test_content5)) {
+            for (Ad content : contents) {
                 if (
                         content.getDetail().equals(ad.getDetail()) &&
                                 content.getResourcePath().equals(ad.getResourcePath()) &&
@@ -102,7 +104,6 @@ class AdRepositoryTest {
                     continue level1;
                 }
             }
-
             log.info("데이터 정합성 테스트 실패");
             assertThat(true).isFalse();
         }
@@ -110,7 +111,7 @@ class AdRepositoryTest {
     }
 
     @Test
-    void findAdWithImagesById() throws IOException {
+    void findAdWithImagesById() {
 
         Ad introAd = adRepository.findIntroAd();
         Ad targetAd = adRepository.findAdWithImagesById(introAd.getId());
@@ -121,10 +122,11 @@ class AdRepositoryTest {
         assertThat(test_intro_ad.getResourcePath()).isEqualTo(targetAd.getResourcePath());
         assertThat(test_intro_ad.getImages().size()).isEqualTo(targetAd.getImages().size());
 
-        List<Image> targetAdImages = targetAd.getImages();
-        List<Image> introImages = test_intro_ad.getImages();
-        for (int i = 0; i < introImages.size(); i++) {
-            assertThat(targetAdImages.contains(introImages.get(i))).isTrue();
+        List<String> targetAdImages = targetAd.getImages().stream().map(image -> image.getImageName() + image.getPriority() + image.getId()).collect(Collectors.toList());
+        List<String> introImages = test_intro_ad.getImages().stream().map(image -> image.getImageName() + image.getPriority() + image.getId()).collect(Collectors.toList());
+
+        for (String introImage : introImages) {
+            assertThat(targetAdImages.contains(introImage)).isTrue();
         }
     }
 }

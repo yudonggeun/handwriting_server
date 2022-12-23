@@ -8,8 +8,8 @@ public class Image {
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @JoinColumn(name = "ad_fk")
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ad_id")
     private Ad ad;
     @Column(name = "PRIORITY")
     private int priority;

@@ -24,7 +24,7 @@ public class Ad {
     private String detail;
     @Column(name = "RESOURCE_PATH")
     private String resourcePath;
-    @OneToMany(mappedBy = "ad", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "ad", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Image> images;
 
     protected Ad() {

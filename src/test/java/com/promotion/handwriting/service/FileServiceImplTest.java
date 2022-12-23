@@ -7,8 +7,6 @@ import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.AdRepository;
 import com.promotion.handwriting.util.FileUtil;
-import com.promotion.handwriting.util.UrlUtil;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -118,7 +116,7 @@ class FileServiceImplTest {
         DeleteFileDto dto = new DeleteFileDto();
         dto.setFiles(new LinkedList<>());
         dto.getFiles().add(deleteFile);
-        dataController.deleteDetailImages(ad.getId().toString(), dto);
+        dataController.deleteDetailImages(ad.getId()+"", dto);
 
         String imageResourcePath = FileUtil.getImageResourcePath();
         Resource resource = loader.getResource(imageResourcePath + contentAd.getResourcePath());
