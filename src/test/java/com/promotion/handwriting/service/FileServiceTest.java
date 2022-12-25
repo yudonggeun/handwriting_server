@@ -27,7 +27,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
-class FileServiceImplTest {
+class FileServiceTest {
 
     @Autowired
     FileService fileService;
@@ -47,7 +47,7 @@ class FileServiceImplTest {
             "image/png",
             new FileInputStream(resource.getFile()));
 
-    FileServiceImplTest() throws IOException {
+    FileServiceTest() throws IOException {
     }
 
     @BeforeEach
@@ -88,7 +88,6 @@ class FileServiceImplTest {
 
     @Test
     void deleteFile() throws IOException {
-
 
         Ad contentAd = new Ad(AdType.CONTENT, "test Content", "소개입니다.", "/" + "test_file", null);
         adRepository.save(contentAd);

@@ -87,6 +87,6 @@ public class DataController {
             @RequestParam("content_id") String id,
             @RequestParam(defaultValue = "0") int start,
             @RequestParam(defaultValue = "10") int count) throws IOException {
-        return dataService.getImageSrcByContentId(id, start, count);
+        return dataService.getImageSrcByContentId(id);
     }
 }

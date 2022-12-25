@@ -33,16 +33,21 @@ public class DataServiceImpl implements DataService {
         Ad intro = adRepository.findIntroAd();
         if(intro == null){
             Ad ad = new Ad(AdType.INTRO, "", "소개글을 작성해주세요", "/intro", null);
+            Image image = new Image(ad, 0, "no_image_jpg");
             adRepository.save(ad);
+            imageRepository.save(image);
         }
     }
 
     @Override
     public void createContentAd(ContentDto dto) throws IOException {
         Ad ad = new Ad(AdType.CONTENT, dto.getTitle(), dto.getDescription(), "/content/" + UUID.randomUUID(), null);
+        List<Image> newImages = dto.getImages().stream().map(imageName -> new Image(ad, Integer.MAX_VALUE, imageName)).collect(Collectors.toList());
         adRepository.save(ad);
+        imageRepository.saveAll(newImages);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public IntroDto getIntroDto() {
         Ad intro = adRepository.findIntroAd();
@@ -52,25 +57,24 @@ public class DataServiceImpl implements DataService {
         return dto;
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public ContentDto getContentDtoById(long id) {
+        Ad findAd = adRepository.getReferenceById(id);
+        return ContentDto.convert(findAd);
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public List<ContentDto> getContentDtos() {
         return adRepository.findContents().stream()
-                .map(ad -> {
-                    ContentDto dto = new ContentDto();
-                    dto.setId(ad.getId()+"");
-                    dto.setTitle(ad.getTitle());
-                    dto.setDescription(ad.getDetail());
-                    List<String> images = ad.getImages().stream()
-                            .map(image -> UrlUtil.getImageUrl(ad.getResourcePath(), image))
-                            .collect(Collectors.toList());
-                    dto.setImages(images);
-                    return dto;
-                })
+                .map(ContentDto::convert)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public List<String> getImageSrcByContentId(String id, int start, int count) {
+    public List<String> getImageSrcByContentId(String id) {
         Ad ad = adRepository.findAdWithImagesById(Long.parseLong(id));
         return ad.getImages()
                 .stream()

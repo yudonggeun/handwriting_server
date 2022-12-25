@@ -18,11 +18,13 @@ public interface DataService {
      */
     void createContentAd(ContentDto dto) throws IOException;
 
+    ContentDto getContentDtoById(long id);
+
     List<ContentDto> getContentDtos() throws IOException;
 
     IntroDto getIntroDto();
 
-    List<String> getImageSrcByContentId(String id, int start, int count) throws IOException;
+    List<String> getImageSrcByContentId(String id) throws IOException;
 
     boolean amendContent(ContentDto dto);
 

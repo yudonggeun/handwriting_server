@@ -11,11 +11,13 @@ import java.util.List;
 
 public interface ImageRepository extends JpaRepository<Image, Long> {
 
-    List<Image> findByAdId(@Param("adId") Long id);
+    List<Image> findByAd(@Param("adId") Ad ad);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("delete from Image m where m.imageName = :imageName and m.ad = :ad")
     void deleteByImageNameAndAd(@Param("imageName") String imageName, @Param("ad") Ad ad);
 
+    @Modifying(clearAutomatically = true)
+    @Query("delete from Image m where m.ad = :ad")
     void deleteAllByAd(@Param("ad") Ad ad);
 }
