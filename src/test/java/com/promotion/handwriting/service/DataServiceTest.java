@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 
-import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -34,8 +33,11 @@ class DataServiceTest {
 
     @BeforeEach
     public void createData() throws IOException {
+        log.info("create Data start");
+        log.info("create intro");
         //create intro ad
         dataService.createIntroAd();
+        log.info("create content");
         //create content ad
         contentDto = new ContentDto();
         contentDto.addImage("image1" + UUID.randomUUID());
@@ -44,10 +46,12 @@ class DataServiceTest {
         contentDto.setDescription("create content ad test detail" + UUID.randomUUID());
 
         dataService.createContentAd(contentDto);
+        log.info("test method start");
     }
 
     @AfterEach
     public void deleteData(){
+        log.info("delete data start");
         imageRepository.deleteAllInBatch();
         adRepository.deleteAllInBatch();
     }
@@ -108,10 +112,12 @@ class DataServiceTest {
         IntroDto findIntroDto = dataService.getIntroDto();
 
         List<String> comments = findIntroDto.getComments();
+        log.info("set : "  + introDto.getImage());
+        log.info("find : " + findIntroDto.getImage());
         for (String comment : comments) {
             assertThat(introDto.getComments().contains(comment)).isTrue();
         }
-        assertThat(introDto.getImage()).isEqualTo(findIntroDto.getImage());
+        assertThat(findIntroDto.getImage().contains(introDto.getImage())).isTrue();
     }
 
     @Test

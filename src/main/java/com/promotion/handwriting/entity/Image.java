@@ -13,6 +13,7 @@ public class Image {
     private Ad ad;
     @Column(name = "PRIORITY")
     private int priority;
+
     @Column(name = "IMAGE_NAME")
     private String imageName;
 
@@ -33,11 +34,15 @@ public class Image {
         return priority;
     }
 
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
-
     public String getImageName() {
         return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 }

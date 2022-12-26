@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequestMapping("/data")
@@ -35,34 +34,46 @@ public class DataController {
         return dataService.getIntroDto();
     }
 
+    @PostMapping("/intro")
+    public Object amendPromotionIntro(@RequestPart(name = "file", required = false) MultipartFile file,
+                                      @RequestPart(name = "dto") IntroDto dto) throws IOException {
+        log.info(dto.toString());
+        log.info("file : " + (file == null ? "null" : file.getOriginalFilename()));
+
+        dto.setImage(UrlUtil.removeUrlPath(dto.getImage()));
+        if (file != null) {
+            String newImageFileName = fileService.saveIntroFile(file);
+            dto.setImage(newImageFileName);
+        }
+        return dataService.amendIntro(dto);
+    }
+
     @PostMapping("/content")
     public Object amendPromotionContent(@RequestBody ContentDto dto) {
         log.debug("POST : /data/content [input] >> " + dto);
         return dataService.amendContent(dto);
     }
 
-    @PostMapping("/intro")
-    public Object amendPromotionIntro(@RequestPart(name = "file", required = false) MultipartFile file,
-                               @RequestPart(name = "dto") IntroDto dto) throws IOException {
+    @PutMapping("/content")
+    public Object createDetail(@RequestPart(name = "dto") ContentDto dto,
+                               @RequestPart("image") List<MultipartFile> imageFiles) throws IOException {
+        log.info("PUT : /data/content [input] >> dto : " + dto);
+        log.info("PUT : /data/content [input] >> imageFiles" + imageFiles);
 
-        log.info(dto.toString());
-        log.info("file : " + (file == null ? "null" : file.getOriginalFilename()));
+        ContentDto contentAd = dataService.createContentAd(dto);
+        fileService.saveFiles(imageFiles, Long.parseLong(contentAd.getId()));
 
-        dto.setImage(UrlUtil.removeUrlPath(dto.getImage()));
-        boolean success = dataService.amendIntro(dto);
-        if (file != null) {
-            fileService.saveIntroFile(file);
-        }
-        return success;
+        return true;
     }
 
     @PutMapping("/detail/{id}")
     public Object addDetailImages(@PathVariable("id") String id,
-                           @RequestPart(name = "image", required = false) List<MultipartFile> files) throws IOException {
+                                  @RequestPart(name = "image", required = false) List<MultipartFile> imageFiles) throws IOException {
         log.info("append images at " + id);
 
-        for (MultipartFile file : files) {
+        for (MultipartFile file : imageFiles) {
             String filename = fileService.saveFile(file, Long.parseLong(id));
+            dataService.createImageAtAd(filename, Long.parseLong(id));
             log.info("file save : " + filename);
         }
 
@@ -70,14 +81,16 @@ public class DataController {
     }
 
     @DeleteMapping("/detail/{id}")
-    public Object deleteDetailImages(@PathVariable("id") String id,
-                           @RequestBody DeleteFileDto fileUrls) throws IOException {
-        log.info("delete images at " + id);
+    public Object deleteDetailImages(@PathVariable("id") String adId,
+                                     @RequestBody DeleteFileDto fileUrls) throws IOException {
+        log.info("delete images at " + adId);
 
-        Set<String> fileSet = fileUrls.getFiles().stream()
+        List<String> fileList = fileUrls.getFiles().stream()
                 .map(UrlUtil::removeUrlPath)
-                .collect(Collectors.toSet());
-        fileService.deleteFiles(fileSet, Long.parseLong(id));
+                .collect(Collectors.toList());
+
+        dataService.deleteImages(fileList, Long.parseLong(adId));
+        fileService.deleteFiles(fileList, Long.parseLong(adId));
 
         return true;
     }

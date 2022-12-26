@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,32 +29,39 @@ public class DataServiceImpl implements DataService {
     private final ImageRepository imageRepository;
 
     @Override
-    public void createIntroAd() throws IOException {
+    public IntroDto createIntroAd() throws IOException {
         Ad intro = adRepository.findIntroAd();
         if(intro == null){
-            Ad ad = new Ad(AdType.INTRO, "", "소개글을 작성해주세요", "/intro", null);
-            Image image = new Image(ad, 0, "no_image_jpg");
-            adRepository.save(ad);
-            imageRepository.save(image);
+            intro = new Ad(AdType.INTRO, "", "소개글을 작성해주세요", "/intro", new ArrayList<>());
+            Image image = new Image(intro, 0, "no_image_jpg");
+            intro = adRepository.save(intro);
+            intro.getImages().add(image);
         }
+        return IntroDto.convert(intro);
     }
 
     @Override
-    public void createContentAd(ContentDto dto) throws IOException {
+    public ContentDto createContentAd(ContentDto dto) throws IOException {
         Ad ad = new Ad(AdType.CONTENT, dto.getTitle(), dto.getDescription(), "/content/" + UUID.randomUUID(), null);
         List<Image> newImages = dto.getImages().stream().map(imageName -> new Image(ad, Integer.MAX_VALUE, imageName)).collect(Collectors.toList());
+        ad.setImages(newImages);
         adRepository.save(ad);
-        imageRepository.saveAll(newImages);
+        return ContentDto.convert(ad);
+    }
+
+    @Override
+    public String createImageAtAd(String imageFile, long adId) {
+        Ad ad = adRepository.findById(adId).orElseThrow();
+        Image image = new Image(ad, Integer.MAX_VALUE, imageFile);
+        imageRepository.save(image);
+        return imageFile;
     }
 
     @Transactional(readOnly = true)
     @Override
     public IntroDto getIntroDto() {
         Ad intro = adRepository.findIntroAd();
-        IntroDto dto = new IntroDto();
-        dto.setComments(Arrays.stream(intro.getDetail().split(IntroDto.separate)).collect(Collectors.toList()));
-        dto.setImage(UrlUtil.getImageUrl(intro.getResourcePath(), intro.getImages().get(0)));
-        return dto;
+        return IntroDto.convert(intro);
     }
 
     @Transactional(readOnly = true)
@@ -100,8 +107,9 @@ public class DataServiceImpl implements DataService {
 
         intro.setDetail(sb.toString());
         if (dto.getImage() != null) {
-            imageRepository.deleteAllByAd(intro);
-            imageRepository.save(new Image(intro, 0, dto.getImage()));
+            List<Image> images = intro.getImages();
+            Image image = images.get(0);
+            image.setImageName(dto.getImage());
         }
         return true;
     }
@@ -110,5 +118,14 @@ public class DataServiceImpl implements DataService {
     public void deleteAd(long id) {
         imageRepository.deleteAllByAd(Ad.getProxyAd(id));
         adRepository.deleteById(id);
+    }
+
+    @Override
+    public void deleteImages(List<String> fileNames, long adId) {
+        Ad ad = adRepository.findAdWithImagesById(adId);
+        List<Image> deleteImage = ad.getImages().stream()
+                .filter(image -> fileNames.contains(image.getImageName()))
+                .collect(Collectors.toList());
+        imageRepository.deleteAllInBatch(deleteImage);
     }
 }

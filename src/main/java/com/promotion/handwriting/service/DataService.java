@@ -11,12 +11,14 @@ public interface DataService {
     /**
      * create intro Ad
      */
-    void createIntroAd() throws IOException;
+    IntroDto createIntroAd() throws IOException;
 
     /**
      * create content Ad
      */
-    void createContentAd(ContentDto dto) throws IOException;
+    ContentDto createContentAd(ContentDto dto) throws IOException;
+
+    String createImageAtAd(String imageFile, long adId);
 
     ContentDto getContentDtoById(long id);
 
@@ -34,4 +36,6 @@ public interface DataService {
      * delete Ad
      */
     void deleteAd(long id);
+
+    void deleteImages(List<String> fileNames, long adId);
 }
