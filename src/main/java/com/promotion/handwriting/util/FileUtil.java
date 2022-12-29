@@ -53,6 +53,8 @@ public class FileUtil {
     }
 
     public static String getImageResourcePath() {
+        if (fileResourcePath != null) return fileResourcePath + imagePath;
+        setFileResourcePath();
         return fileResourcePath + imagePath;
     }
 

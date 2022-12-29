@@ -28,16 +28,16 @@ class AdRepositoryTest {
     @Autowired
     ImageRepository imageRepository;
 
-    Ad test_intro_ad = new Ad(AdType.INTRO, "", "소개입니다.", "/test_file", new LinkedList<>());
-    Ad test_content1 = new Ad(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1", new LinkedList<>());
-    Ad test_content2 = new Ad(AdType.CONTENT, "test Content2", "소2개입니다.", "/" + "test_file2", new LinkedList<>());
-    Ad test_content3 = new Ad(AdType.CONTENT, "test Content3", "소34개입니다.", "/" + "test_file34", new LinkedList<>());
-    Ad test_content4 = new Ad(AdType.CONTENT, "test Content4", "소4개입니다.", "/" + "test_fi4le", new LinkedList<>());
-    Ad test_content5 = new Ad(AdType.CONTENT, "findAdWithImagesById", "소개입니다.", "/test_file", new LinkedList<>());
+    Ad test_intro_ad = new Ad(AdType.INTRO, "", "소개입니다.", "/test_file");
+    Ad test_content1 = new Ad(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1");
+    Ad test_content2 = new Ad(AdType.CONTENT, "test Content2", "소2개입니다.", "/" + "test_file2");
+    Ad test_content3 = new Ad(AdType.CONTENT, "test Content3", "소34개입니다.", "/" + "test_file34");
+    Ad test_content4 = new Ad(AdType.CONTENT, "test Content4", "소4개입니다.", "/" + "test_fi4le");
+    Ad test_content5 = new Ad(AdType.CONTENT, "findAdWithImagesById", "소개입니다.", "/test_file");
 
-    Image image1 = new Image(test_content5, 0, "test1.png");
-    Image image2 = new Image(test_content5, 1, "test2.png");
-    Image image3 = new Image(test_content5, 3, "test3.png");
+    Image image1 = new Image(0, "test1.png");
+    Image image2 = new Image(1, "test2.png");
+    Image image3 = new Image(3, "test3.png");
 
     AdRepositoryTest() throws IOException {
     }
@@ -46,11 +46,7 @@ class AdRepositoryTest {
     void setUp() {
         log.info("set up");
 
-        image1 = imageRepository.save(image1);
-        image2 = imageRepository.save(image2);
-        image3 = imageRepository.save(image3);
-
-        test_content5.getImages().addAll(List.of(image1, image2, image3));
+        test_content5.addImages(List.of(image1, image2, image3));
 
         test_intro_ad = adRepository.save(test_intro_ad);
 
@@ -64,9 +60,12 @@ class AdRepositoryTest {
     @AfterEach
     void tearDown() {
         log.info("tear down");
-        test_content5.setImages(null);
-        imageRepository.deleteAll();
-        adRepository.deleteAll();
+        adRepository.delete(test_intro_ad);
+        adRepository.delete(test_content1);
+        adRepository.delete(test_content2);
+        adRepository.delete(test_content3);
+        adRepository.delete(test_content4);
+        adRepository.delete(test_content5);
     }
 
     @Test

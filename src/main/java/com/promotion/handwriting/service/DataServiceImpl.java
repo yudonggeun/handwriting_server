@@ -32,19 +32,21 @@ public class DataServiceImpl implements DataService {
     public IntroDto createIntroAd() throws IOException {
         Ad intro = adRepository.findIntroAd();
         if(intro == null){
-            intro = new Ad(AdType.INTRO, "", "소개글을 작성해주세요", "/intro", new ArrayList<>());
-            Image image = new Image(intro, 0, "no_image_jpg");
+            intro = new Ad(AdType.INTRO, "", "소개글을 작성해주세요", "/intro");
+            Image image = new Image(0, "no_image_jpg");
+            intro.addImage(image);
             intro = adRepository.save(intro);
-            intro.getImages().add(image);
         }
         return IntroDto.convert(intro);
     }
 
     @Override
     public ContentDto createContentAd(ContentDto dto) throws IOException {
-        Ad ad = new Ad(AdType.CONTENT, dto.getTitle(), dto.getDescription(), "/content/" + UUID.randomUUID(), null);
-        List<Image> newImages = dto.getImages().stream().map(imageName -> new Image(ad, Integer.MAX_VALUE, imageName)).collect(Collectors.toList());
-        ad.setImages(newImages);
+        Ad ad = new Ad(AdType.CONTENT, dto.getTitle(), dto.getDescription(), "/content/" + UUID.randomUUID());
+        dto.getImages().forEach(imageName -> {
+            Image image = new Image(Integer.MAX_VALUE, imageName);
+            ad.addImage(image);
+        });
         adRepository.save(ad);
         return ContentDto.convert(ad);
     }
@@ -52,8 +54,8 @@ public class DataServiceImpl implements DataService {
     @Override
     public String createImageAtAd(String imageFile, long adId) {
         Ad ad = adRepository.findById(adId).orElseThrow();
-        Image image = new Image(ad, Integer.MAX_VALUE, imageFile);
-        imageRepository.save(image);
+        Image image = new Image(Integer.MAX_VALUE, imageFile);
+        ad.addImage(image);
         return imageFile;
     }
 

@@ -7,6 +7,7 @@ import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.AdRepository;
 import com.promotion.handwriting.util.FileUtil;
+import com.promotion.handwriting.util.UrlUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,8 +37,6 @@ class FileServiceTest {
     @Autowired
     ResourceLoader loader;
     @Autowired
-    DataService dataService;
-    @Autowired
     DataController dataController;
 
     Ad ad;
@@ -52,7 +51,7 @@ class FileServiceTest {
 
     @BeforeEach
     void inputData() throws IOException {
-        ad = new Ad(AdType.INTRO, "", "소개입니다.", "/test_file", null);
+        ad = new Ad(AdType.INTRO, "", "소개입니다.", "/test_file");
         adRepository.save(ad);
     }
 
@@ -89,34 +88,16 @@ class FileServiceTest {
     @Test
     void deleteFile() throws IOException {
 
-        Ad contentAd = new Ad(AdType.CONTENT, "test Content", "소개입니다.", "/" + "test_file", null);
-        adRepository.save(contentAd);
+        //save File
+        Ad contentAd = new Ad(AdType.CONTENT, "test Content", "소개입니다.", "/test_file");
+        contentAd = adRepository.save(contentAd);
         fileService.saveFile(file, contentAd.getId());
-        List<ContentDto> dtos = dataService.getContentDtos();
-        ContentDto target = null;
-        for (ContentDto dto : dtos) {
-            if(Long.parseLong(dto.getId()) == contentAd.getId()){
-                target = dto;
-                break;
-            }
-        }
-        assertThat(target).isNotNull();
-        List<String> images = target.getImages();
-        String deleteFile = null;
-        for (String image : images) {
-            if(image.contains(file.getOriginalFilename())){
-                deleteFile = image;
-                System.out.println("original : " + file.getOriginalFilename());
-                System.out.println("request : " + image);
-                break;
-            }
-        }
-        assertThat(deleteFile).isNotNull();
-        DeleteFileDto dto = new DeleteFileDto();
-        dto.setFiles(new LinkedList<>());
-        dto.getFiles().add(deleteFile);
-        dataController.deleteDetailImages(ad.getId()+"", dto);
 
+        //delete File
+        List<String> fileList = new LinkedList<>();
+        fileList.add(file.getOriginalFilename());
+        fileService.deleteFiles(fileList, contentAd.getId());
+        //assert
         String imageResourcePath = FileUtil.getImageResourcePath();
         Resource resource = loader.getResource(imageResourcePath + contentAd.getResourcePath());
         Path path = resource.getFile().toPath();

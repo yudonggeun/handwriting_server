@@ -57,8 +57,16 @@ public class DataController {
     @PutMapping("/content")
     public Object createDetail(@RequestPart(name = "dto") ContentDto dto,
                                @RequestPart("image") List<MultipartFile> imageFiles) throws IOException {
+
         log.info("PUT : /data/content [input] >> dto : " + dto);
         log.info("PUT : /data/content [input] >> imageFiles" + imageFiles);
+
+        if (dto.getImages().size() != imageFiles.size()) {
+            dto.setImages(imageFiles.stream()
+                    .map(MultipartFile::getOriginalFilename)
+                    .collect(Collectors.toList())
+            );
+        }
 
         ContentDto contentAd = dataService.createContentAd(dto);
         fileService.saveFiles(imageFiles, Long.parseLong(contentAd.getId()));
