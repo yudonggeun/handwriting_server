@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class DataController {
-
     private final DataService dataService;
+
     private final FileService fileService;
 
     @GetMapping("/content")
@@ -32,6 +32,14 @@ public class DataController {
     @GetMapping("/intro")
     public Object getPromotionIntroInformation() {
         return dataService.getIntroDto();
+    }
+
+    @GetMapping("/content/image")
+    public Object getImageList(
+            @RequestParam("content_id") String id,
+            @RequestParam(defaultValue = "0") int start,
+            @RequestParam(defaultValue = "10") int count) throws IOException {
+        return dataService.getImageSrcByContentId(id);
     }
 
     @PostMapping("/intro")
@@ -101,13 +109,5 @@ public class DataController {
         fileService.deleteFiles(fileList, Long.parseLong(adId));
 
         return true;
-    }
-
-    @GetMapping("/content/image")
-    public Object getImageList(
-            @RequestParam("content_id") String id,
-            @RequestParam(defaultValue = "0") int start,
-            @RequestParam(defaultValue = "10") int count) throws IOException {
-        return dataService.getImageSrcByContentId(id);
     }
 }
