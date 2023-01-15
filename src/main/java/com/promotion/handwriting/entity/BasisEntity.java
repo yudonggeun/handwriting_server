@@ -15,7 +15,7 @@ public class BasisEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @Column(name = "create_time", nullable = false)
-    private final LocalDateTime createTime;
+    private LocalDateTime createTime;
     @Column(name = "modify_time", nullable = false)
     private LocalDateTime modifyTime;
 

@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -33,7 +32,7 @@ public class DataServiceImpl implements DataService {
         Ad intro = adRepository.findIntroAd();
         if(intro == null){
             intro = new Ad(AdType.INTRO, "", "소개글을 작성해주세요", "/intro");
-            Image image = new Image(0, "no_image_jpg");
+            Image image = Image.builder().priority(0).imageName("no_image_jpg").build();
             intro.addImage(image);
             intro = adRepository.save(intro);
         }
@@ -44,7 +43,7 @@ public class DataServiceImpl implements DataService {
     public ContentDto createContentAd(ContentDto dto) throws IOException {
         Ad ad = new Ad(AdType.CONTENT, dto.getTitle(), dto.getDescription(), "/content/" + UUID.randomUUID());
         dto.getImages().forEach(imageName -> {
-            Image image = new Image(Integer.MAX_VALUE, imageName);
+            Image image = Image.builder().priority(Integer.MAX_VALUE).imageName(imageName).build();
             ad.addImage(image);
         });
         adRepository.save(ad);
@@ -54,7 +53,7 @@ public class DataServiceImpl implements DataService {
     @Override
     public String createImageAtAd(String imageFile, long adId) {
         Ad ad = adRepository.findById(adId).orElseThrow();
-        Image image = new Image(Integer.MAX_VALUE, imageFile);
+        Image image = Image.builder().priority(Integer.MAX_VALUE).imageName(imageFile).build();
         ad.addImage(image);
         return imageFile;
     }
@@ -118,7 +117,7 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public void deleteAd(long id) {
-        imageRepository.deleteAllByAd(Ad.getProxyAd(id));
+        imageRepository.deleteAllByAd(id);
         adRepository.deleteById(id);
     }
 
