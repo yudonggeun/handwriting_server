@@ -12,24 +12,28 @@ spring:
       enabled: true
       max-file-size: 100MB
       max-request-size: 120MB
+
   datasource:
     url: jdbc:mysql://localhost:3306/handwriting?serverTimezone=UTC&characterEncoding=UTF-8
     username: root
     password: qwerasdf
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: create #스테이징과 운영 서버는 validate 또는 none
+    show-sql: true
     properties:
       hiberate:
-        show-sql: true
         format-sql: true
 
 logging:
   level:
     root: info
-    org.hibernate.SQL: info
-    org.hibernate.type: info
+    org:
+      hibernate:
+        SQL: info
+        type: info
 
 directory:
   root: "/handwriting_resources"
@@ -38,3 +42,8 @@ directory:
 url:
   default: "/api"
   image: "/api/image"
+
+JWT:
+  EXPIRE_MINUTE: 10
+  ISSUER: "kim yang ja"
+  SECRET: "12345789123456978946521321351531"

@@ -2,7 +2,8 @@ package com.promotion.handwriting.controller;
 
 import com.promotion.handwriting.dto.AdminDto;
 import com.promotion.handwriting.dto.LoginDto;
-import com.promotion.handwriting.service.LoginService;
+import com.promotion.handwriting.security.JwtService;
+import com.promotion.handwriting.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,8 @@ import java.io.IOException;
 @Slf4j
 public class AdminController {
 
-    private final LoginService loginService;
+    private final JwtService jwtService;
+    private final UserService loginService;
 
     @RequestMapping("/isAmend")
     Object isAmendPossible(HttpServletRequest request) {
@@ -29,24 +31,25 @@ public class AdminController {
         return adminDto;
     }
 
+    @PostMapping("/join")
+    Object join(@RequestBody LoginDto dto) {
+        log.info("input data : " + dto);
+        return loginService.join(dto.getId(), dto.getPw());
+    }
+
     @PostMapping("/login")
-    Object requestLogin(HttpServletRequest request, @RequestBody LoginDto dto) throws IOException {
+    Object requestLogin(@RequestBody LoginDto dto, HttpServletResponse response) throws IOException {
 
         log.info("input data : " + dto);
         boolean isAdmin = loginService.login(dto.getId(), dto.getPw());
 
-        request.getSession(isAdmin);
+        String jwtToken = jwtService.createJwt(dto.getId());
+        response.setHeader("Authorization", "Bearer " + jwtToken);
+        log.info("jwt token : " + response.getHeader("Authorization"));
+
         AdminDto adminDto = new AdminDto();
         adminDto.setAmendAuthority(isAdmin);
         adminDto.setStatus(true);
         return adminDto;
-    }
-
-    @RequestMapping("/logout")
-    String requestLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession();
-        session.invalidate();
-        response.sendRedirect("/");
-        return "{}";
     }
 }
