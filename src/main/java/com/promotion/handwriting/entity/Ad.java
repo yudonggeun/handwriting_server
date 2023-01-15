@@ -3,6 +3,7 @@ package com.promotion.handwriting.entity;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.util.FileUtil;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
@@ -15,11 +16,8 @@ import java.util.stream.Collectors;
 @Entity
 @Getter
 @Slf4j
-public class Ad {
-    @Id
-    @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+@NoArgsConstructor
+public class Ad extends BasisEntity{
     @Enumerated(EnumType.STRING)
     @Column(name = "AD_TYPE")
     private AdType type;
@@ -32,18 +30,8 @@ public class Ad {
     @OneToMany(mappedBy = "ad", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
 
-    protected Ad() {
-    }
-
-    public static Ad getProxyAd(long id){
-        return new Ad(id);
-    }
-
-    private Ad(long id){
-        this.id = id;
-    }
-
     public Ad(AdType type, String title, String detail, String resourcePath) throws IOException {
+        super();
         this.type = type;
         this.title = title;
         this.detail = detail;
@@ -54,10 +42,12 @@ public class Ad {
     }
 
     public void setTitle(String title) {
+        updateModifyTime();
         this.title = title;
     }
 
     public void setDetail(String detail) {
+        updateModifyTime();
         this.detail = detail;
     }
 

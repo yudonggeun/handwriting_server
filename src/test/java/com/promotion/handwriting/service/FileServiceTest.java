@@ -1,13 +1,10 @@
 package com.promotion.handwriting.service;
 
 import com.promotion.handwriting.controller.DataController;
-import com.promotion.handwriting.dto.ContentDto;
-import com.promotion.handwriting.dto.DeleteFileDto;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.AdRepository;
 import com.promotion.handwriting.util.FileUtil;
-import com.promotion.handwriting.util.UrlUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

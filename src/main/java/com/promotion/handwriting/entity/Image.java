@@ -1,13 +1,13 @@
 package com.promotion.handwriting.entity;
 
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
 @Entity
-public class Image {
-    @Id
-    @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+@NoArgsConstructor
+public class Image extends BasisEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ad_id")
@@ -18,14 +18,8 @@ public class Image {
     @Column(name = "IMAGE_NAME")
     private String imageName;
 
-    protected Image() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Image(int priority, String imageName) {
+    @Builder
+    private Image(int priority, String imageName) {
         this.priority = priority;
         this.imageName = imageName;
     }
@@ -39,14 +33,17 @@ public class Image {
     }
 
     public void setAd(Ad ad) {
+        updateModifyTime();
         this.ad = ad;
     }
 
     public void setImageName(String imageName) {
+        updateModifyTime();
         this.imageName = imageName;
     }
 
     public void setPriority(int priority) {
+        updateModifyTime();
         this.priority = priority;
     }
 }

@@ -11,7 +11,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,9 +34,9 @@ class AdRepositoryTest {
     Ad test_content4 = new Ad(AdType.CONTENT, "test Content4", "소4개입니다.", "/" + "test_fi4le");
     Ad test_content5 = new Ad(AdType.CONTENT, "findAdWithImagesById", "소개입니다.", "/test_file");
 
-    Image image1 = new Image(0, "test1.png");
-    Image image2 = new Image(1, "test2.png");
-    Image image3 = new Image(3, "test3.png");
+    Image image1 = Image.builder().priority(0).imageName("test1.png").build();
+    Image image2 = Image.builder().priority(1).imageName("test2.png").build();
+    Image image3 = Image.builder().priority(3).imageName("test3.png").build();
 
     AdRepositoryTest() throws IOException {
     }

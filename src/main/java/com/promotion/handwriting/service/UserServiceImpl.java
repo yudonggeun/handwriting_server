@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             User user = userRepository.findById(id).orElseThrow();
             log.info("password : " + pw + " match result : " + encoder.matches(pw, user.getPassword()));
             return encoder.matches(pw, user.getPassword());
-        } catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
@@ -34,10 +34,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public boolean join(String id, String pw) {
         long userCount = userRepository.count();
-        if(userCount != 0){
+        if (userCount != 0) {
             return false;
         }
-        User newUser = new User(id, encoder.encode(pw), UserType.OWNER);
+        User newUser = User.builder().userId(id).password(encoder.encode(pw)).type(UserType.OWNER).build();
         userRepository.save(newUser);
         return true;
     }

@@ -27,7 +27,7 @@ public class UserToken implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getId();
+        return user.getUserId();
     }
 
     @Override
