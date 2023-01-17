@@ -23,10 +23,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public boolean login(String id, String pw) {
         try {
-            User user = userRepository.findById(id).orElseThrow();
+            User user = userRepository.findByUserId(id).orElseThrow();
             log.info("password : " + pw + " match result : " + encoder.matches(pw, user.getPassword()));
             return encoder.matches(pw, user.getPassword());
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -44,7 +45,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findById(username).orElseThrow();
+        User user = userRepository.findByUserId(username).orElseThrow();
         return new UserToken(user);
     }
 }

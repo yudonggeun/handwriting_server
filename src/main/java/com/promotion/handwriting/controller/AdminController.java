@@ -24,9 +24,12 @@ public class AdminController {
 
     @RequestMapping("/isAmend")
     Object isAmendPossible(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
         AdminDto adminDto = new AdminDto();
-        adminDto.setAmendAuthority(session != null);
+
+        String token = request.getParameter("Authorization");
+        String username = token == null ? null : jwtService.getUserName(token);
+
+        adminDto.setAmendAuthority(username != null);
         adminDto.setStatus(true);
         return adminDto;
     }
@@ -43,10 +46,11 @@ public class AdminController {
         log.info("input data : " + dto);
         boolean isAdmin = loginService.login(dto.getId(), dto.getPw());
 
-        String jwtToken = jwtService.createJwt(dto.getId());
-        response.setHeader("Authorization", "Bearer " + jwtToken);
-        log.info("jwt token : " + response.getHeader("Authorization"));
-
+        if(isAdmin) {
+            String jwtToken = jwtService.createJwt(dto.getId());
+            response.setHeader("Authorization", "Bearer " + jwtToken);
+            log.info("jwt token : " + response.getHeader("Authorization"));
+        }
         AdminDto adminDto = new AdminDto();
         adminDto.setAmendAuthority(isAdmin);
         adminDto.setStatus(true);

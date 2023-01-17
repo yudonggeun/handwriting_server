@@ -25,19 +25,20 @@ public class JwtFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        log.info("jwt filter method [doFilter]");
         HttpServletRequest httpRequest = (HttpServletRequest) request;
 
         String jwtHeader = httpRequest.getHeader("Authorization");
-        log.info("jwt header : " + jwtHeader);
 
         if (jwtHeader == null || !jwtHeader.startsWith("Bearer")) {
             chain.doFilter(request, response);
             return;
         }
+        log.info("jwt header : " + jwtHeader);
+        log.info("jwt filter method [doFilter]");
         String jwtToken = jwtHeader.replace("Bearer", "").trim();
 
-        String userName = jwtService.getUserName(jwtToken);
+        String userName = jwtService.getUserName(jwtToken);//서명 확인
+
         log.info("username : " + userName);
         if (userName != null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(userName);

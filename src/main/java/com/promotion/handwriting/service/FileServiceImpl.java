@@ -1,9 +1,7 @@
 package com.promotion.handwriting.service;
 
 import com.promotion.handwriting.entity.Ad;
-import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.repository.AdRepository;
-import com.promotion.handwriting.repository.ImageRepository;
 import com.promotion.handwriting.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +16,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
