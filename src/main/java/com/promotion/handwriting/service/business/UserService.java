@@ -1,4 +1,4 @@
-package com.promotion.handwriting.service;
+package com.promotion.handwriting.service.business;
 
 import java.io.IOException;
 

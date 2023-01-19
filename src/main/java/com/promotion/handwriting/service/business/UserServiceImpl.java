@@ -1,4 +1,4 @@
-package com.promotion.handwriting.service;
+package com.promotion.handwriting.service.business;
 
 import com.promotion.handwriting.entity.User;
 import com.promotion.handwriting.enums.UserType;

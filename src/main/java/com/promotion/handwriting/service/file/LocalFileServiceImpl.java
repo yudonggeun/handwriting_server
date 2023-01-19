@@ -1,10 +1,11 @@
-package com.promotion.handwriting.service;
+package com.promotion.handwriting.service.file;
 
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.repository.AdRepository;
 import com.promotion.handwriting.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
@@ -17,11 +18,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+@Primary
 @Service
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
-public class FileServiceImpl implements FileService {
+public class LocalFileServiceImpl implements FileService {
 
     private final ResourceLoader loader;
 
@@ -41,7 +43,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String saveFile(MultipartFile file, long id) throws IOException {
+    public String saveContentFile(MultipartFile file, long id) throws IOException {
         Ad ad = adRepository.findById(id).orElseThrow();
         Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
         Path dir = resource.getFile().toPath();
@@ -89,7 +91,6 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public List<String> deleteFiles(List<String> fileNames, long id) throws IOException {
-
         Ad ad = adRepository.findAdWithImagesById(id);
         Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
         Path dir = resource.getFile().toPath();
@@ -101,7 +102,6 @@ public class FileServiceImpl implements FileService {
                 log.info("파일 삭제 : " + file.delete());
             }
         }
-
         return fileNames;
     }
 }

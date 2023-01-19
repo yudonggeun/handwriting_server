@@ -31,7 +31,7 @@ class ImageRepositoryTest {
     @Autowired
     ImageRepository imageRepository;
 
-    Ad ad = new Ad(AdType.CONTENT, "findAdWithImagesById", "소개입니다.", "/test_file");
+    Ad ad = Ad.createAd(AdType.CONTENT, "findAdWithImagesById", "소개입니다.", "/test_file");
 
     Image image1 = Image.builder().priority(0).imageName("test1.png").build();
     Image image2 = Image.builder().priority(1).imageName("test2.png").build();

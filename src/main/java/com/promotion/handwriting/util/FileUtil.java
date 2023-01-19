@@ -3,7 +3,9 @@ package com.promotion.handwriting.util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
@@ -81,5 +83,11 @@ public class FileUtil {
      */
     public static void createImageDirectory(String path) throws IOException {
         createDirectoryAtPath(imagePath + path);
+    }
+
+    public static File covertFile(MultipartFile file, String fileName) throws IOException {
+        File uploadFile = new File(fileName);
+        file.transferTo(uploadFile);
+        return uploadFile;
     }
 }

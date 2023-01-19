@@ -21,7 +21,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create #스테이징과 운영 서버는 validate 또는 none
+      ddl-auto: update #스테이징과 운영 서버는 validate 또는 none
     show-sql: true
     properties:
       hiberate:
@@ -47,3 +47,9 @@ JWT:
   EXPIRE_MINUTE: 10
   ISSUER: "kim yang ja"
   SECRET: "12345789123456978946521321351531"
+
+aws:
+  s3:
+    accessKey: "example key"
+    secretKey: "example key"
+    bucket: "example bucket"

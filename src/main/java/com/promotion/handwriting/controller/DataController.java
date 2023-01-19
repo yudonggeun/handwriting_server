@@ -3,8 +3,8 @@ package com.promotion.handwriting.controller;
 import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.DeleteFileDto;
 import com.promotion.handwriting.dto.IntroDto;
-import com.promotion.handwriting.service.DataService;
-import com.promotion.handwriting.service.FileService;
+import com.promotion.handwriting.service.business.DataService;
+import com.promotion.handwriting.service.file.FileService;
 import com.promotion.handwriting.util.UrlUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequestMapping("/data")
@@ -62,6 +63,18 @@ public class DataController {
         return dataService.amendContent(dto);
     }
 
+    @DeleteMapping("/content")
+    public Object deletePromotionContent(@RequestBody ContentDto dto){
+        log.info("DELETE : /data/content [input] >> " + dto);
+        long id = Long.parseLong(dto.getId());
+        dataService.deleteAd(id);
+        Optional<ContentDto> deleteId = dataService.getContentDtoById(id);
+
+        ContentDto contentDto = deleteId.orElse(null);
+        if(contentDto == null) return false;
+        return contentDto;
+    }
+
     @PutMapping("/content")
     public Object createDetail(@RequestPart(name = "dto") ContentDto dto,
                                @RequestPart("image") List<MultipartFile> imageFiles) throws IOException {
@@ -88,7 +101,7 @@ public class DataController {
         log.info("append images at " + id);
 
         for (MultipartFile file : imageFiles) {
-            String filename = fileService.saveFile(file, Long.parseLong(id));
+            String filename = fileService.saveContentFile(file, Long.parseLong(id));
             dataService.createImageAtAd(filename, Long.parseLong(id));
             log.info("file save : " + filename);
         }

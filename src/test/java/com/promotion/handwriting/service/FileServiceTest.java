@@ -4,6 +4,7 @@ import com.promotion.handwriting.controller.DataController;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.AdRepository;
+import com.promotion.handwriting.service.file.FileService;
 import com.promotion.handwriting.util.FileUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +49,7 @@ class FileServiceTest {
 
     @BeforeEach
     void inputData() throws IOException {
-        ad = new Ad(AdType.INTRO, "", "소개입니다.", "/test_file");
+        ad = Ad.createAd(AdType.INTRO, "", "소개입니다.", "/test_file");
         adRepository.save(ad);
     }
 
@@ -72,7 +73,7 @@ class FileServiceTest {
 
     @Test
     void saveFileAndDeleteFile() throws IOException {
-        fileService.saveFile(file, ad.getId());
+        fileService.saveContentFile(file, ad.getId());
         fileService.deleteFile(file.getOriginalFilename(), ad.getId());
 
         String imageResourcePath = FileUtil.getImageResourcePath();
@@ -86,9 +87,9 @@ class FileServiceTest {
     void deleteFile() throws IOException {
 
         //save File
-        Ad contentAd = new Ad(AdType.CONTENT, "test Content", "소개입니다.", "/test_file");
+        Ad contentAd = Ad.createAd(AdType.CONTENT, "test Content", "소개입니다.", "/test_file");
         contentAd = adRepository.save(contentAd);
-        fileService.saveFile(file, contentAd.getId());
+        fileService.saveContentFile(file, contentAd.getId());
 
         //delete File
         List<String> fileList = new LinkedList<>();

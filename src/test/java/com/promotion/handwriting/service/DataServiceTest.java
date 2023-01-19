@@ -4,6 +4,7 @@ import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.repository.AdRepository;
 import com.promotion.handwriting.repository.ImageRepository;
+import com.promotion.handwriting.service.business.DataService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,7 +96,7 @@ class DataServiceTest {
         before.setTitle("change title : " + UUID.randomUUID());
 
         dataService.amendContent(before);
-        ContentDto after = dataService.getContentDtoById(Long.parseLong(before.getId()));
+        ContentDto after = dataService.getContentDtoById(Long.parseLong(before.getId())).get();
 
         assertThat(before.getDescription()).isEqualTo(after.getDescription());
         assertThat(before.getTitle()).isEqualTo(after.getTitle());

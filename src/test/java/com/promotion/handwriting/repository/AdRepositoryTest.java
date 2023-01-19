@@ -27,12 +27,12 @@ class AdRepositoryTest {
     @Autowired
     ImageRepository imageRepository;
 
-    Ad test_intro_ad = new Ad(AdType.INTRO, "", "소개입니다.", "/test_file");
-    Ad test_content1 = new Ad(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1");
-    Ad test_content2 = new Ad(AdType.CONTENT, "test Content2", "소2개입니다.", "/" + "test_file2");
-    Ad test_content3 = new Ad(AdType.CONTENT, "test Content3", "소34개입니다.", "/" + "test_file34");
-    Ad test_content4 = new Ad(AdType.CONTENT, "test Content4", "소4개입니다.", "/" + "test_fi4le");
-    Ad test_content5 = new Ad(AdType.CONTENT, "findAdWithImagesById", "소개입니다.", "/test_file");
+    Ad test_intro_ad = Ad.createAd(AdType.INTRO, "", "소개입니다.", "/test_file");
+    Ad test_content1 = Ad.createAd(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1");
+    Ad test_content2 = Ad.createAd(AdType.CONTENT, "test Content2", "소2개입니다.", "/" + "test_file2");
+    Ad test_content3 = Ad.createAd(AdType.CONTENT, "test Content3", "소34개입니다.", "/" + "test_file34");
+    Ad test_content4 = Ad.createAd(AdType.CONTENT, "test Content4", "소4개입니다.", "/" + "test_fi4le");
+    Ad test_content5 = Ad.createAd(AdType.CONTENT, "findAdWithImagesById", "소개입니다.", "/test_file");
 
     Image image1 = Image.builder().priority(0).imageName("test1.png").build();
     Image image2 = Image.builder().priority(1).imageName("test2.png").build();

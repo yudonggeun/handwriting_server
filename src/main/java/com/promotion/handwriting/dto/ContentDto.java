@@ -23,6 +23,7 @@ public class ContentDto {
     }
 
     public static ContentDto convert(Ad ad){
+        if(ad == null) return null;
         if(ad.getType() != AdType.CONTENT){
             throw new RuntimeException("Ad type is not intro. convert method need AdType.CONTENT ad");
         }

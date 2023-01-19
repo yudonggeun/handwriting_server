@@ -2,6 +2,7 @@ package com.promotion.handwriting.entity;
 
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.util.FileUtil;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,15 +31,18 @@ public class Ad extends BasisEntity{
     @OneToMany(mappedBy = "ad", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
 
-    public Ad(AdType type, String title, String detail, String resourcePath) throws IOException {
+    public static Ad createAd(AdType type, String title, String detail, String resourcePath) throws IOException {
+        FileUtil.createImageDirectory(resourcePath);
+        return new Ad(type, title, detail, resourcePath);
+    }
+
+    private Ad(AdType type, String title, String detail, String resourcePath) {
         super();
         this.type = type;
         this.title = title;
         this.detail = detail;
         this.resourcePath = resourcePath;
         this.images = new ArrayList<>();
-
-        FileUtil.createImageDirectory(resourcePath);
     }
 
     public void setTitle(String title) {

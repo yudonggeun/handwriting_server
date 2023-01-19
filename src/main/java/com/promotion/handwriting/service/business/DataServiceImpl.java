@@ -1,4 +1,4 @@
-package com.promotion.handwriting.service;
+package com.promotion.handwriting.service.business;
 
 import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.IntroDto;
@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,7 @@ public class DataServiceImpl implements DataService {
     public IntroDto createIntroAd() throws IOException {
         Ad intro = adRepository.findIntroAd();
         if(intro == null){
-            intro = new Ad(AdType.INTRO, "", "소개글을 작성해주세요", "/intro");
+            intro = Ad.createAd(AdType.INTRO, "", "소개글을 작성해주세요", "/intro");
             Image image = Image.builder().priority(0).imageName("no_image_jpg").build();
             intro.addImage(image);
             intro = adRepository.save(intro);
@@ -41,7 +42,7 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public ContentDto createContentAd(ContentDto dto) throws IOException {
-        Ad ad = new Ad(AdType.CONTENT, dto.getTitle(), dto.getDescription(), "/content/" + UUID.randomUUID());
+        Ad ad = Ad.createAd(AdType.CONTENT, dto.getTitle(), dto.getDescription(), "/content/" + UUID.randomUUID());
         dto.getImages().forEach(imageName -> {
             Image image = Image.builder().priority(Integer.MAX_VALUE).imageName(imageName).build();
             ad.addImage(image);
@@ -67,9 +68,9 @@ public class DataServiceImpl implements DataService {
 
     @Transactional(readOnly = true)
     @Override
-    public ContentDto getContentDtoById(long id) {
-        Ad findAd = adRepository.getReferenceById(id);
-        return ContentDto.convert(findAd);
+    public Optional<ContentDto> getContentDtoById(long id) {
+        Optional<Ad> findAd = adRepository.findById(id);
+        return Optional.ofNullable(ContentDto.convert(findAd.orElse(null)));
     }
 
     @Transactional(readOnly = true)
