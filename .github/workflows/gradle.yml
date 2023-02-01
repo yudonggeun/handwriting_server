@@ -1,34 +1,70 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
-
 name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    tags:
+      - "v*"
+    branches:
+      - "master"
+
+env:
+  AWS_REGION: ap-northeast-2
+  S3_BUCKET_NAME: handwritingservercodebuildstorage
+  CODE_DEPLOY_APPLICATION_NAME: handwriting_front
+  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: handwriting-front-group
 
 permissions:
   contents: read
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu' # See 'Supported distributions' for available options
+          java-version: '11'
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build --exclude-task test
+
+    - name: Share artifact inside workflow
+      uses: actions/upload-artifact@v1
+      with:
+        name: build # upload 폴더 이름
+        path: build
+
+  deploy:
+    needs: build
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+      - name: Get artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: build # download 폴더 이름 : 실수 2 upload 폴더와 download 폴더 이름이 달라 에러 발생
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_GIT_ACTION_USER_NAME }} # 실수 4 IAM access key 생성해야하는데 AWS CodeCommit에 대한 HTTPS Git 자격 증명을 생성
+          aws-secret-access-key: ${{ secrets.AWS_GIT_ACTION_PASSWORD }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload to AWS S3
+        run: |
+          aws deploy push \
+          --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
+          --ignore-hidden-files \
+          --s3-location s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip \
+          --source .
+
+      - name: Deploy to AWS EC2 from S3
+        run: |
+          aws deploy create-deployment \
+            --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
+            --deployment-config-name CodeDeployDefault.AllAtOnce \
+            --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
+            --s3-location bucket=$S3_BUCKET_NAME,key=$GITHUB_SHA.zip,bundleType=zip
