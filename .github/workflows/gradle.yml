@@ -10,8 +10,8 @@ on:
 env:
   AWS_REGION: ap-northeast-2
   S3_BUCKET_NAME: handwritingservercodebuildstorage
-  CODE_DEPLOY_APPLICATION_NAME: handwriting_front
-  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: handwriting-front-group
+  CODE_DEPLOY_APPLICATION_NAME: handwriting_backend
+  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: handwriting-backend-group
 
 permissions:
   contents: read
