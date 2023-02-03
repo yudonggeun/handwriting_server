@@ -14,9 +14,9 @@ spring:
       max-request-size: 120MB
 
   datasource:
-    url: jdbc:mysql://localhost:3306/handwriting?serverTimezone=UTC&characterEncoding=UTF-8
-    username: root
-    password: qwerasdf
+    url: jdbc:mysql://handwriting.cyoyxp4jr4vl.ap-northeast-2.rds.amazonaws.com:3306/handwriting?serverTimezone=UTC&characterEncoding=UTF-8
+    username: yandk97
+    password: qwerasdf22
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
