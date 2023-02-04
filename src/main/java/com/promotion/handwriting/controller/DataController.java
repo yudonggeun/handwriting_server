@@ -64,35 +64,36 @@ public class DataController {
     }
 
     @DeleteMapping("/content")
-    public Object deletePromotionContent(@RequestBody ContentDto dto){
+    public Object deletePromotionContent(@RequestBody ContentDto dto) {
         log.info("DELETE : /data/content [input] >> " + dto);
         long id = Long.parseLong(dto.getId());
         dataService.deleteAd(id);
         Optional<ContentDto> deleteId = dataService.getContentDtoById(id);
 
         ContentDto contentDto = deleteId.orElse(null);
-        if(contentDto == null) return false;
-        return contentDto;
+        return contentDto == null;
     }
 
     @PutMapping("/content")
     public Object createDetail(@RequestPart(name = "dto") ContentDto dto,
-                               @RequestPart("image") List<MultipartFile> imageFiles) throws IOException {
+                               @RequestPart(value = "image", required = false) List<MultipartFile> imageFiles) throws IOException {
 
         log.info("PUT : /data/content [input] >> dto : " + dto);
-        log.info("PUT : /data/content [input] >> imageFiles" + imageFiles);
+        log.info("PUT : /data/content [input] >> imageFiles : " + imageFiles);
 
-        if (dto.getImages().size() != imageFiles.size()) {
+        if(imageFiles != null){
             dto.setImages(imageFiles.stream()
                     .map(MultipartFile::getOriginalFilename)
-                    .collect(Collectors.toList())
-            );
+                    .collect(Collectors.toList()));
         }
 
         ContentDto contentAd = dataService.createContentAd(dto);
-        fileService.saveFiles(imageFiles, Long.parseLong(contentAd.getId()));
 
-        return true;
+        if(imageFiles != null) {
+            fileService.saveFiles(imageFiles, Long.parseLong(contentAd.getId()));
+        }
+
+        return contentAd;
     }
 
     @PutMapping("/detail/{id}")
