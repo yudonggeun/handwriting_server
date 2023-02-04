@@ -1,8 +1,10 @@
 package com.promotion.handwriting.controller;
 
+import com.promotion.handwriting.dto.ApiResponse;
 import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.DeleteFileDto;
 import com.promotion.handwriting.dto.IntroDto;
+import com.promotion.handwriting.enums.ApiResponseStatus;
 import com.promotion.handwriting.service.business.DataService;
 import com.promotion.handwriting.service.file.FileService;
 import com.promotion.handwriting.util.UrlUtil;
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.promotion.handwriting.enums.ApiResponseStatus.*;
+
 @RequestMapping("/data")
 @RestController
 @RequiredArgsConstructor
@@ -26,102 +30,147 @@ public class DataController {
     private final FileService fileService;
 
     @GetMapping("/content")
-    public Object getPromotionInformation() throws IOException {
-        return dataService.getContentDtos();
+    public ApiResponse getPromotionInformation() {
+        try {
+            return ApiResponse.success(dataService.getContentDtos());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ApiResponse.fail(FAIL, null);
+        }
     }
 
     @GetMapping("/intro")
-    public Object getPromotionIntroInformation() {
-        return dataService.getIntroDto();
+    public ApiResponse getPromotionIntroInformation() {
+        try {
+            return ApiResponse.success(dataService.getIntroDto());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.fail(FAIL, null);
+        }
     }
 
     @GetMapping("/content/image")
-    public Object getImageList(
+    public ApiResponse getImageList(
             @RequestParam("content_id") String id,
             @RequestParam(defaultValue = "0") int start,
-            @RequestParam(defaultValue = "10") int count) throws IOException {
-        return dataService.getImageSrcByContentId(id);
+            @RequestParam(defaultValue = "10") int count) {
+        try {
+            return ApiResponse.success(dataService.getImageSrcByContentId(id));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.fail(FAIL, null);
+        }
     }
 
     @PostMapping("/intro")
-    public Object amendPromotionIntro(@RequestPart(name = "file", required = false) MultipartFile file,
-                                      @RequestPart(name = "dto") IntroDto dto) throws IOException {
+    public ApiResponse amendPromotionIntro(@RequestPart(name = "file", required = false) MultipartFile file,
+                                           @RequestPart(name = "dto") IntroDto dto) {
         log.info(dto.toString());
         log.info("file : " + (file == null ? "null" : file.getOriginalFilename()));
 
-        dto.setImage(UrlUtil.removeUrlPath(dto.getImage()));
-        if (file != null) {
-            String newImageFileName = fileService.saveIntroFile(file);
-            dto.setImage(newImageFileName);
+        try {
+            dto.setImage(UrlUtil.removeUrlPath(dto.getImage()));
+            if (file != null) {
+                String newImageFileName = fileService.saveIntroFile(file);
+                dto.setImage(newImageFileName);
+            }
+            return ApiResponse.success(dataService.amendIntro(dto));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.fail(FAIL, null);
         }
-        return dataService.amendIntro(dto);
     }
 
     @PostMapping("/content")
-    public Object amendPromotionContent(@RequestBody ContentDto dto) {
+    public ApiResponse amendPromotionContent(@RequestBody ContentDto dto) {
         log.debug("POST : /data/content [input] >> " + dto);
-        return dataService.amendContent(dto);
+        try {
+            return ApiResponse.success(dataService.amendContent(dto));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.fail(FAIL, null);
+        }
     }
 
     @DeleteMapping("/content")
-    public Object deletePromotionContent(@RequestBody ContentDto dto) {
+    public ApiResponse deletePromotionContent(@RequestBody ContentDto dto) {
         log.info("DELETE : /data/content [input] >> " + dto);
-        long id = Long.parseLong(dto.getId());
-        dataService.deleteAd(id);
-        Optional<ContentDto> deleteId = dataService.getContentDtoById(id);
 
-        ContentDto contentDto = deleteId.orElse(null);
-        return contentDto == null;
+        try {
+            long id = Long.parseLong(dto.getId());
+            dataService.deleteAd(id);
+            Optional<ContentDto> deleteId = dataService.getContentDtoById(id);
+
+            ContentDto contentDto = deleteId.orElse(null);
+            return ApiResponse.success(contentDto == null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.fail(FAIL, null);
+        }
     }
 
     @PutMapping("/content")
-    public Object createDetail(@RequestPart(name = "dto") ContentDto dto,
-                               @RequestPart(value = "image", required = false) List<MultipartFile> imageFiles) throws IOException {
+    public ApiResponse createDetail(@RequestPart(name = "dto") ContentDto dto,
+                                    @RequestPart(value = "image", required = false) List<MultipartFile> imageFiles) {
 
         log.info("PUT : /data/content [input] >> dto : " + dto);
         log.info("PUT : /data/content [input] >> imageFiles : " + imageFiles);
 
-        if(imageFiles != null){
-            dto.setImages(imageFiles.stream()
-                    .map(MultipartFile::getOriginalFilename)
-                    .collect(Collectors.toList()));
+        try {
+            if (imageFiles != null) {
+                dto.setImages(imageFiles.stream()
+                        .map(MultipartFile::getOriginalFilename)
+                        .collect(Collectors.toList()));
+            }
+
+            ContentDto contentAd = dataService.createContentAd(dto);
+
+            if (imageFiles != null) {
+                fileService.saveFiles(imageFiles, Long.parseLong(contentAd.getId()));
+            }
+
+            return ApiResponse.success(contentAd);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.fail(FAIL, null);
         }
-
-        ContentDto contentAd = dataService.createContentAd(dto);
-
-        if(imageFiles != null) {
-            fileService.saveFiles(imageFiles, Long.parseLong(contentAd.getId()));
-        }
-
-        return contentAd;
     }
 
     @PutMapping("/detail/{id}")
-    public Object addDetailImages(@PathVariable("id") String id,
-                                  @RequestPart(name = "image", required = false) List<MultipartFile> imageFiles) throws IOException {
+    public ApiResponse addDetailImages(@PathVariable("id") String id,
+                                       @RequestPart(name = "image", required = false) List<MultipartFile> imageFiles) {
         log.info("append images at " + id);
 
-        for (MultipartFile file : imageFiles) {
-            String filename = fileService.saveContentFile(file, Long.parseLong(id));
-            dataService.createImageAtAd(filename, Long.parseLong(id));
-            log.info("file save : " + filename);
+        try {
+            for (MultipartFile file : imageFiles) {
+                String filename = fileService.saveContentFile(file, Long.parseLong(id));
+                dataService.createImageAtAd(filename, Long.parseLong(id));
+                log.info("file save : " + filename);
+            }
+            return ApiResponse.success(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.fail(FAIL, null);
         }
-
-        return true;
     }
 
     @DeleteMapping("/detail/{id}")
-    public Object deleteDetailImages(@PathVariable("id") String adId,
-                                     @RequestBody DeleteFileDto fileUrls) throws IOException {
+    public ApiResponse deleteDetailImages(@PathVariable("id") String adId,
+                                          @RequestBody DeleteFileDto fileUrls) {
         log.info("delete images at " + adId);
 
-        List<String> fileList = fileUrls.getFiles().stream()
-                .map(UrlUtil::removeUrlPath)
-                .collect(Collectors.toList());
+        try {
+            List<String> fileList = fileUrls.getFiles().stream()
+                    .map(UrlUtil::removeUrlPath)
+                    .collect(Collectors.toList());
 
-        dataService.deleteImages(fileList, Long.parseLong(adId));
-        fileService.deleteFiles(fileList, Long.parseLong(adId));
+            dataService.deleteImages(fileList, Long.parseLong(adId));
+            fileService.deleteFiles(fileList, Long.parseLong(adId));
 
-        return true;
+            return ApiResponse.success(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.fail(FAIL, null);
+        }
     }
 }
