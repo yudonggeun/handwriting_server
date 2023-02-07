@@ -3,6 +3,7 @@ package com.promotion.handwriting.service.file;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.repository.AdRepository;
 import com.promotion.handwriting.util.FileUtil;
+import com.promotion.handwriting.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -12,8 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class LocalFileServiceImpl implements FileService {
         //파일 저장
         Path location = dir.resolve(file.getOriginalFilename());
         File saveFile = new File(location.toString());
-        if(!saveFile.exists()) saveFile.createNewFile();
+        if (!saveFile.exists()) saveFile.createNewFile();
         file.transferTo(location);
         return file.getOriginalFilename();
     }
@@ -50,7 +50,9 @@ public class LocalFileServiceImpl implements FileService {
         //파일 저장
         Path location = dir.resolve(file.getOriginalFilename());
         File saveFile = location.toFile();
-        if(!saveFile.exists()) saveFile.createNewFile();
+
+        log.info("MultipartFile size : " + file.getSize());
+        if (!saveFile.exists()) saveFile.createNewFile();
         file.transferTo(location);
         return file.getOriginalFilename();
     }
@@ -67,7 +69,7 @@ public class LocalFileServiceImpl implements FileService {
             //파일 저장
             Path location = dir.resolve(file.getOriginalFilename());
             File saveFile = location.toFile();
-            if(!saveFile.exists()) saveFile.createNewFile();
+            if (!saveFile.exists()) saveFile.createNewFile();
             file.transferTo(location);
             result.add(file.getOriginalFilename());
         }
@@ -103,5 +105,45 @@ public class LocalFileServiceImpl implements FileService {
             }
         }
         return fileNames;
+    }
+
+    @Override
+    public List<String> compressFiles(List<String> fileNames, long id) throws IOException {
+
+        List<String> result = new ArrayList<>(fileNames.size());
+
+        Ad ad = adRepository.findById(id).orElseThrow();
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
+        String directoryPath = resource.getFile().getAbsolutePath();
+
+        for (String fileName : fileNames) {
+            File originalFile = new File(directoryPath + "/" + fileName);
+            //저장된 파일
+            if(!originalFile.exists()) continue;
+            String compressFileName = "compress-" + originalFile.getName();
+            ImageUtil.compress(originalFile.getAbsolutePath(), directoryPath + "/" + compressFileName);
+
+            log.info("compressFileName : " + compressFileName);
+            result.add(compressFileName);
+        }
+        return result;
+    }
+
+    @Override
+    public String compressFile(String fileName, long id) throws IOException {
+        Ad ad = adRepository.findById(id).orElseThrow();
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
+        Path dir = resource.getFile().toPath();
+        //origin file load
+        Path location = dir.resolve(fileName);
+        File originalFile = location.toFile();
+
+        if (!originalFile.exists()) return null;
+        String compressFileName = "compress-" + fileName;
+        String directoryPath = resource.getFile().getAbsolutePath();
+        ImageUtil.compress(originalFile.getAbsolutePath(), directoryPath + "/" + compressFileName);
+        log.info("compressFileName : " + compressFileName);
+
+        return compressFileName;
     }
 }

@@ -26,7 +26,7 @@ public class IntroDto {
 
         IntroDto dto = new IntroDto();
         dto.setComments(Arrays.stream(ad.getDetail().split(IntroDto.separate)).collect(Collectors.toList()));
-        dto.setImage(UrlUtil.getImageUrl(ad.getResourcePath(), ad.getImages().get(0)));
+        dto.setImage(UrlUtil.getImageUrl(ad.getResourcePath(), ad.getImages().get(0).getImageName()));//Todo
         return dto;
     }
 }

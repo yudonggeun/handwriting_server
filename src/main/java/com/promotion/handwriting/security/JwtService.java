@@ -2,13 +2,16 @@ package com.promotion.handwriting.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.Date;
 
+@Slf4j
 @Service
 public class JwtService {
 
@@ -41,6 +44,9 @@ public class JwtService {
                     .build()
                     .verify(jwtToken);
             return decode.getClaim("id").asString();
+        } catch (TokenExpiredException e){
+            log.info("The Token has expired");
+            return null;
         } catch (Exception e){
             e.printStackTrace();
             return null;

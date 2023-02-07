@@ -23,8 +23,8 @@ public class UrlUtil {
         return defaultUrl;
     }
 
-    public static String getImageUrl(String directory, Image image) {
-        return imageUrl + directory + "/" + image.getImageName();
+    public static String getImageUrl(String directory, String imageName) {
+        return imageUrl + directory + "/" + imageName;
     }
 
     public static String removeUrlPath(String imageUrl){

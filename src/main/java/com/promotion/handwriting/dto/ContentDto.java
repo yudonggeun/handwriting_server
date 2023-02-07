@@ -14,6 +14,7 @@ public class ContentDto {
     String id;
     String title;
     String description;
+    List<String> originImages = new LinkedList<>();
     List<String> images = new LinkedList<>();
 
     public ContentDto(){}
@@ -31,10 +32,22 @@ public class ContentDto {
         dto.setId(ad.getId()+"");
         dto.setTitle(ad.getTitle());
         dto.setDescription(ad.getDetail());
-        List<String> images = ad.getImages().stream()
-                .map(image -> UrlUtil.getImageUrl(ad.getResourcePath(), image))
+        //원본 이미지 경로
+        List<String> originImages = ad.getImages().stream()
+                .map(image -> UrlUtil.getImageUrl(ad.getResourcePath(), image.getImageName()))
                 .collect(Collectors.toList());
-        dto.setImages(images);
+        dto.setOriginImages(originImages);
+
+        //압축 이미지 경로
+        List<String> compressImages = ad.getImages().stream()
+                .map(image -> {
+                    //압축 이미지가 없으면 원본 반환
+                    String imageName = image.getCompressImageName() == null ? image.getImageName() : image.getCompressImageName();
+                    return UrlUtil.getImageUrl(ad.getResourcePath(), imageName);
+                })
+                .collect(Collectors.toList());
+        dto.setImages(compressImages);
+
         return dto;
     }
 }

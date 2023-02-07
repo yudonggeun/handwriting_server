@@ -2,6 +2,7 @@ package com.promotion.handwriting.entity;
 
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -17,11 +18,14 @@ public class Image extends BasisEntity {
     private int priority;
     @Column(name = "IMAGE_NAME")
     private String imageName;
+    @Column(name = "COMPRESS_IMAGE_NAME")
+    private String compressImageName;
 
     @Builder
-    private Image(int priority, String imageName) {
+    private Image(int priority, String imageName, String compressImageName) {
         this.priority = priority;
         this.imageName = imageName;
+        this.compressImageName = compressImageName;
     }
 
     public int getPriority() {
@@ -30,6 +34,10 @@ public class Image extends BasisEntity {
 
     public String getImageName() {
         return imageName;
+    }
+
+    public String getCompressImageName() {
+        return compressImageName;
     }
 
     public void setAd(Ad ad) {

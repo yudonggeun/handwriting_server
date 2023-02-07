@@ -81,7 +81,7 @@ class DataServiceTest {
     public void getImageSrcByContentId() throws IOException {
         List<ContentDto> contentDtos = dataService.getContentDtos();
         for (ContentDto dto : contentDtos) {
-            List<String> imageUrls = dataService.getImageSrcByContentId(dto.getId());
+            List<String> imageUrls = dataService.getCompressImageSrcByContentId(dto.getId(), 0, 100);
             for (String imageUrl : dto.getImages()) {
                 assertThat(imageUrls.contains(imageUrl)).isTrue();
             }

@@ -13,7 +13,7 @@ public interface DataService {
 
     ContentDto createContentAd(ContentDto dto) throws IOException;
 
-    String createImageAtAd(String imageFile, long adId);
+    String createImageAtAd(String imageFile, String compressImageFile, long adId);
 
     Optional<ContentDto> getContentDtoById(long id);
 
@@ -21,7 +21,9 @@ public interface DataService {
 
     IntroDto getIntroDto();
 
-    List<String> getImageSrcByContentId(String id) throws IOException;
+    List<String> getCompressImageSrcByContentId(String id, int start, int count) throws IOException;
+
+    List<String> getOriginImageSrcByContentId(String id, int start, int count) throws IOException;
 
     boolean amendContent(ContentDto dto);
 
@@ -29,5 +31,5 @@ public interface DataService {
 
     void deleteAd(long id);
 
-    void deleteImages(List<String> fileNames, long adId);
+    List<String> deleteImages(List<String> fileNames, long adId);
 }
