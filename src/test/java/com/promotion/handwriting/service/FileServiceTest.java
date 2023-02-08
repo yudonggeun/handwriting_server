@@ -4,6 +4,7 @@ import com.promotion.handwriting.controller.DataController;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.AdRepository;
+import com.promotion.handwriting.service.business.DataService;
 import com.promotion.handwriting.service.file.FileService;
 import com.promotion.handwriting.util.FileUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -36,6 +37,8 @@ class FileServiceTest {
     ResourceLoader loader;
     @Autowired
     DataController dataController;
+    @Autowired
+    DataService dataService;
 
     Ad ad;
     ClassPathResource resource = new ClassPathResource("static/image/no_image.jpg");
@@ -62,7 +65,8 @@ class FileServiceTest {
     @Test
     void saveIntroFile() throws IOException {
         fileService.saveIntroFile(file);
-        fileService.deleteFile(file.getOriginalFilename(), ad.getId());
+        String resourcePath = dataService.getResourcePathOfAd(ad.getId());
+        fileService.deleteFile(file.getOriginalFilename(), resourcePath);
 
         String imageResourcePath = FileUtil.getImageResourcePath();
         Resource resource = loader.getResource(imageResourcePath + ad.getResourcePath());
@@ -73,8 +77,9 @@ class FileServiceTest {
 
     @Test
     void saveFileAndDeleteFile() throws IOException {
-        fileService.saveContentFile(file, ad.getId());
-        fileService.deleteFile(file.getOriginalFilename(), ad.getId());
+        String resourcePath = dataService.getResourcePathOfAd(ad.getId());
+        fileService.saveContentFile(file, resourcePath);
+        fileService.deleteFile(file.getOriginalFilename(), resourcePath);
 
         String imageResourcePath = FileUtil.getImageResourcePath();
         Resource resource = loader.getResource(imageResourcePath + ad.getResourcePath());
@@ -89,12 +94,13 @@ class FileServiceTest {
         //save File
         Ad contentAd = Ad.createAd(AdType.CONTENT, "test Content", "소개입니다.", "/test_file");
         contentAd = adRepository.save(contentAd);
-        fileService.saveContentFile(file, contentAd.getId());
+        String resourcePath = dataService.getResourcePathOfAd(ad.getId());
+        fileService.saveContentFile(file, resourcePath);
 
         //delete File
         List<String> fileList = new LinkedList<>();
         fileList.add(file.getOriginalFilename());
-        fileService.deleteFiles(fileList, contentAd.getId());
+        fileService.deleteFiles(fileList, resourcePath);
         //assert
         String imageResourcePath = FileUtil.getImageResourcePath();
         Resource resource = loader.getResource(imageResourcePath + contentAd.getResourcePath());

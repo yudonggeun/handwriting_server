@@ -26,7 +26,6 @@ import java.util.List;
 public class LocalFileServiceImpl implements FileService {
 
     private final ResourceLoader loader;
-
     private final AdRepository adRepository;
 
     @Override
@@ -43,9 +42,8 @@ public class LocalFileServiceImpl implements FileService {
     }
 
     @Override
-    public String saveContentFile(MultipartFile file, long id) throws IOException {
-        Ad ad = adRepository.findById(id).orElseThrow();
-        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
+    public String saveContentFile(MultipartFile file, String resourcePath) throws IOException {
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + resourcePath);
         Path dir = resource.getFile().toPath();
         //파일 저장
         Path location = dir.resolve(file.getOriginalFilename());
@@ -58,12 +56,11 @@ public class LocalFileServiceImpl implements FileService {
     }
 
     @Override
-    public List<String> saveFiles(List<MultipartFile> files, long id) throws IOException {
+    public List<String> saveFiles(List<MultipartFile> files, String resourcePath) throws IOException {
 
         List<String> result = new ArrayList<>(files.size());
 
-        Ad ad = adRepository.findById(id).orElseThrow();
-        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + resourcePath);
         Path dir = resource.getFile().toPath();
         for (MultipartFile file : files) {
             //파일 저장
@@ -78,9 +75,8 @@ public class LocalFileServiceImpl implements FileService {
     }
 
     @Override
-    public String deleteFile(String fileName, long id) throws IOException {
-        Ad ad = adRepository.findAdWithImagesById(id);
-        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
+    public String deleteFile(String fileName, String resourcePath) throws IOException {
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + resourcePath);
         Path dir = resource.getFile().toPath();
         //파일 삭제
         File file = new File(dir.toAbsolutePath() + "/" + fileName);
@@ -92,9 +88,8 @@ public class LocalFileServiceImpl implements FileService {
     }
 
     @Override
-    public List<String> deleteFiles(List<String> fileNames, long id) throws IOException {
-        Ad ad = adRepository.findAdWithImagesById(id);
-        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
+    public List<String> deleteFiles(List<String> fileNames, String resourcePath) throws IOException {
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + resourcePath);
         Path dir = resource.getFile().toPath();
         //파일 삭제
         for (String fileName : fileNames) {
@@ -108,12 +103,18 @@ public class LocalFileServiceImpl implements FileService {
     }
 
     @Override
-    public List<String> compressFiles(List<String> fileNames, long id) throws IOException {
+    public void deleteDirectory(String resourcePath) throws IOException {
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + resourcePath);
+        File directory = resource.getFile();
+        FileUtil.deleteDirectory(directory);
+    }
+
+    @Override
+    public List<String> compressFiles(List<String> fileNames, String resourcePath) throws IOException {
 
         List<String> result = new ArrayList<>(fileNames.size());
 
-        Ad ad = adRepository.findById(id).orElseThrow();
-        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + resourcePath);
         String directoryPath = resource.getFile().getAbsolutePath();
 
         for (String fileName : fileNames) {
@@ -130,9 +131,8 @@ public class LocalFileServiceImpl implements FileService {
     }
 
     @Override
-    public String compressFile(String fileName, long id) throws IOException {
-        Ad ad = adRepository.findById(id).orElseThrow();
-        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + ad.getResourcePath());
+    public String compressFile(String fileName, String resourcePath) throws IOException {
+        Resource resource = loader.getResource(FileUtil.getImageResourcePath() + resourcePath);
         Path dir = resource.getFile().toPath();
         //origin file load
         Path location = dir.resolve(fileName);

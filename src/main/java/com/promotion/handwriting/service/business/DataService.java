@@ -25,6 +25,8 @@ public interface DataService {
 
     List<String> getOriginImageSrcByContentId(String id, int start, int count) throws IOException;
 
+    String getResourcePathOfAd(long id);
+
     boolean amendContent(ContentDto dto);
 
     boolean amendIntro(IntroDto dto);

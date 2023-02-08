@@ -108,6 +108,11 @@ public class DataServiceImpl implements DataService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public String getResourcePathOfAd(long id) {
+        return adRepository.findById(id).orElseThrow().getResourcePath();
+    }
+
     @Transactional(readOnly = true)
     @Override
     public Optional<ContentDto> getContentDtoById(long id) {

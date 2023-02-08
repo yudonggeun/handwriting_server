@@ -91,4 +91,26 @@ public class FileUtil {
         file.transferTo(uploadFile);
         return uploadFile;
     }
+
+    public static void deleteDirectory(File directory) {
+        // Get a list of all the files in the directory
+        File[] files = directory.listFiles();
+
+        // If the directory is not empty, delete its contents
+        if (files != null) {
+            for (File file : files) {
+                // If the file is a directory, recursively delete its contents
+                if (file.isDirectory()) {
+                    deleteDirectory(file);
+                }
+                // Otherwise, delete the file
+                else {
+                    file.delete();
+                }
+            }
+        }
+
+        // Delete the empty directory
+        directory.delete();
+    }
 }
