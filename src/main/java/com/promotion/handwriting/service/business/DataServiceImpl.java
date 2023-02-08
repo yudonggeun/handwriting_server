@@ -156,7 +156,7 @@ public class DataServiceImpl implements DataService {
     @Override
     public void deleteAd(long id) {
         imageRepository.deleteAllByAd(id);
-        adRepository.deleteById(id);
+        adRepository.deleteIgnoreReferenceById(id);
     }
 
     @Override
