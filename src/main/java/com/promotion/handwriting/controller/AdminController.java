@@ -28,8 +28,9 @@ public class AdminController {
         try {
             AdminDto adminDto = new AdminDto();
 
-            String token = request.getParameter("Authorization");
-            String username = token == null ? null : jwtService.getUserName(token);
+            String token = request.getHeader("Authorization");
+            String jwtToken = token.replace("Bearer", "").trim();
+            String username = jwtService.getUserName(jwtToken);
 
             adminDto.setAmendAuthority(username != null);
             adminDto.setStatus(true);
