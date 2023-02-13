@@ -1,23 +1,22 @@
-server:
-  port: 8080
-  servlet:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
+JWT:
+  EXPIRE_MINUTE: 10
+  ISSUER: "kim yang ja"
+  SECRET: ${JWT_SECRET}
 
 spring:
+  profiles:
+    active: ${ENVIRONMENT_TYPE}
+  datasource:
+    url: jdbc:mysql://${DATABASE_URL}:3306/handwriting?serverTimezone=UTC&characterEncoding=UTF-8
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
   servlet:
     multipart:
       enabled: true
       max-file-size: 100MB
       max-request-size: 120MB
-
-  datasource:
-    url: jdbc:mysql://handwriting.cyoyxp4jr4vl.ap-northeast-2.rds.amazonaws.com:3306/handwriting?serverTimezone=UTC&characterEncoding=UTF-8
-    username: yandk97
-    password: qwerasdf22
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
@@ -26,6 +25,14 @@ spring:
     properties:
       hiberate:
         format-sql: true
+
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
 logging:
   level:
@@ -39,17 +46,25 @@ directory:
   root: "/handwriting_resources"
   image: "/handwriting_resources/image"
 
-url:
-  default: "/api"
-  image: "/api/image"
-
-JWT:
-  EXPIRE_MINUTE: 10
-  ISSUER: "kim yang ja"
-  SECRET: "12345789123456978946521321351531"
-
 aws:
   s3:
     accessKey: "example key"
     secretKey: "example key"
     bucket: "example bucket"
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  url:
+    default: ""
+    image: "/image"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: deploy
+  url:
+    default: "/api"
+    image: "/api/image"
