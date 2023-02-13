@@ -37,3 +37,4 @@ out/
 .vscode/
 
 /src/main/resources/text/login.txt
+/scripts/secrets.sh

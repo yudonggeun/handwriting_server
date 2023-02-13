@@ -1,6 +1,5 @@
 package com.promotion.handwriting.util;
 
-import com.promotion.handwriting.entity.Image;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -9,12 +8,12 @@ public class UrlUtil {
     private static String defaultUrl;
     private static String imageUrl;
 
-    @Value("${url.default}")
+    @Value("${spring.url.default}")
     public void setDefaultUrl(String defaultUrl) {
         UrlUtil.defaultUrl = defaultUrl;
     }
 
-    @Value("${url.image}")
+    @Value("${spring.url.image}")
     public void setImageUrl(String imageUrl) {
         UrlUtil.imageUrl = imageUrl;
     }
