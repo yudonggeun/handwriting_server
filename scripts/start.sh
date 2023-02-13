@@ -19,7 +19,7 @@ cp $PROJECT_SOURCE_DIRECTORY_PATH/build/libs/handwriting-0.0.1-SNAPSHOT.jar $JAR
 # 생성된 도커 컨테이너가 없다면 생성
 if [ -z $(sudo docker ps -aqf name=handwriting_spring)]; then
   # 생성된 도커 이미지가 없다면 생성
-  if [-z $(sudo docker images --filter=reference="handwriting-spring" -q)]; then
+  if [ -z $(sudo docker images --filter=reference="handwriting-spring" -q)]; then
     echo "$TIME_NOW > 도커 이미지 생성" >>$DEPLOY_LOG
     sudo docker build -t handwriting-spring:0.2 .
   fi
