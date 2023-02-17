@@ -52,6 +52,27 @@ public class AdminController {
         }
     }
 
+    @GetMapping("/login")
+    ApiResponse oauthLogin(HttpServletRequest request,
+                           HttpServletResponse response,
+                           @SessionAttribute("userId") String userId,
+                           @SessionAttribute("password") String password) {
+        try {
+            request.getSession().invalidate();
+            log.info("oauth login : " + userId + ", " + password);
+            String jwtToken = jwtService.createJwt(userId);
+            response.setHeader("Authorization", "Bearer " + jwtToken);
+            log.info("jwt token : " + response.getHeader("Authorization"));
+            AdminDto adminDto = new AdminDto();
+            adminDto.setAmendAuthority(true);
+            adminDto.setStatus(true);
+            return ApiResponse.success(adminDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.fail(FAIL, null);
+        }
+    }
+
     @PostMapping("/login")
     ApiResponse requestLogin(@RequestBody LoginDto dto, HttpServletResponse response) {
 
@@ -60,7 +81,7 @@ public class AdminController {
         try {
             boolean isAdmin = loginService.login(dto.getId(), dto.getPw());
 
-            if(isAdmin) {
+            if (isAdmin) {
                 String jwtToken = jwtService.createJwt(dto.getId());
                 response.setHeader("Authorization", "Bearer " + jwtToken);
                 log.info("jwt token : " + response.getHeader("Authorization"));
