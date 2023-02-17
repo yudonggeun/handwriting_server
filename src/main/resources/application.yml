@@ -25,6 +25,16 @@ spring:
     properties:
       hiberate:
         format-sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: ${GOOGLE_CLIENTID}
+            clientSecret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
 
 server:
   port: 8080
