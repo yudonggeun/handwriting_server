@@ -35,7 +35,10 @@ public class UserServiceImpl implements UserService {
         if (userCount != 0) {
             return false;
         }
-        User newUser = User.builder().userId(id).password(encoder.encode(pw)).type(UserType.OWNER).build();
+        User newUser = User.builder()
+                .userId(id)
+                .password(encoder.encode(pw))
+                .type(UserType.OWNER).build();
         userRepository.save(newUser);
         return true;
     }
