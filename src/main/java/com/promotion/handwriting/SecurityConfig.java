@@ -4,6 +4,7 @@ import com.promotion.handwriting.security.JwtFilter;
 import com.promotion.handwriting.security.JwtService;
 import com.promotion.handwriting.security.oauth.CustomAuthenticationSuccessHandler;
 import com.promotion.handwriting.service.business.AuthenticationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -20,6 +21,11 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableMethodSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class  SecurityConfig implements WebSecurityCustomizer {
+
+    @Value("${spring.url.domain.front}")
+    private String frontDomain;
+    @Value("${spring.url.domain.back}")
+    private String backDomain;
 
     @Override
     public void customize(WebSecurity web) {
@@ -50,9 +56,8 @@ public class  SecurityConfig implements WebSecurityCustomizer {
                 .and()
 
                 .oauth2Login()
-                .defaultSuccessUrl("/processing_login.html")
                 .successHandler(successHandler)
-                .failureUrl("/")
+                .failureUrl(frontDomain + "/")
                 .userInfoEndpoint()
                 .userService(authorizationService)
                 .and()

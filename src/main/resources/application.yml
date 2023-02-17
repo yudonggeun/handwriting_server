@@ -68,6 +68,9 @@ spring:
     activate:
       on-profile: local
   url:
+    domain:
+      front: "http://localhost:3000"
+      back: "http://localhost:8080"
     default: ""
     image: "/image"
 
@@ -77,5 +80,8 @@ spring:
     activate:
       on-profile: deploy
   url:
+    domain:
+      front: "https://www.beautifulwriting.site"
+      back: "https://www.beautifulwriting.site/api"
     default: "/api"
     image: "/api/image"
