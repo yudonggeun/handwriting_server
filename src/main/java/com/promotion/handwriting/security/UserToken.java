@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ public class UserToken implements UserDetails, OAuth2User {
 
     @Override
     public String getPassword() {
+        log.info("getPassword : " + user.getPassword());
         return user.getPassword();
     }
 

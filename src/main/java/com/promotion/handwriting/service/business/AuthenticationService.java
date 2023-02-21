@@ -1,7 +1,7 @@
 package com.promotion.handwriting.service.business;
 
 import com.promotion.handwriting.entity.User;
-import com.promotion.handwriting.repository.UserRepository;
+import com.promotion.handwriting.repository.database.UserRepository;
 import com.promotion.handwriting.security.UserToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +39,7 @@ public class AuthenticationService extends DefaultOAuth2UserService implements U
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.info("username : " + username);
         try{
             User user = userRepository.findByUserId(username).orElseThrow();
             return new UserToken(user);

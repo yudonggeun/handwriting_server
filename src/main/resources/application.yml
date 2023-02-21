@@ -1,5 +1,5 @@
 JWT:
-  EXPIRE_MINUTE: 10
+  EXPIRE_MINUTE: 60
   ISSUER: "kim yang ja"
   SECRET: ${JWT_SECRET}
 

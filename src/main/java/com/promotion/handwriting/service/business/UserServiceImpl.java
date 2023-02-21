@@ -2,7 +2,7 @@ package com.promotion.handwriting.service.business;
 
 import com.promotion.handwriting.entity.User;
 import com.promotion.handwriting.enums.UserType;
-import com.promotion.handwriting.repository.UserRepository;
+import com.promotion.handwriting.repository.database.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
