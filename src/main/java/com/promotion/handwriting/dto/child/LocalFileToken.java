@@ -23,7 +23,7 @@ public class LocalFileToken extends AbstractFileToken {
 
 
     public static FileToken deleteDirectory(String resourcePath) {
-        return new LocalFileToken(null, resourcePath, null);
+        return new LocalFileToken(null, resourcePath, "");
     }
     @Override
     public FileTokenType getTokenType() {

@@ -34,7 +34,8 @@ public class ContentDto {
         dto.getImages().addAll(ad.getImages().stream()
                 .map(image -> {
                     String originUrl = UrlUtil.getImageUrl(ad.getResourcePath(), image.getImageName());
-                    String compressUrl = image.getCompressImageName() == null ? image.getImageName() : image.getCompressImageName();
+                    String compressUrl = UrlUtil.getImageUrl(ad.getResourcePath(),
+                            image.getCompressImageName() == null ? image.getImageName() : image.getCompressImageName());
                     return UrlImageDto.make(originUrl, compressUrl);
                 })
                 .collect(Collectors.toList()));

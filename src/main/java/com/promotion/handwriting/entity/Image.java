@@ -50,6 +50,10 @@ public class Image extends BasisEntity {
         this.imageName = imageName;
     }
 
+    public void setCompressImageName(String compressImageName){
+        this.compressImageName = compressImageName;
+    }
+
     public void setPriority(int priority) {
         updateModifyTime();
         this.priority = priority;

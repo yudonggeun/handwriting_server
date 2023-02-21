@@ -104,10 +104,12 @@ public class DataController {
         log.info("PUT : /data/content [input] >> imageFiles : " + imageFiles);
 
         try {
-            List<ImageDto> imageDtos = imageFiles.stream()
-                    .map(MultipartImageDto::make)
-                    .collect(Collectors.toList());
-            dto.setImages(imageDtos);
+            if(imageFiles != null) {
+                List<ImageDto> imageDtos = imageFiles.stream()
+                        .map(MultipartImageDto::make)
+                        .collect(Collectors.toList());
+                dto.setImages(imageDtos);
+            }
 
             return ApiResponse.success(dataService.addContentAd(dto));
         } catch (Exception e) {

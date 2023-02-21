@@ -65,9 +65,12 @@ public class DataServiceImpl implements DataService {
                 //파일을 저장한다.
                 String originalFilename = file.getOriginalFilename();
                 String compressFilename = ImageUtil.compressImageName(originalFilename);
-                FileToken fileToken = LocalFileToken.save(file.getInputStream(), ad.getResourcePath(), originalFilename);
+                String resourcePath = ad.getResourcePath();
+                FileToken fileToken = LocalFileToken.save(file.getInputStream(), resourcePath, originalFilename);
 
-                if (!fileRepository.save(fileToken)) throw new IllegalArgumentException("파일 저장 실패");
+                if (!fileRepository.save(fileToken) || !fileRepository.compressAndSave(originalFilename, compressFilename, resourcePath)) {
+                    throw new IllegalArgumentException("파일 저장 실패");
+                }
                 //db에 image에 대한 데이터를 생성한다.
                 Image image = Image.builder()
                         .priority(Integer.MAX_VALUE)
@@ -77,7 +80,6 @@ public class DataServiceImpl implements DataService {
                 ad.addImage(image);
             }
         }
-
         adRepository.save(ad);
         return ContentDto.convert(ad);
     }
@@ -89,12 +91,11 @@ public class DataServiceImpl implements DataService {
             //파일을 저장한다.
             String originalFilename = imageFile.getOriginalFilename();
             String compressFilename = ImageUtil.compressImageName(originalFilename);
-            FileToken fileToken = new LocalFileToken(imageFile.getInputStream(), ad.getResourcePath(), originalFilename);
-            if (!fileRepository.save(fileToken)) {
+            FileToken originToken = new LocalFileToken(imageFile.getInputStream(), ad.getResourcePath(), originalFilename);
+            if (!fileRepository.save(originToken) || !fileRepository.compressAndSave(originalFilename, compressFilename, ad.getResourcePath())) {
                 throw new IllegalArgumentException("파일 저장 실패");
             }
             //db에 image에 대한 데이터를 생성한다.
-
             Image image = Image.builder()
                     .priority(Integer.MAX_VALUE)
                     .imageName(originalFilename)
@@ -175,7 +176,10 @@ public class DataServiceImpl implements DataService {
             fileRepository.delete(LocalFileToken.delete(resourcePath, introImage.getImageName()));
             //파일 저장
             fileRepository.save(LocalFileToken.save(file.getInputStream(), resourcePath, originalFilename));
-            fileRepository.compressAndSave(originalFilename, compressFilename,resourcePath);
+            fileRepository.compressAndSave(originalFilename, compressFilename, resourcePath);
+
+            introImage.setImageName(originalFilename);
+            introImage.setCompressImageName(compressFilename);
         }
         return true;
     }
@@ -185,7 +189,7 @@ public class DataServiceImpl implements DataService {
 
         Ad content = adRepository.findAdWithImagesById(id);
         FileToken token = LocalFileToken.deleteDirectory(content.getResourcePath());
-        fileRepository.delete(token);
+        fileRepository.deleteDirectory(token);
         imageRepository.deleteAllByAd(id);
         adRepository.deleteIgnoreReferenceById(id);
     }

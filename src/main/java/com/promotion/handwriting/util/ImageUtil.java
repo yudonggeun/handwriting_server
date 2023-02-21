@@ -7,6 +7,7 @@ import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -106,7 +107,7 @@ public class ImageUtil {
     }
 
     private static void compressJPG(String inputFilePath, String outputFilePath, float compressionQuality) {
-        try {
+        try (ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(new File(outputFilePath))) {
             // Read the image file
             BufferedImage originalImage = ImageIO.read(new File(inputFilePath));
 
@@ -119,7 +120,7 @@ public class ImageUtil {
             writeParam.setCompressionQuality(compressionQuality);
 
             // Write the compressed image to a file
-            writer.setOutput(ImageIO.createImageOutputStream(new File(outputFilePath)));
+            writer.setOutput(imageOutputStream);
             writer.write(null, new IIOImage(originalImage, null, null), writeParam);
             writer.dispose();
         } catch (IOException e) {

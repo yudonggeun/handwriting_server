@@ -60,17 +60,29 @@ public class LocalFileRepository implements FileRepository {
         try {
             Resource resource = loader.getResource(FileUtil.getImageResourcePath() + token.getDirectory());
             Path directory = resource.getFile().toPath();
-            //디렉터리 삭제
-            if (token.getFileName().equals("") && resource.getFile().isDirectory()) {
+            File file = new File(directory.toAbsolutePath() + "/" + token.getFileName());
+            if (!file.exists()) {
+                log.error("파일 삭제 실패 : 파일이 존재하지 않습니다.");
+            } else if (!file.isFile()) {
+                log.error("파일 삭제 실패 : 파일이 아닙니다.");
+            }
+            return file.delete();
+        } catch (IOException ex) {
+            log.error("파일 삭제 실패 : " + token.getDirectory() + "/" + token.getFileName());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteDirectory(FileToken token) {
+        try {
+            Resource resource = loader.getResource(FileUtil.getImageResourcePath() + token.getDirectory());
+            if (resource.getFile().isDirectory()) {//디렉터리 삭제
                 FileUtil.deleteDirectory(resource.getFile());
-            } else {//파일 삭제
-                File file = new File(directory.toAbsolutePath() + "/" + token.getFileName());
-                if (!file.exists() || !file.delete())
-                    log.error("파일 삭제 실패 : " + directory.toAbsolutePath() + "/" + token.getFileName());
             }
             return true;
         } catch (IOException ex) {
-            log.error("파일 삭제 실패 : " + token.getDirectory() + "/" + token.getFileName());
+            log.error("디렉터리 삭제 실패 : " + token.getDirectory() + "/" + token.getFileName());
             return false;
         }
     }
