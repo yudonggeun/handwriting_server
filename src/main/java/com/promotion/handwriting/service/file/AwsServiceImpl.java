@@ -1,4 +1,7 @@
 package com.promotion.handwriting.service.file;
+/**
+ * 해당 클래스는 검증이 되지 않았습니다. 사용을 자제해 주세요.
+ */
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
@@ -14,8 +17,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -35,6 +40,7 @@ public class AwsServiceImpl implements AwsService {
 
     @Override
     public void upload(InputStream is, String key, String contentType, long contentLength) {
+
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(contentType);
         objectMetadata.setContentLength(contentLength);
@@ -88,8 +94,6 @@ public class AwsServiceImpl implements AwsService {
 
             log.info(String.format("Finish copying [%s] to [%s]", orgKey, copyKey));
 
-        } catch (AmazonServiceException e) {
-            e.printStackTrace();
         } catch (SdkClientException e) {
             e.printStackTrace();
         }
@@ -104,10 +108,9 @@ public class AwsServiceImpl implements AwsService {
             this.s3Client.deleteObject(deleteObjectRequest);
             log.info(String.format("[%s] deletion complete", key));
 
-        } catch (AmazonServiceException e) {
-            e.printStackTrace();
         } catch (SdkClientException e) {
             e.printStackTrace();
         }
     }
+
 }

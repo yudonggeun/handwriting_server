@@ -1,9 +1,9 @@
 package com.promotion.handwriting.controller;
 
-import com.promotion.handwriting.dto.ApiResponse;
-import com.promotion.handwriting.dto.ContentDto;
-import com.promotion.handwriting.dto.DeleteFileDto;
-import com.promotion.handwriting.dto.IntroDto;
+import com.promotion.handwriting.dto.*;
+import com.promotion.handwriting.dto.http.ApiResponse;
+import com.promotion.handwriting.dto.image.ImageDto;
+import com.promotion.handwriting.dto.image.MultipartImageDto;
 import com.promotion.handwriting.service.business.DataService;
 import com.promotion.handwriting.service.file.FileService;
 import com.promotion.handwriting.util.UrlUtil;
@@ -48,12 +48,12 @@ public class DataController {
     }
 
     @GetMapping("/content/image")
-    public ApiResponse getImageList(
+    public ApiResponse getImageList(//TODO front 수정
             @RequestParam("content_id") String id,
             @RequestParam(defaultValue = "0") int start,
             @RequestParam(defaultValue = "10") int count) {
         try {
-            return ApiResponse.success(dataService.getCompressImageSrcByContentId(id, start, count));
+            return ApiResponse.success(dataService.getImageUrlAtContent(id, start, count));
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.fail(FAIL, null);
@@ -67,13 +67,7 @@ public class DataController {
         log.info("file : " + (file == null ? "null" : file.getOriginalFilename()));
 
         try {
-            if (file != null) {
-                String newImageFileName = fileService.saveIntroFile(file);
-                dto.setImage(newImageFileName);
-            } else {
-                dto.setImage(UrlUtil.removeUrlPath(dto.getImage()));
-            }
-            return ApiResponse.success(dataService.amendIntro(dto));
+            return ApiResponse.success(dataService.updateIntro(dto, file));
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.fail(FAIL, null);
@@ -84,7 +78,7 @@ public class DataController {
     public ApiResponse amendPromotionContent(@RequestBody ContentDto dto) {
         log.debug("POST : /data/content [input] >> " + dto);
         try {
-            return ApiResponse.success(dataService.amendContent(dto));
+            return ApiResponse.success(dataService.updateContent(dto));
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.fail(FAIL, null);
@@ -96,12 +90,7 @@ public class DataController {
         log.info("DELETE : /data/content [input] >> " + dto);
 
         try {
-            long id = Long.parseLong(dto.getId());
-
-            String resourcePath = dataService.getResourcePathOfAd(id);
-            dataService.deleteAd(id);
-            fileService.deleteDirectory(resourcePath);
-
+            dataService.deleteAd(Long.parseLong(dto.getId()));
             return ApiResponse.success(true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -110,28 +99,21 @@ public class DataController {
     }
 
     @PutMapping("/content")
-    public ApiResponse createDetail(@RequestPart(name = "dto") ContentDto dto,
+    public ApiResponse createContent(@RequestPart(name = "dto") ContentDto dto,
                                     @RequestPart(value = "image", required = false) List<MultipartFile> imageFiles) {
 
         log.info("PUT : /data/content [input] >> dto : " + dto);
         log.info("PUT : /data/content [input] >> imageFiles : " + imageFiles);
 
         try {
-            ContentDto contentAd = dataService.createContentAd(dto);
-            String resourcePath = dataService.getResourcePathOfAd(Long.parseLong(contentAd.getId()));
-            if (imageFiles != null) {
-                List<String> originImages = fileService.saveFiles(imageFiles, resourcePath);
-                List<String> compressFiles = fileService.compressFiles(originImages, resourcePath);
-
-                contentAd.setImages(compressFiles);
-                contentAd.setOriginImages(originImages);
-                for (int i = 0; i < originImages.size(); i++) {
-                    String originImage = originImages.get(i);
-                    String compressFile = compressFiles.get(i);
-                    dataService.createImageAtAd(originImage, compressFile, Long.parseLong(contentAd.getId()));
-                }
+            if(imageFiles != null) {
+                List<ImageDto> imageDtos = imageFiles.stream()
+                        .map(MultipartImageDto::make)
+                        .collect(Collectors.toList());
+                dto.setImages(imageDtos);
             }
-            return ApiResponse.success(contentAd);
+
+            return ApiResponse.success(dataService.addContentAd(dto));
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.fail(FAIL, null);
@@ -144,14 +126,7 @@ public class DataController {
         log.info("append images at " + id);
 
         try {
-            String resourcePath = dataService.getResourcePathOfAd(Long.parseLong(id));
-
-            for (MultipartFile file : imageFiles) {
-                String filename = fileService.saveContentFile(file, resourcePath);
-                String compressFile = fileService.compressFile(filename, resourcePath);
-                dataService.createImageAtAd(filename, compressFile, Long.parseLong(id));
-                log.info("file save : " + filename + ", + " + compressFile);
-            }
+            imageFiles.forEach(file -> dataService.addImageAtAd(file, Long.parseLong(id)));
             return ApiResponse.success(true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -165,13 +140,12 @@ public class DataController {
         log.info("delete images at " + adId);
 
         try {
-            String resourcePath = dataService.getResourcePathOfAd(Long.parseLong(adId));
+            //url 데이터 가공한다. TODO front 에서 정제하면 좋다.
             List<String> fileList = fileUrls.getFiles().stream()
                     .map(UrlUtil::removeUrlPath)
                     .collect(Collectors.toList());
 
-            List<String> deleteImages = dataService.deleteImages(fileList, Long.parseLong(adId));
-            fileService.deleteFiles(deleteImages, resourcePath);
+            dataService.deleteImages(fileList, Long.parseLong(adId));
 
             return ApiResponse.success(true);
         } catch (Exception e) {

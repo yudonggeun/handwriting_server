@@ -1,4 +1,4 @@
-package com.promotion.handwriting.repository;
+package com.promotion.handwriting.repository.database;
 
 import com.promotion.handwriting.entity.Image;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +11,5 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     @Modifying(clearAutomatically = true)
     @Query("delete from Image m where m.ad.id = :ad_id")
     void deleteAllByAd(@Param("ad_id") long adId);
+
 }

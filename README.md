@@ -51,6 +51,7 @@ BACK-END APPLICATION 입니다.
 0. 사전 준비
     1. Docker 설치
     2. java 설치
+    3. 환경 변수 선언 스크립트 작성
 
 1. 앱 실행하기
 
@@ -59,7 +60,8 @@ BACK-END APPLICATION 입니다.
 ```bash
 $chmod +x gradlew
 $cd ./build/libs
-$java -jar example-build-file-name.jar
+$. ./secrets.sh
+$java -jar example-build-file-name.jar 1> app.log 2> error.log
 ```
 - 도커를 이용한 배포
 ```bash
@@ -68,8 +70,22 @@ $bash ./script/start.sh
 스크립트를 이용하여 배포를 시도하면 사전 준비가 필요합니다.
 1. 도커 설치
 2. 도커 네트워크 `kong-net` 만들기
-3. `start.sh` 환경변수(경로)를 배포 환경에 맞게 수정하기
+3. `start.sh` 환경변수를 배포 환경에 맞게 수정하기
+    * 파일 디렉토리 구조에 대한 환경변수를 설정하는 작업입니다.
+4. 생성한 환경변수 선언 스크립트 `screts.sh`를 도커 볼륨으로 지정할 디렉토리에 저장하기
+    * spring boot 실행에 필요한 환경변수를 설정하는 스크립트입니다.
 
+```shell
+echo "$(date +%c) : set secrets environment"
+# environment 운영환경 deploy 로컬(개발) 환경 local
+export ENVIRONMENT_TYPE=deploy
+# database secrets
+export DATABASE_URL=127.0.0.1
+export DATABASE_USERNAME=example_username
+export DATABASE_PASSWORD=example_password
+# jwt secrets
+export JWT_SECRET=123456789...
+```
 `start.sh`를 통하여 배포한 경우<br> 코드 수정사항 적용한 새로운 jar 배포를 `start.sh` 재실행을 통해서 
 손쉽게 재배포가 가능합니다.
 

@@ -1,6 +1,6 @@
 package com.promotion.handwriting;
 
-import com.promotion.handwriting.security.JwtFilter;
+import com.promotion.handwriting.security.JwtAuthenticationFilter;
 import com.promotion.handwriting.security.JwtService;
 import com.promotion.handwriting.security.oauth.CustomAuthenticationSuccessHandler;
 import com.promotion.handwriting.service.business.AuthenticationService;
@@ -38,7 +38,7 @@ public class  SecurityConfig implements WebSecurityCustomizer {
                                            CustomAuthenticationSuccessHandler successHandler
                                            ) throws Exception {
         return http.csrf().disable()
-                .addFilterBefore(new JwtFilter(jwtService, authorizationService), BasicAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(jwtService, authorizationService), BasicAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
                 .and()
@@ -46,6 +46,7 @@ public class  SecurityConfig implements WebSecurityCustomizer {
                 .httpBasic().disable()
 
                 .authorizeRequests()
+                .antMatchers("/**").permitAll()
                 .antMatchers("/image/**").permitAll()
                 .antMatchers("/admin/**").permitAll()
                 .antMatchers("/data/**").access("request.method == 'GET' ? permitAll : hasRole('OWNER')")

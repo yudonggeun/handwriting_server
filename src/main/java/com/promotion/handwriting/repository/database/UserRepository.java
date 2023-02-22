@@ -1,4 +1,4 @@
-package com.promotion.handwriting.repository;
+package com.promotion.handwriting.repository.database;
 
 import com.promotion.handwriting.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -12,12 +12,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @Slf4j
-public class JwtFilter implements Filter {
+public class JwtAuthenticationFilter implements Filter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
-    public JwtFilter(JwtService jwtService, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
     }
@@ -33,8 +33,7 @@ public class JwtFilter implements Filter {
             chain.doFilter(request, response);
             return;
         }
-        log.info("jwt header : " + jwtHeader);
-        log.info("jwt filter method [doFilter]");
+
         String jwtToken = jwtHeader.replace("Bearer", "").trim();
 
         String userName = jwtService.getUserName(jwtToken);//서명 확인
