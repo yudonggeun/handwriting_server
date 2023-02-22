@@ -3,6 +3,8 @@ package com.promotion.handwriting.repository;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.enums.AdType;
+import com.promotion.handwriting.repository.database.AdRepository;
+import com.promotion.handwriting.repository.database.ImageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
