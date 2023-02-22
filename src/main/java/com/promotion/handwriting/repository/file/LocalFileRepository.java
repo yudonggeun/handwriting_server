@@ -1,6 +1,6 @@
 package com.promotion.handwriting.repository.file;
 
-import com.promotion.handwriting.dto.parent.FileToken;
+import com.promotion.handwriting.dto.file.FileToken;
 import com.promotion.handwriting.util.FileUtil;
 import com.promotion.handwriting.util.ImageUtil;
 import lombok.RequiredArgsConstructor;

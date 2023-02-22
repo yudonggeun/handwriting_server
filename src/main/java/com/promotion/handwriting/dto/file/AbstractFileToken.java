@@ -1,6 +1,5 @@
-package com.promotion.handwriting.dto.Abstract;
+package com.promotion.handwriting.dto.file;
 
-import com.promotion.handwriting.dto.parent.FileToken;
 import com.promotion.handwriting.enums.FileTokenType;
 
 import java.io.InputStream;

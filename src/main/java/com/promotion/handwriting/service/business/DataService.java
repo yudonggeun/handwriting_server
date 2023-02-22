@@ -1,7 +1,7 @@
 package com.promotion.handwriting.service.business;
 
 import com.promotion.handwriting.dto.ContentDto;
-import com.promotion.handwriting.dto.UrlImageDto;
+import com.promotion.handwriting.dto.image.UrlImageDto;
 import com.promotion.handwriting.dto.IntroDto;
 import org.springframework.web.multipart.MultipartFile;
 

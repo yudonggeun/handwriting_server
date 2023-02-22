@@ -1,6 +1,5 @@
-package com.promotion.handwriting.dto;
+package com.promotion.handwriting.dto.image;
 
-import com.promotion.handwriting.dto.parent.ImageDto;
 import lombok.Data;
 
 /**

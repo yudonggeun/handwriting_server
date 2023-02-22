@@ -1,7 +1,9 @@
 package com.promotion.handwriting.controller;
 
 import com.promotion.handwriting.dto.*;
-import com.promotion.handwriting.dto.parent.ImageDto;
+import com.promotion.handwriting.dto.http.ApiResponse;
+import com.promotion.handwriting.dto.image.ImageDto;
+import com.promotion.handwriting.dto.image.MultipartImageDto;
 import com.promotion.handwriting.service.business.DataService;
 import com.promotion.handwriting.service.file.FileService;
 import com.promotion.handwriting.util.UrlUtil;

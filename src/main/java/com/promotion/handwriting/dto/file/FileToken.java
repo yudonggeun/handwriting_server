@@ -1,4 +1,4 @@
-package com.promotion.handwriting.dto.parent;
+package com.promotion.handwriting.dto.file;
 
 import com.promotion.handwriting.enums.FileTokenType;
 

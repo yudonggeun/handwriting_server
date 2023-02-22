@@ -2,11 +2,11 @@ package com.promotion.handwriting.service.business;
 
 import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.IntroDto;
-import com.promotion.handwriting.dto.MultipartImageDto;
-import com.promotion.handwriting.dto.UrlImageDto;
-import com.promotion.handwriting.dto.child.LocalFileToken;
-import com.promotion.handwriting.dto.parent.FileToken;
-import com.promotion.handwriting.dto.parent.ImageDto;
+import com.promotion.handwriting.dto.image.MultipartImageDto;
+import com.promotion.handwriting.dto.image.UrlImageDto;
+import com.promotion.handwriting.dto.file.LocalFileToken;
+import com.promotion.handwriting.dto.file.FileToken;
+import com.promotion.handwriting.dto.image.ImageDto;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.enums.AdType;

@@ -1,6 +1,7 @@
 package com.promotion.handwriting.dto;
 
-import com.promotion.handwriting.dto.parent.ImageDto;
+import com.promotion.handwriting.dto.image.ImageDto;
+import com.promotion.handwriting.dto.image.UrlImageDto;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.util.UrlUtil;

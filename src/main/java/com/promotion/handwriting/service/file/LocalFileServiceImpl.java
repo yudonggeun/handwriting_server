@@ -1,7 +1,7 @@
 package com.promotion.handwriting.service.file;
 
-import com.promotion.handwriting.dto.child.LocalFileToken;
-import com.promotion.handwriting.dto.parent.FileToken;
+import com.promotion.handwriting.dto.file.LocalFileToken;
+import com.promotion.handwriting.dto.file.FileToken;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.repository.file.FileRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.promotion.handwriting.dto;
+package com.promotion.handwriting.dto.http;
 
 import com.promotion.handwriting.enums.ApiResponseStatus;
 import lombok.Builder;
