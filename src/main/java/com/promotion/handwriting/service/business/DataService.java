@@ -1,6 +1,7 @@
 package com.promotion.handwriting.service.business;
 
 import com.promotion.handwriting.dto.ContentDto;
+import com.promotion.handwriting.dto.SimpleContentDto;
 import com.promotion.handwriting.dto.image.UrlImageDto;
 import com.promotion.handwriting.dto.IntroDto;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,7 +32,7 @@ public interface DataService {
     //인트로 수정
     boolean updateIntro(IntroDto dto, MultipartFile file) throws IOException;
     //컨텐츠 수정
-    boolean updateContent(ContentDto dto);
+    boolean updateContent(SimpleContentDto dto);
 
     //컨텐츠 삭제
     void deleteAd(long id);

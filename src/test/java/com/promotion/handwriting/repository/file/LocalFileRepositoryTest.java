@@ -17,8 +17,5 @@ class LocalFileRepositoryTest {
     @Test
     void compressFileTest(){
 
-        File sample = new File();
-        LocalFileToken.save()
-        localFileRepository.save()
     }
 }

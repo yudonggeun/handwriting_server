@@ -2,6 +2,7 @@ package com.promotion.handwriting.service.business;
 
 import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.IntroDto;
+import com.promotion.handwriting.dto.SimpleContentDto;
 import com.promotion.handwriting.dto.image.MultipartImageDto;
 import com.promotion.handwriting.dto.image.UrlImageDto;
 import com.promotion.handwriting.dto.file.LocalFileToken;
@@ -148,8 +149,8 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public boolean updateContent(ContentDto dto) {
-        Ad ad = adRepository.getReferenceById(Long.parseLong(dto.getId()));
+    public boolean updateContent(SimpleContentDto dto) {
+        Ad ad = adRepository.getReferenceById(dto.getId());
         ad.setDetail(dto.getDescription());
         ad.setTitle(dto.getTitle());
         return true;

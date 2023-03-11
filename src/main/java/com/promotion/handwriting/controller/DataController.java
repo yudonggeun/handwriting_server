@@ -75,7 +75,7 @@ public class DataController {
     }
 
     @PostMapping("/content")
-    public ApiResponse amendPromotionContent(@RequestBody ContentDto dto) {
+    public ApiResponse amendPromotionContent(@RequestBody SimpleContentDto dto) {
         log.debug("POST : /data/content [input] >> " + dto);
         try {
             return ApiResponse.success(dataService.updateContent(dto));
