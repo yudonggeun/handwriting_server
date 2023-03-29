@@ -1,0 +1,91 @@
+JWT:
+  EXPIRE_MINUTE: 60
+  ISSUER: "kim yang ja"
+  SECRET: "test"
+
+spring:
+  profiles:
+    active: local
+  datasource:
+    url: jdbc:mysql://localhost:3306/world?serverTimezone=UTC&characterEncoding=UTF-8
+    username: root
+    password: qwerasdf
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 120MB
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop #스테이징과 운영 서버는 validate 또는 none
+    show-sql: true
+    properties:
+      hiberate:
+        format-sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: ${GOOGLE_CLIENTID}
+            clientSecret: ${GOOGLE_CLIENT_SECRET}
+            redirectUri: ${GOOGLE_REDIRECT_URL}
+            scope:
+              - email
+              - profile
+          kakao:
+            clientId: ${KAKAO_CLIENTID}
+            clientSecret: ${KAKAO_SECRET}
+            redirectUri: ${KAKAO_REDIRECT_URL}
+            authorizationGrantType: authorization_code
+            clientName: kakao
+            clientAuthenticationMethod: POST
+            scope:
+              - profile_nickname
+              - account_email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+logging:
+  level:
+    root: info
+    org:
+      hibernate:
+        SQL: info
+        type: info
+
+directory:
+  root: "/handwriting_resources"
+  image: "/handwriting_resources/image"
+
+aws:
+  s3:
+    accessKey: "example key"
+    secretKey: "example key"
+    bucket: "example bucket"
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  url:
+    domain:
+      front: "http://localhost:3000"
+      back: "http://localhost:8080"
+    default: ""
+    image: "/image"
