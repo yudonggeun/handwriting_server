@@ -81,6 +81,22 @@ class ContentServiceImplTest {
     }
 
     @Test
+    @DisplayName("이미지 없는 컨텐츠 삭제하기")
+    public void test_delete_content_row(){
+        //given
+        String contentId = content.getId();
+
+        //when
+        service.deleteContent(contentId);
+
+        //then
+        Optional<Content> optionalContent = repository.findById(contentId);
+
+        assertThat(optionalContent.isEmpty()).isTrue();
+
+    }
+
+    @Test
     @DisplayName("이미지 database에 생성하기")
     public void test_create_image_in_db() {
         //given

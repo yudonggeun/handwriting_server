@@ -46,7 +46,7 @@ public class ContentServiceImpl implements ContentService {
 
     @Override
     public void deleteContent(String contentId) {
-
+        contentRepository.deleteById(contentId);
     }
 
     @Override
