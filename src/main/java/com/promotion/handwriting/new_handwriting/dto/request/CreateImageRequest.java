@@ -1,4 +1,4 @@
-package com.promotion.handwriting.new_handwriting.request;
+package com.promotion.handwriting.new_handwriting.dto.request;
 
 import lombok.Data;
 

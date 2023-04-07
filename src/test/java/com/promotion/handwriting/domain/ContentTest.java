@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.promotion.handwriting.new_handwriting.domain.type.ContentType.*;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
@@ -16,7 +17,7 @@ class ContentTest {
 
     @Test
     public void createContent() {
-        Content content = Content.builder("content1", "title1")
+        Content content = Content.builder(CONTENT, "title1")
                 .build();
 
         assertThat(content).isNotNull();
@@ -25,7 +26,7 @@ class ContentTest {
     @Test
     @DisplayName("image list 방어적 복사 확인")
     public void contentGetMethod() {
-        Content content = Content.builder("test1", "test_title")
+        Content content = Content.builder(CONTENT, "test_title")
                 .description("test_description")
                 .images(new ArrayList<>())
                 .build();
@@ -35,7 +36,6 @@ class ContentTest {
 
         assertThat(content).isNotNull();
         assertThat(content.getDescription()).isEqualTo("test_description");
-        assertThat(content.getId()).isEqualTo("test1");
         assertThat(content.getTitle()).isEqualTo("test_title");
         assertThat(content.getImages().size()).isEqualTo(0);
     }
@@ -44,7 +44,7 @@ class ContentTest {
     @DisplayName("content 수정 메서드 확인")
     public void test_changeText() {
         //given
-        Content content = Content.builder("before", "before")
+        Content content = Content.builder(CONTENT, "before")
                 .build();
         String after_title = "after_title";
         String after_description = "after_description";

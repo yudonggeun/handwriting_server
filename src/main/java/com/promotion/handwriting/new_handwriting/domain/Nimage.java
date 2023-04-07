@@ -19,11 +19,6 @@ public class Nimage {
     private String compressName;
     @Column(name = "PATH")
     private String path;
-
-    public Long getId() {
-        return id;
-    }
-
     private String contentId;
 
     public Nimage(String originName, String compressName, String path, String contentId) {
@@ -44,5 +39,17 @@ public class Nimage {
     @Override
     public int hashCode() {
         return Objects.hash(originName, compressName, path, contentId);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String originPath() {
+        return null;
+    }
+
+    public String compressPath() {
+        return null;
     }
 }

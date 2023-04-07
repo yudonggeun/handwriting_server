@@ -1,20 +1,22 @@
 package com.promotion.handwriting.new_handwriting.service;
 
+import com.promotion.handwriting.dto.ContentResponse;
+import com.promotion.handwriting.dto.image.ImageResponse;
 import com.promotion.handwriting.new_handwriting.domain.Content;
 import com.promotion.handwriting.new_handwriting.domain.Nimage;
-import com.promotion.handwriting.new_handwriting.request.UpdateContentRequest;
-import com.promotion.handwriting.new_handwriting.dto.ContentCreateDto;
+import com.promotion.handwriting.new_handwriting.repository.ContentResponseRepository;
+import com.promotion.handwriting.new_handwriting.dto.request.UpdateContentRequest;
+import com.promotion.handwriting.new_handwriting.dto.CreateContentRequest;
 import com.promotion.handwriting.new_handwriting.dto.SearchCondition;
 import com.promotion.handwriting.new_handwriting.repository.ContentRepository;
 import com.promotion.handwriting.new_handwriting.repository.ImageRepo;
-import com.promotion.handwriting.new_handwriting.request.CreateImageRequest;
+import com.promotion.handwriting.new_handwriting.dto.request.CreateImageRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -22,22 +24,23 @@ import java.util.UUID;
 public class ContentServiceImpl implements ContentService {
 
     private final ContentRepository contentRepository;
+    private final ContentResponseRepository contentResponseRepository;
     private final ImageRepo imageRepository;
 
     @Override
-    public void selectPage(Pageable pageable, Sort sort, SearchCondition dto) {
-
+    public Page<ContentResponse> selectPage(Pageable pageable, SearchCondition condition) {
+        return contentResponseRepository.findContent(pageable, condition);
     }
 
     @Override
-    public void selectImageInformation(String contentId, Pageable pageable) {
-
+    public Page<ImageResponse> selectImageInformation(String contentId, Pageable pageable) {
+        return contentResponseRepository.findImage(contentId, pageable);
     }
 
     @Override
-    public String createContent(ContentCreateDto dto) {
-        Content content = Content.builder("CONTENT_" + dto.getType() + "_" + UUID.randomUUID(), dto.getTitle())
-                .description(dto.getDescription())
+    public String createContent(CreateContentRequest request) {
+        Content content = Content.builder(request.getType(), request.getTitle())
+                .description(request.getDescription())
                 .build();
 
         contentRepository.save(content);

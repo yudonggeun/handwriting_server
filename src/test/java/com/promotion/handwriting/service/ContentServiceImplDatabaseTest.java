@@ -3,11 +3,11 @@ package com.promotion.handwriting.service;
 import com.promotion.handwriting.new_handwriting.domain.Content;
 import com.promotion.handwriting.new_handwriting.domain.Nimage;
 import com.promotion.handwriting.new_handwriting.domain.type.ContentType;
-import com.promotion.handwriting.new_handwriting.dto.ContentCreateDto;
+import com.promotion.handwriting.new_handwriting.dto.CreateContentRequest;
 import com.promotion.handwriting.new_handwriting.repository.ContentRepository;
 import com.promotion.handwriting.new_handwriting.repository.ImageRepo;
-import com.promotion.handwriting.new_handwriting.request.CreateImageRequest;
-import com.promotion.handwriting.new_handwriting.request.UpdateContentRequest;
+import com.promotion.handwriting.new_handwriting.dto.request.CreateImageRequest;
+import com.promotion.handwriting.new_handwriting.dto.request.UpdateContentRequest;
 import com.promotion.handwriting.new_handwriting.service.ContentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,12 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
-class ContentServiceImplTest {
+class ContentServiceImplDatabaseTest {
 
     @Autowired
     ContentService service;
@@ -33,7 +32,7 @@ class ContentServiceImplTest {
     Content content;
     @BeforeEach
     public void create_temporary_content_data(){
-        content = Content.builder("test_id" + UUID.randomUUID(), "test_title")
+        content = Content.builder(ContentType.CONTENT, "test_title")
                 .build();
         content = repository.save(content);
     }
@@ -41,7 +40,7 @@ class ContentServiceImplTest {
     @DisplayName("컨텐츠 생성하기")
     public void test_create_content() {
         //given
-        ContentCreateDto dto = new ContentCreateDto();
+        CreateContentRequest dto = new CreateContentRequest();
         String title = "test_title";
         String description = "test_description";
         ContentType type = ContentType.CONTENT;
@@ -68,6 +67,7 @@ class ContentServiceImplTest {
         //when
         String afterTitle = "after_title";
         String afterDescription = "after_description";
+
         UpdateContentRequest request = new UpdateContentRequest();
         request.setContentId(content.getId());
         request.setTitle(afterTitle);
@@ -84,20 +84,40 @@ class ContentServiceImplTest {
     @DisplayName("이미지 없는 컨텐츠 삭제하기")
     public void test_delete_content_row(){
         //given
-        String contentId = content.getId();
 
         //when
-        service.deleteContent(contentId);
+        service.deleteContent(content.getId());
 
         //then
-        Optional<Content> optionalContent = repository.findById(contentId);
+        Optional<Content> optionalContent = repository.findById(content.getId());
 
         assertThat(optionalContent.isEmpty()).isTrue();
 
     }
 
     @Test
-    @DisplayName("이미지 database에 생성하기")
+    @DisplayName("이미지 있는 컨텐츠 삭제하기")
+    public void test_delete_content_with_image(){
+        //given
+        CreateImageRequest request = new CreateImageRequest();
+        request.setContentId(content.getId());
+        request.setOriginName("request_filename");
+        request.setCompressName("request_compress_filename");
+        request.setPath("/test/path");
+
+        Long imageId = service.createImage(request);
+
+        //when
+        service.deleteContent(content.getId());
+        Optional<Content> optionalContent = repository.findById(content.getId());
+        Optional<Nimage> optionalImage = imageRepository.findById(imageId);
+        //then
+        assertThat(optionalContent.isEmpty()).isTrue();
+        assertThat(optionalImage.isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("이미지 생성하기")
     public void test_create_image_in_db() {
         //given
         CreateImageRequest request = new CreateImageRequest();
@@ -115,7 +135,7 @@ class ContentServiceImplTest {
     }
 
     @Test
-    @DisplayName("이미지 데이터 베이스에서 삭제 하기")
+    @DisplayName("이미지 삭제 하기")
     public void test_delete_image_in_db() {
         //given
         Nimage image = new Nimage("test", "testcompress", "/path", content.getId());
@@ -127,4 +147,5 @@ class ContentServiceImplTest {
         Optional<Nimage> optionalImage = imageRepository.findById(image.getId());
         assertThat(optionalImage.isEmpty()).isTrue();
     }
+
 }

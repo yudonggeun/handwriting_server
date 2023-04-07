@@ -1,7 +1,7 @@
 package com.promotion.handwriting.dto;
 
 import com.promotion.handwriting.dto.image.ImageDto;
-import com.promotion.handwriting.dto.image.UrlImageDto;
+import com.promotion.handwriting.dto.image.ImageResponse;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.util.UrlUtil;
@@ -12,22 +12,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
-public class ContentDto {
+public class ContentResponse {
     String id;
     String title;
     String description;
 
     List<ImageDto> images = new LinkedList<>();
 
-    public ContentDto() {
+    public ContentResponse() {
     }
 
-    public static ContentDto convert(Ad ad) {
+    public static ContentResponse convert(Ad ad) {
         if (ad == null) return null;
         if (ad.getType() != AdType.CONTENT) {
             throw new RuntimeException("Ad type is not intro. convert method need AdType.CONTENT ad");
         }
-        ContentDto dto = new ContentDto();
+        ContentResponse dto = new ContentResponse();
         dto.setId(ad.getId() + "");
         dto.setTitle(ad.getTitle());
         dto.setDescription(ad.getDetail());
@@ -37,7 +37,7 @@ public class ContentDto {
                     String originUrl = UrlUtil.getImageUrl(ad.getResourcePath(), image.getImageName());
                     String compressUrl = UrlUtil.getImageUrl(ad.getResourcePath(),
                             image.getCompressImageName() == null ? image.getImageName() : image.getCompressImageName());
-                    return UrlImageDto.make(originUrl, compressUrl);
+                    return ImageResponse.make(originUrl, compressUrl);
                 })
                 .collect(Collectors.toList()));
 

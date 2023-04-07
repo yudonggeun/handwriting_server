@@ -1,10 +1,10 @@
 package com.promotion.handwriting.service.business;
 
-import com.promotion.handwriting.dto.ContentDto;
+import com.promotion.handwriting.dto.ContentResponse;
 import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.dto.SimpleContentDto;
 import com.promotion.handwriting.dto.image.MultipartImageDto;
-import com.promotion.handwriting.dto.image.UrlImageDto;
+import com.promotion.handwriting.dto.image.ImageResponse;
 import com.promotion.handwriting.dto.file.LocalFileToken;
 import com.promotion.handwriting.dto.file.FileToken;
 import com.promotion.handwriting.dto.image.ImageDto;
@@ -55,7 +55,7 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public ContentDto addContentAd(ContentDto dto) throws IOException {
+    public ContentResponse addContentAd(ContentResponse dto) throws IOException {
         Ad ad = Ad.createAd(AdType.CONTENT, dto.getTitle(), dto.getDescription(), "/content/" + UUID.randomUUID());
 
         for (ImageDto imageDto : dto.getImages()) {
@@ -82,7 +82,7 @@ public class DataServiceImpl implements DataService {
             }
         }
         adRepository.save(ad);
-        return ContentDto.convert(ad);
+        return ContentResponse.convert(ad);
     }
 
     @Override
@@ -123,28 +123,28 @@ public class DataServiceImpl implements DataService {
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<ContentDto> getContentDtoById(long id) {
+    public Optional<ContentResponse> getContentDtoById(long id) {
         Optional<Ad> findAd = adRepository.findById(id);
-        return Optional.ofNullable(ContentDto.convert(findAd.orElse(null)));
+        return Optional.ofNullable(ContentResponse.convert(findAd.orElse(null)));
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<ContentDto> getContentDtos() {
+    public List<ContentResponse> getContentDtos() {
         return adRepository.findContents().stream()
-                .map(ContentDto::convert)
+                .map(ContentResponse::convert)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<UrlImageDto> getImageUrlAtContent(String contentId, int start, int end) {
+    public List<ImageResponse> getImageUrlAtContent(String contentId, int start, int end) {
         Ad content = adRepository.findAdWithImagesById(Long.parseLong(contentId));
         return content.getImages()
                 .stream()
                 .map(image -> {
                     String originUrl = UrlUtil.getImageUrl(content.getResourcePath(), image.getImageName());
                     String compressUrl = UrlUtil.getImageUrl(content.getResourcePath(), image.getCompressImageName());
-                    return UrlImageDto.make(originUrl, compressUrl);
+                    return ImageResponse.make(originUrl, compressUrl);
                 }).collect(Collectors.toList());
     }
 

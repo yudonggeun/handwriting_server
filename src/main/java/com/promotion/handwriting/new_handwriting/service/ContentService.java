@@ -1,29 +1,31 @@
 package com.promotion.handwriting.new_handwriting.service;
 
+import com.promotion.handwriting.dto.ContentResponse;
+import com.promotion.handwriting.dto.image.ImageResponse;
 import com.promotion.handwriting.new_handwriting.domain.Nimage;
-import com.promotion.handwriting.new_handwriting.request.UpdateContentRequest;
-import com.promotion.handwriting.new_handwriting.dto.ContentCreateDto;
+import com.promotion.handwriting.new_handwriting.dto.request.UpdateContentRequest;
+import com.promotion.handwriting.new_handwriting.dto.CreateContentRequest;
 import com.promotion.handwriting.new_handwriting.dto.SearchCondition;
-import com.promotion.handwriting.new_handwriting.request.CreateImageRequest;
+import com.promotion.handwriting.new_handwriting.dto.request.CreateImageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 public interface ContentService {
 
     /**
      * 기본 페이지 조회
      */
-    void selectPage(Pageable pageable, Sort sort, SearchCondition dto);
+    Page<ContentResponse> selectPage(Pageable pageable, SearchCondition condition);
 
     /**
      * 이미지 리스트 조회
      */
-    void selectImageInformation(String contentId, Pageable pageable);
+    Page<ImageResponse> selectImageInformation(String contentId, Pageable pageable);
 
     /**
      * 홍보 데이터 추가
      */
-    String createContent(ContentCreateDto dto);
+    String createContent(CreateContentRequest request);
 
     /**
      * 홍보 데이터 삭제
@@ -33,7 +35,7 @@ public interface ContentService {
     /**
      * 홍보 데이터 수정
      */
-    void updateContent(UpdateContentRequest dto);
+    void updateContent(UpdateContentRequest request);
 
     /**
      * 이미지 삭제

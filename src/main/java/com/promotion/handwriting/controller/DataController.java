@@ -86,7 +86,7 @@ public class DataController {
     }
 
     @DeleteMapping("/content")
-    public ApiResponse deletePromotionContent(@RequestBody ContentDto dto) {
+    public ApiResponse deletePromotionContent(@RequestBody ContentResponse dto) {
         log.info("DELETE : /data/content [input] >> " + dto);
 
         try {
@@ -99,7 +99,7 @@ public class DataController {
     }
 
     @PutMapping("/content")
-    public ApiResponse createContent(@RequestPart(name = "dto") ContentDto dto,
+    public ApiResponse createContent(@RequestPart(name = "dto") ContentResponse dto,
                                     @RequestPart(value = "image", required = false) List<MultipartFile> imageFiles) {
 
         log.info("PUT : /data/content [input] >> dto : " + dto);

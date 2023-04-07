@@ -1,16 +1,21 @@
 package com.promotion.handwriting.new_handwriting.domain;
 
+import com.promotion.handwriting.new_handwriting.domain.type.ContentType;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
 @Slf4j
 public class Content {
+    /**
+     * Content id is depended on UUID.randomUUID()
+     */
     @Id
     @Column(name = "id", nullable = false)
     private String id;
@@ -23,29 +28,30 @@ public class Content {
     private String title;
     @Column(name = "description")
     private String description;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private ContentType type;
 
     /**
      * change content title text.
      * if input string is null, this method is not working.
-     * @param title
+     *
+     * @param title change title
      */
     public void changeTitleText(String title) {
-        if(title == null) return;
+        if (title == null) return;
         this.title = title;
     }
 
     /**
      * change content description text.
      * if input string is null, this method is not working.
-     * @param description
+     *
+     * @param description change description
      */
     public void changeDescriptionText(String description) {
-        if(description == null) return;
+        if (description == null) return;
         this.description = description;
-    }
-    public void addImage(Nimage image){
-       if(image == null) return;
-       this.images.add(image);
     }
 
     public String getId() {
@@ -66,23 +72,24 @@ public class Content {
 
     /**
      * client have to create object using this method.
-     * @param id primary key, this parameter is using in database primary key.
+     *
+     * @param type  this is content type. please input ContentType.INTRO, ContentType.CONTENT
      * @param title this is content title value.
      * @return return Builder instance.
      */
-    public static Builder builder(String id, String title) {
-        return new Builder(id, title);
+    public static Builder builder(ContentType type, String title) {
+        return new Builder(type, title);
     }
 
     /**
      * this class provide a client to set optional values.
      */
     public static class Builder {
-        private Content content;
+        private final Content content;
 
-        public Builder(String id, String title) {
+        public Builder(ContentType type, String title) {
             content = new Content();
-            content.id = id;
+            content.id = UUID.randomUUID().toString();
             content.title = title;
         }
 
@@ -101,3 +108,6 @@ public class Content {
         }
     }
 }
+
+
+
