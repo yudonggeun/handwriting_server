@@ -15,13 +15,13 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    @Value("${JWT.ISSUER}")
+    @Value("${JWT.ISSUER:test}")
     private String issuer;
 
-    @Value("${JWT.SECRET}")
+    @Value("${JWT.SECRET:test}")
     private String secret;
 
-    @Value("${JWT.EXPIRE_MINUTE}")
+    @Value("${JWT.EXPIRE_MINUTE:10}")
     private int expireMinute;
 
     public String createJwt(String username) {

@@ -1,13 +1,12 @@
 package com.promotion.handwriting.repository.file;
 
-import com.promotion.handwriting.dto.file.LocalFileToken;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.File;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class LocalFileRepositoryTest {
 
     @Autowired

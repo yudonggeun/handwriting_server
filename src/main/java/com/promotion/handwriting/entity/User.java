@@ -10,12 +10,13 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor
+@Table(name = "USERS")
 public class User extends BasisEntity {
-    @Column(name = "USER_ID", nullable = false)
+    @Column(nullable = false)
     private String userId;
-    @Column(name = "PASSWORD", nullable = false)
+    @Column(nullable = false)
     private String password;
-    @Column(name = "ROLE", nullable = false)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserType role;
 
