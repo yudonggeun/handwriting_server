@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.text.html.Option;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -82,7 +83,7 @@ public class DataServiceImpl implements DataService {
             }
         }
         adRepository.save(ad);
-        return ContentDto.convert(ad);
+        return ad.contentDto();
     }
 
     @Override
@@ -125,14 +126,15 @@ public class DataServiceImpl implements DataService {
     @Override
     public Optional<ContentDto> getContentDtoById(long id) {
         Optional<Ad> findAd = adRepository.findById(id);
-        return Optional.ofNullable(ContentDto.convert(findAd.orElse(null)));
+        Ad ad = findAd.orElseThrow();
+        return Optional.of(ad.contentDto());
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<ContentDto> getContentDtos() {
         return adRepository.findContents().stream()
-                .map(ContentDto::convert)
+                .map(Ad::contentDto)
                 .collect(Collectors.toList());
     }
 

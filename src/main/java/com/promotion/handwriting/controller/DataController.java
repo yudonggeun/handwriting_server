@@ -23,9 +23,8 @@ import static com.promotion.handwriting.enums.ApiResponseStatus.*;
 @RequiredArgsConstructor
 @Slf4j
 public class DataController {
-    private final DataService dataService;
 
-    private final FileService fileService;
+    private final DataService dataService;
 
     @GetMapping("/content")
     public ApiResponse getPromotionInformation() {

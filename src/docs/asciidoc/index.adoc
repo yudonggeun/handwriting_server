@@ -1,0 +1,20 @@
+ifndef::snippets[]
+:snippets: ../../build/generated-snippets
+endif::[]
+= 예쁜글씨 홍보사이트 API 문서
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+[[test-create]]
+=== 임시 api docs
+
+=== HTTP Request
+include::{snippets}/get-content/http-request.adoc[]
+
+=== HTTP Response
+include::{snippets}/get-content/http-response.adoc[]
+include::{snippets}/get-content/response-fields.adoc[]
