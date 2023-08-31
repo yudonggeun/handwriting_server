@@ -41,22 +41,6 @@ public class DataServiceImpl implements DataService {
     private final FileRepository fileRepository;
 
     @Override
-    public IntroDto createIntroAd() throws IOException {
-        Ad intro = adRepository.findContents(AdType.INTRO).get(0);
-        if (intro == null) {
-            intro = Ad.createAd(AdType.INTRO, "", "소개글을 작성해주세요", "/intro");
-            Image image = Image.builder()
-                    .priority(0)
-                    .imageName("no_image_jpg")
-                    .compressImageName("no_image_jpg")
-                    .build();
-            intro.addImage(image);
-            intro = adRepository.save(intro);
-        }
-        return intro.contentDto().introDto();
-    }
-
-    @Override
     public ContentDto addContentAd(ContentDto dto) throws IOException {
         Ad ad = Ad.createAd(AdType.CONTENT, dto.getTitle(), dto.getDescription(), "/content/" + UUID.randomUUID());
 
@@ -118,23 +102,8 @@ public class DataServiceImpl implements DataService {
 
     @Transactional(readOnly = true)
     @Override
-    public IntroDto getIntroDto() {
-        Ad intro = adRepository.findContents(AdType.INTRO).get(0);
-        return intro.contentDto().introDto();
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<ContentDto> getContentDtoById(long id) {
-        Optional<Ad> findAd = adRepository.findById(id);
-        Ad ad = findAd.orElseThrow();
-        return Optional.of(ad.contentDto());
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<ContentDto> getContentDtos() {
-        return adRepository.findContents(AdType.CONTENT).stream()
+    public List<ContentDto> getContentDtos(AdType type) {
+        return adRepository.findContents(type).stream()
                 .map(Ad::contentDto)
                 .collect(Collectors.toList());
     }

@@ -3,6 +3,7 @@ package com.promotion.handwriting.api;
 import com.promotion.handwriting.controller.DataController;
 import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.image.UrlImageDto;
+import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.service.business.DataService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ public class DataApiTest extends RestDocs {
         var id = "1";
         var title = "content title";
         var description = "content detail";
-        given(dataService.getContentDtos())
+        given(dataService.getContentDtos(AdType.CONTENT))
                 .willReturn(List.of(ContentDto.builder()
                         .id(id)
                         .title(title)

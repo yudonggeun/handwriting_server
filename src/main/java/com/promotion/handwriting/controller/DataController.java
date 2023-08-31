@@ -4,6 +4,7 @@ import com.promotion.handwriting.dto.*;
 import com.promotion.handwriting.dto.http.ApiResponse;
 import com.promotion.handwriting.dto.image.ImageDto;
 import com.promotion.handwriting.dto.image.MultipartImageDto;
+import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.service.business.DataService;
 import com.promotion.handwriting.service.file.FileService;
 import com.promotion.handwriting.util.UrlUtil;
@@ -29,17 +30,20 @@ public class DataController {
     @GetMapping("/content")
     public ApiResponse getPromotionInformation() {
         try {
-            return ApiResponse.success(dataService.getContentDtos());
+            return ApiResponse.success(dataService.getContentDtos(AdType.CONTENT));
         } catch (IOException e) {
             e.printStackTrace();
             return ApiResponse.fail(FAIL, null);
         }
     }
 
+    @Deprecated
     @GetMapping("/intro")
     public ApiResponse getPromotionIntroInformation() {
         try {
-            return ApiResponse.success(dataService.getIntroDto());
+            //todo 오류 발생 가능성 : 리펙토링 예정 추후 url 통합으로 해결할 것
+            IntroDto introDto = dataService.getContentDtos(AdType.INTRO).get(0).introDto();
+            return ApiResponse.success(introDto);
         } catch (Exception e) {
             e.printStackTrace();
             return ApiResponse.fail(FAIL, null);
