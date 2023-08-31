@@ -2,6 +2,7 @@ package com.promotion.handwriting.api;
 
 import com.promotion.handwriting.controller.DataController;
 import com.promotion.handwriting.dto.ContentDto;
+import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.dto.image.UrlImageDto;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.service.business.DataService;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;
@@ -47,22 +49,24 @@ public class DataApiTest extends RestDocs {
                         .build()));
 
         this.mockMvc.perform(get("/data/content").accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.responseTime").exists())
-                .andExpect(jsonPath("$.status").value("success"))
-                .andExpect(jsonPath("$.data").exists())
-                .andExpect(jsonPath("$.data[0].id").value(id))
-                .andExpect(jsonPath("$.data[0].title").value(title))
-                .andExpect(jsonPath("$.data[0].description").value(description))
-                .andExpect(jsonPath("$.data[0].images").exists())
-                .andExpect(jsonPath("$.data[0].images[*].original").value("/image/origin/test.jpg"))
-                .andExpect(jsonPath("$.data[0].images[*].compress").value("/image/compress/test.jpg"))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.responseTime").exists(),
+                        jsonPath("$.status").value("success"),
+                        jsonPath("$.data").exists(),
+                        jsonPath("$.data[0].id").value(id),
+                        jsonPath("$.data[0].title").value(title),
+                        jsonPath("$.data[0].description").value(description),
+                        jsonPath("$.data[0].images").exists(),
+                        jsonPath("$.data[0].images[*].original").value("/image/origin/test.jpg"),
+                        jsonPath("$.data[0].images[*].compress").value("/image/compress/test.jpg")
+                )
                 .andDo(document("get-content",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("responseTime")
-                                        .description("응받 시간"),
+                                        .description("응답 시간"),
                                 fieldWithPath("status").type(JsonFieldType.STRING)
                                         .description("응답 상태"),
                                 fieldWithPath("data").type(JsonFieldType.ARRAY)
@@ -78,14 +82,54 @@ public class DataApiTest extends RestDocs {
                                 fieldWithPath("data[].images[].original").type(JsonFieldType.STRING)
                                         .description("원본 이미지 경로"),
                                 fieldWithPath("data[].images[].compress").type(JsonFieldType.STRING)
-                                        .description("원본 이미지 경로")
+                                        .description("압축 이미지 경로")
                         )
                 ));
     }
 
-    @DisplayName("표지 정보 조회")
+    @Deprecated
+    @DisplayName("표지 정보 조회 : 삭제 예정 url")
     @Test
-    public void getIntro(){
+    public void getIntro() throws Exception {
 
+        var image = "/intro/image.jpg";
+        var dto = ContentDto.builder()
+                .images(List.of(new UrlImageDto(image, "")))
+                .id("001")
+                .title("title")
+                .description("글1#글2#글3")
+                .build();
+
+        given(dataService.getContentDtos(AdType.INTRO))
+                .willReturn(List.of(dto));
+
+
+        mockMvc.perform(get("/data/intro"))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.responseTime").exists(),
+                        jsonPath("$.status").value("success"),
+                        jsonPath("$.data").exists(),
+                        jsonPath("$.data.image").value(image),
+                        jsonPath("$.data.comments").exists()
+                )
+                .andDo(
+                        document("get-intro",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                responseFields(
+                                        fieldWithPath("responseTime")
+                                                .description("응답 시간"),
+                                        fieldWithPath("status").type(JsonFieldType.STRING)
+                                                .description("응답 상태"),
+                                        fieldWithPath("data").type(JsonFieldType.OBJECT)
+                                                .description("컨텐츠 리스트"),
+                                        fieldWithPath("data.image").type(JsonFieldType.STRING)
+                                                .description("인트로 이미지 uri"),
+                                        fieldWithPath("data.comments").type(JsonFieldType.ARRAY)
+                                                .description("페이지 소개글 리스트")
+                                )
+                        )
+                );
     }
 }
