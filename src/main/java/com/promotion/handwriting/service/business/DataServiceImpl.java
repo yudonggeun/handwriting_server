@@ -25,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -103,7 +102,7 @@ public class DataServiceImpl implements DataService {
     @Transactional(readOnly = true)
     @Override
     public List<ContentDto> getContentDtos(AdType type) {
-        return adRepository.findContents(type).stream()
+        return adRepository.findByType(type).stream()
                 .map(Ad::contentDto)
                 .collect(Collectors.toList());
     }
@@ -130,7 +129,7 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public boolean updateIntro(IntroDto dto, MultipartFile file) throws IOException {
-        Ad intro = adRepository.findContents(AdType.INTRO).get(0);
+        Ad intro = adRepository.findByType(AdType.INTRO).get(0);
 
         StringBuilder sb = new StringBuilder();
         //TODO css로 해결하는것이 경제적

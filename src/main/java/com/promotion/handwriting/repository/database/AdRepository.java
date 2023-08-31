@@ -13,8 +13,7 @@ import java.util.List;
 public interface AdRepository extends JpaRepository<Ad, Long> {
 
     @EntityGraph(attributePaths = {"images"})
-    @Query("select a from Ad a where a.type = :type'")
-    List<Ad> findContents(@Param("type") AdType type);
+    List<Ad> findByType(AdType type);
 
     @EntityGraph(attributePaths = {"images"})
     Ad findAdWithImagesById(@Param("id") Long id);
