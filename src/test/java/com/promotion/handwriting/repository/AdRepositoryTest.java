@@ -73,7 +73,7 @@ class AdRepositoryTest {
 
     @Test
     void findByType() {
-        Ad intro = adRepository.findIntroAd();
+        Ad intro = adRepository.findContents(AdType.INTRO).get(0);
         assertThat(test_intro_ad.getDetail()).isEqualTo(intro.getDetail());
         assertThat(test_intro_ad.getType()).isEqualTo(intro.getType());
         assertThat(test_intro_ad.getTitle()).isEqualTo(intro.getTitle());
@@ -88,7 +88,7 @@ class AdRepositoryTest {
 
     @Test
     void findAlByType() {
-        List<Ad> contents = adRepository.findContents();
+        List<Ad> contents = adRepository.findContents(AdType.CONTENT);
 
         for (Ad content : contents) {
             assertThat(content.getType()).isEqualTo(AdType.CONTENT);
@@ -115,7 +115,7 @@ class AdRepositoryTest {
     @Test
     void findAdWithImagesById() {
 
-        Ad introAd = adRepository.findIntroAd();
+        Ad introAd = adRepository.findContents(AdType.INTRO).get(0);
         Ad targetAd = adRepository.findAdWithImagesById(introAd.getId());
 
         assertThat(test_intro_ad.getDetail()).isEqualTo(targetAd.getDetail());

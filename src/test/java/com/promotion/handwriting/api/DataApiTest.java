@@ -4,7 +4,6 @@ import com.promotion.handwriting.controller.DataController;
 import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.image.UrlImageDto;
 import com.promotion.handwriting.service.business.DataService;
-import com.promotion.handwriting.service.file.FileService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -16,7 +15,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -80,5 +80,11 @@ public class DataApiTest extends RestDocs {
                                         .description("원본 이미지 경로")
                         )
                 ));
+    }
+
+    @DisplayName("표지 정보 조회")
+    @Test
+    public void getIntro(){
+
     }
 }

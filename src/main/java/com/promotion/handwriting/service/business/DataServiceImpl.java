@@ -3,11 +3,11 @@ package com.promotion.handwriting.service.business;
 import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.dto.SimpleContentDto;
+import com.promotion.handwriting.dto.file.FileToken;
+import com.promotion.handwriting.dto.file.LocalFileToken;
+import com.promotion.handwriting.dto.image.ImageDto;
 import com.promotion.handwriting.dto.image.MultipartImageDto;
 import com.promotion.handwriting.dto.image.UrlImageDto;
-import com.promotion.handwriting.dto.file.LocalFileToken;
-import com.promotion.handwriting.dto.file.FileToken;
-import com.promotion.handwriting.dto.image.ImageDto;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.enums.AdType;
@@ -23,9 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.text.html.Option;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Primary
@@ -41,7 +42,7 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public IntroDto createIntroAd() throws IOException {
-        Ad intro = adRepository.findIntroAd();
+        Ad intro = adRepository.findContents(AdType.INTRO).get(0);
         if (intro == null) {
             intro = Ad.createAd(AdType.INTRO, "", "소개글을 작성해주세요", "/intro");
             Image image = Image.builder()
@@ -52,7 +53,7 @@ public class DataServiceImpl implements DataService {
             intro.addImage(image);
             intro = adRepository.save(intro);
         }
-        return IntroDto.convert(intro);
+        return intro.contentDto().introDto();
     }
 
     @Override
@@ -118,8 +119,8 @@ public class DataServiceImpl implements DataService {
     @Transactional(readOnly = true)
     @Override
     public IntroDto getIntroDto() {
-        Ad intro = adRepository.findIntroAd();
-        return IntroDto.convert(intro);
+        Ad intro = adRepository.findContents(AdType.INTRO).get(0);
+        return intro.contentDto().introDto();
     }
 
     @Transactional(readOnly = true)
@@ -133,7 +134,7 @@ public class DataServiceImpl implements DataService {
     @Transactional(readOnly = true)
     @Override
     public List<ContentDto> getContentDtos() {
-        return adRepository.findContents().stream()
+        return adRepository.findContents(AdType.CONTENT).stream()
                 .map(Ad::contentDto)
                 .collect(Collectors.toList());
     }
@@ -160,7 +161,7 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public boolean updateIntro(IntroDto dto, MultipartFile file) throws IOException {
-        Ad intro = adRepository.findIntroAd();
+        Ad intro = adRepository.findContents(AdType.INTRO).get(0);
 
         StringBuilder sb = new StringBuilder();
         //TODO css로 해결하는것이 경제적
