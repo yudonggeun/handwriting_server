@@ -30,7 +30,7 @@ public interface DataService {
     boolean updateContent(SimpleContentDto dto);
 
     //컨텐츠 삭제
-    void deleteAd(long id);
+    void deleteAd(long id) throws IOException;
     //이미지 삭제
     void deleteImages(List<String> fileNames, long adId);
 }

@@ -15,7 +15,7 @@ import java.io.IOException;
 public class Image extends BasisEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ad_id")
+    @JoinColumn(name = "CONTENTS")
     private Ad ad;
     @Column(name = "PRIORITY")
     private int priority;
@@ -62,9 +62,8 @@ public class Image extends BasisEntity {
 
     public Image save(String path, MultipartFile file, FileRepository fileRepository) throws IOException {
         FileToken fileToken = LocalFileToken.save(file.getInputStream(), path, imageName);
-        if (!fileRepository.save(fileToken) || !fileRepository.compressAndSave(imageName, compressImageName, path)) {
-            throw new IllegalArgumentException("파일 저장 실패");
-        }
+        fileRepository.save(fileToken);
+        fileRepository.compressAndSave(imageName, compressImageName, path);
         return this;
     }
 

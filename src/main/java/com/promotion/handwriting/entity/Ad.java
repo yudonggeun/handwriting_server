@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @Getter
 @Slf4j
 @NoArgsConstructor
+@Table(name = "CONTENTS")
 public class Ad extends BasisEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "AD_TYPE")

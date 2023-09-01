@@ -26,7 +26,7 @@ public class ImageUtil {
      * @return if process is working good, return true. if not, return false.
      */
     public static boolean compress(String targetPath, String compressImagePath) {
-        String formatName = getFormatName(targetPath);
+        String formatName = format(targetPath);
         try {
             if (formatName.equals("jpg")) {
                 resizeImage(targetPath, compressImagePath);
@@ -44,7 +44,7 @@ public class ImageUtil {
 
     private static final int maxWidth = 400, maxHeight = 400;
 
-    public static void resizeImage(String inputImagePath, String outputImagePath) throws IOException {
+    private static void resizeImage(String inputImagePath, String outputImagePath) throws IOException {
         // Read the input image
         File inputFile = new File(inputImagePath);
         BufferedImage inputImage = ImageIO.read(inputFile);
@@ -74,11 +74,11 @@ public class ImageUtil {
 
         // Write the resized image to the output file
         File outputFile = new File(outputImagePath);
-        ImageIO.write(resizedImage, getFormatName(outputImagePath), outputFile);
+        ImageIO.write(resizedImage, format(outputImagePath), outputFile);
     }
 
-    public static void compressImage(String inputFilePath, String outputFilePath, float compressionQuality) {
-        if (getFormatName(inputFilePath).equals("png")) {
+    private static void compressImage(String inputFilePath, String outputFilePath, float compressionQuality) {
+        if (format(inputFilePath).equals("png")) {
             compressPNG(inputFilePath, outputFilePath, (int) (compressionQuality * 9));
         } else {
             compressJPG(inputFilePath, outputFilePath, compressionQuality);
@@ -112,7 +112,7 @@ public class ImageUtil {
             BufferedImage originalImage = ImageIO.read(new File(inputFilePath));
 
             // Get the image writer
-            ImageWriter writer = ImageIO.getImageWritersByFormatName(getFormatName(inputFilePath)).next();
+            ImageWriter writer = ImageIO.getImageWritersByFormatName(format(inputFilePath)).next();
 
             // Create a write param that will compress the image
             ImageWriteParam writeParam = writer.getDefaultWriteParam();
@@ -128,9 +128,7 @@ public class ImageUtil {
         }
     }
 
-    private static String getFormatName(String filePath) {
+    private static String format(String filePath) {
         return filePath.substring(filePath.lastIndexOf(".") + 1);
     }
-
-
 }

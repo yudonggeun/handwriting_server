@@ -3,8 +3,6 @@ package com.promotion.handwriting.service.business;
 import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.dto.SimpleContentDto;
-import com.promotion.handwriting.dto.file.FileToken;
-import com.promotion.handwriting.dto.file.LocalFileToken;
 import com.promotion.handwriting.dto.image.UrlImageDto;
 import com.promotion.handwriting.dto.request.CreateContentRequest;
 import com.promotion.handwriting.entity.Ad;
@@ -68,11 +66,11 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public List<UrlImageDto> getImageUrlAtContent(String contentId, int start, int end) {
-        return adRepository.findAdWithImagesById(Long.parseLong(contentId))
+        return adRepository.findWithImageById(Long.parseLong(contentId))
                 .getImages().stream()
                 .map(image -> UrlImageDto.make(
-                        UrlUtil.getImageUrl(adRepository.findAdWithImagesById(Long.parseLong(contentId)).getResourcePath(), image.getImageName()),
-                        UrlUtil.getImageUrl(adRepository.findAdWithImagesById(Long.parseLong(contentId)).getResourcePath(), image.getCompressImageName())))
+                        UrlUtil.getImageUrl(adRepository.findWithImageById(Long.parseLong(contentId)).getResourcePath(), image.getImageName()),
+                        UrlUtil.getImageUrl(adRepository.findWithImageById(Long.parseLong(contentId)).getResourcePath(), image.getCompressImageName())))
                 .collect(Collectors.toList());
     }
 
@@ -104,17 +102,16 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public void deleteAd(long id) {
-        var content = adRepository.findAdWithImagesById(id);
-        FileToken token = LocalFileToken.deleteDirectory(content.getResourcePath());
-        fileRepository.deleteDirectory(token);
-        imageRepository.deleteAllByAd(id);
-        adRepository.deleteIgnoreReferenceById(id);
+    public void deleteAd(long id) throws IOException {
+        var content = adRepository.findWithImageById(id);
+        fileRepository.deleteDirectory(content.getResourcePath());
+        imageRepository.deleteAllByAdId(id);
+        adRepository.deleteById(id);
     }
 
     @Override
     public void deleteImages(List<String> fileNames, long adId) {
-        var content = adRepository.findAdWithImagesById(adId);
+        var content = adRepository.findWithImageById(adId);
         List<Image> deleteImage = content.getImages().stream()
                 .filter(image -> fileNames.contains(image.getImageName()))
                 .collect(Collectors.toList());

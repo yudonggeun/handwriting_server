@@ -11,5 +11,4 @@ public class HandwritingApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(HandwritingApplication.class, args);
 	}
-
 }

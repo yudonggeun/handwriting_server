@@ -62,7 +62,7 @@ public class DataController {
     }
 
     @DeleteMapping("/content")
-    public ApiResponse deleteContent(@RequestBody ContentDto dto) {
+    public ApiResponse deleteContent(@RequestBody ContentDto dto) throws IOException {
         log.info("DELETE : /data/content [input] >> " + dto);
         dataService.deleteAd(Long.parseLong(dto.getId()));
         return ApiResponse.success(true);

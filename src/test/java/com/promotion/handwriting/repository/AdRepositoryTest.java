@@ -6,24 +6,21 @@ import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.database.AdRepository;
 import com.promotion.handwriting.repository.database.ImageRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 @Slf4j
 @SpringBootTest
 @ActiveProfiles("test")
 @Rollback
-@Transactional
 class AdRepositoryTest {
 
     @Autowired
@@ -31,13 +28,47 @@ class AdRepositoryTest {
     @Autowired
     ImageRepository imageRepository;
 
-    Ad test_intro_ad = createAd(AdType.INTRO, "", "소개입니다.", "/test_file");
-    Ad test_content1 = createAd(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1");
-    Ad test_content2 = createAd(AdType.CONTENT, "test Content2", "소2개입니다.", "/" + "test_file2");
-    Ad test_content3 = createAd(AdType.CONTENT, "test Content3", "소34개입니다.", "/" + "test_file34");
-    Ad test_content4 = createAd(AdType.CONTENT, "test Content4", "소4개입니다.", "/" + "test_fi4le");
-    Ad test_content5 = createAd(AdType.CONTENT, "findAdWithImagesById", "소개입니다.", "/test_file");
+    @DisplayName("특정 id를 가진 content는 삭제되고 하위 이미지도 같이 삭제되어야한다.")
+    @Test
+    public void deleteById() {
+        // given
+        Ad content = adRepository.save(createAd(AdType.CONTENT, "", "", "/"));
+        imageRepository.saveAndFlush(Image.builder().content(content).build());
+        // when
+        adRepository.deleteById(content.getId());
+        // then
+        assertThat(adRepository.findById(content.getId())).isEmpty();
+        assertThat(imageRepository.findByAdId(content.getId())).isEmpty();
+    }
 
+    @DisplayName("Content 타입의 컨텐츠는 모두 content 타입이다.")
+    @Test
+    public void findByType() {
+        // given when
+        adRepository.save(createAd(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1"));
+        adRepository.save(createAd(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1"));
+        adRepository.save(createAd(AdType.INTRO, "test intro", "intro소1개입니다.", "/" + "test_file1"));
+        // then
+        assertThat(adRepository.findByType(AdType.CONTENT)).hasSize(2)
+                .extracting("type", "title", "detail", "resourcePath")
+                .contains(tuple(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1"));
+        assertThat(adRepository.findByType(AdType.INTRO)).hasSize(1)
+                .extracting("type", "title", "detail", "resourcePath")
+                .contains(tuple(AdType.INTRO, "test intro", "intro소1개입니다.", "/" + "test_file1"));
+    }
+
+    @DisplayName("특정 id의 컨텐츠를 조회시 id 값이 같고 관련된 image를 조회할 수 있다.")
+    @Test
+    public void findById() {
+        // given
+        Ad content = adRepository.saveAndFlush(createAd(AdType.CONTENT, "", "", "/"));
+        imageRepository.saveAndFlush(Image.builder().content(content).build());
+        // when
+        var findContent = adRepository.findWithImageById(content.getId());
+        // then
+        assertThat(content.getId()).isEqualTo(findContent.getId());
+        assertThat(findContent.getImages()).hasSize(1);
+    }
     private Ad createAd(AdType type, String title, String detail, String resourcePath) {
         return Ad.builder()
                 .type(type)
@@ -47,97 +78,9 @@ class AdRepositoryTest {
                 .build();
     }
 
-    Image image1 = Image.builder().priority(0).imageName("test1.png").build();
-    Image image2 = Image.builder().priority(1).imageName("test2.png").build();
-    Image image3 = Image.builder().priority(3).imageName("test3.png").build();
-
-    AdRepositoryTest() throws IOException {
-    }
-
-    @BeforeEach
-    void setUp() {
-        log.info("set up");
-
-        test_content5.addImages(List.of(image1, image2, image3));
-
-        test_intro_ad = adRepository.save(test_intro_ad);
-
-        test_content1 = adRepository.save(test_content1);
-        test_content2 = adRepository.save(test_content2);
-        test_content3 = adRepository.save(test_content3);
-        test_content4 = adRepository.save(test_content4);
-        test_content5 = adRepository.save(test_content5);
-    }
-
     @AfterEach
     void tearDown() {
-        log.info("tear down");
-        adRepository.delete(test_intro_ad);
-        adRepository.delete(test_content1);
-        adRepository.delete(test_content2);
-        adRepository.delete(test_content3);
-        adRepository.delete(test_content4);
-        adRepository.delete(test_content5);
-    }
-
-    @Test
-    void findByType() {
-        Ad intro = adRepository.findByType(AdType.INTRO).get(0);
-        assertThat(test_intro_ad.getDetail()).isEqualTo(intro.getDetail());
-        assertThat(test_intro_ad.getType()).isEqualTo(intro.getType());
-        assertThat(test_intro_ad.getTitle()).isEqualTo(intro.getTitle());
-        assertThat(test_intro_ad.getResourcePath()).isEqualTo(intro.getResourcePath());
-        assertThat(test_intro_ad.getImages().size()).isEqualTo(intro.getImages().size());
-        List<Image> images = test_intro_ad.getImages();
-        List<Image> introImages = intro.getImages();
-        for (Image image : images) {
-            assertThat(introImages.contains(image)).isTrue();
-        }
-    }
-
-    @Test
-    void findAlByType() {
-        List<Ad> contents = adRepository.findByType(AdType.CONTENT);
-
-        for (Ad content : contents) {
-            assertThat(content.getType()).isEqualTo(AdType.CONTENT);
-        }
-
-        level1:
-        for (Ad ad : List.of(test_content1, test_content2, test_content3, test_content4, test_content5)) {
-            for (Ad content : contents) {
-                if (
-                        content.getDetail().equals(ad.getDetail()) &&
-                                content.getResourcePath().equals(ad.getResourcePath()) &&
-                                content.getTitle().equals(ad.getTitle()) &&
-                                content.getImages().size() == ad.getImages().size()
-                ) {
-                    continue level1;
-                }
-            }
-            log.info("데이터 정합성 테스트 실패");
-            assertThat(true).isFalse();
-        }
-
-    }
-
-    @Test
-    void findAdWithImagesById() {
-
-        Ad introAd = adRepository.findByType(AdType.INTRO).get(0);
-        Ad targetAd = adRepository.findAdWithImagesById(introAd.getId());
-
-        assertThat(test_intro_ad.getDetail()).isEqualTo(targetAd.getDetail());
-        assertThat(test_intro_ad.getType()).isEqualTo(targetAd.getType());
-        assertThat(test_intro_ad.getTitle()).isEqualTo(targetAd.getTitle());
-        assertThat(test_intro_ad.getResourcePath()).isEqualTo(targetAd.getResourcePath());
-        assertThat(test_intro_ad.getImages().size()).isEqualTo(targetAd.getImages().size());
-
-        List<String> targetAdImages = targetAd.getImages().stream().map(image -> image.getImageName() + image.getPriority() + image.getId()).collect(Collectors.toList());
-        List<String> introImages = test_intro_ad.getImages().stream().map(image -> image.getImageName() + image.getPriority() + image.getId()).collect(Collectors.toList());
-
-        for (String introImage : introImages) {
-            assertThat(targetAdImages.contains(introImage)).isTrue();
-        }
+        imageRepository.deleteAllInBatch();
+        adRepository.deleteAllInBatch();
     }
 }

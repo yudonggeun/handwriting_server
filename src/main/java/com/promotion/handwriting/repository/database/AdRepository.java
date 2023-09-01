@@ -5,7 +5,6 @@ import com.promotion.handwriting.enums.AdType;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -16,9 +15,8 @@ public interface AdRepository extends JpaRepository<Ad, Long> {
     List<Ad> findByType(AdType type);
 
     @EntityGraph(attributePaths = {"images"})
-    Ad findAdWithImagesById(@Param("id") Long id);
+    Ad findWithImageById(@Param("id") Long id);
 
     @Modifying(clearAutomatically = true)
-    @Query("delete from Ad a where a.id = :ad_id")
-    void deleteIgnoreReferenceById(@Param("ad_id") long adId);
+    void deleteById(long id);
 }
