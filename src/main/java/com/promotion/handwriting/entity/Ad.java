@@ -4,12 +4,14 @@ import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.image.ImageDto;
 import com.promotion.handwriting.dto.image.UrlImageDto;
 import com.promotion.handwriting.enums.AdType;
-import com.promotion.handwriting.util.FileUtil;
+import com.promotion.handwriting.repository.file.FileRepository;
+import com.promotion.handwriting.util.ImageUtil;
 import com.promotion.handwriting.util.UrlUtil;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.io.IOException;
@@ -35,11 +37,7 @@ public class Ad extends BasisEntity {
     @OneToMany(mappedBy = "ad", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
 
-    public static Ad createAd(AdType type, String title, String detail, String resourcePath) throws IOException {
-        FileUtil.createImageDirectory(resourcePath);
-        return new Ad(type, title, detail, resourcePath);
-    }
-
+    @Builder
     private Ad(AdType type, String title, String detail, String resourcePath) {
         super();
         this.type = type;
@@ -50,12 +48,10 @@ public class Ad extends BasisEntity {
     }
 
     public void setTitle(String title) {
-        updateModifyTime();
         this.title = title;
     }
 
     public void setDetail(String detail) {
-        updateModifyTime();
         this.detail = detail;
     }
 
@@ -99,5 +95,26 @@ public class Ad extends BasisEntity {
                 .description(detail)
                 .images(dtoImage)
                 .build();
+    }
+
+    /**
+     * @param image          file
+     * @param fileRepository
+     * @return 저장된 파일의 원본 이미지 반환
+     * @throws IOException
+     */
+    public String createImage(MultipartFile file, FileRepository fileRepository) throws IOException {
+        var originalFilename = file.getOriginalFilename();
+        var compressFilename = ImageUtil.compressImageName(originalFilename);
+
+        addImage(Image.builder()
+                .content(this)
+                .priority(Integer.MAX_VALUE)
+                .imageName(originalFilename)
+                .compressImageName(compressFilename)
+                .build()
+                .save(resourcePath, file, fileRepository));
+
+        return originalFilename;
     }
 }

@@ -1,7 +1,7 @@
 package com.promotion.handwriting.controller;
 
 
-import com.promotion.handwriting.dto.http.ApiResponse;
+import com.promotion.handwriting.dto.response.ApiResponse;
 import com.promotion.handwriting.enums.ApiResponseStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

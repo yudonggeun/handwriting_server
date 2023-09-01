@@ -1,10 +1,14 @@
 package com.promotion.handwriting.entity;
 
+import com.promotion.handwriting.dto.file.FileToken;
+import com.promotion.handwriting.dto.file.LocalFileToken;
+import com.promotion.handwriting.repository.file.FileRepository;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
+import java.io.IOException;
 
 @Entity
 @NoArgsConstructor
@@ -13,7 +17,6 @@ public class Image extends BasisEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ad_id")
     private Ad ad;
-
     @Column(name = "PRIORITY")
     private int priority;
     @Column(name = "IMAGE_NAME")
@@ -22,7 +25,8 @@ public class Image extends BasisEntity {
     private String compressImageName;
 
     @Builder
-    private Image(int priority, String imageName, String compressImageName) {
+    private Image(Ad content, int priority, String imageName, String compressImageName) {
+        this.ad = content;
         this.priority = priority;
         this.imageName = imageName;
         this.compressImageName = compressImageName;
@@ -41,21 +45,31 @@ public class Image extends BasisEntity {
     }
 
     public void setAd(Ad ad) {
-        updateModifyTime();
         this.ad = ad;
     }
 
     public void setImageName(String imageName) {
-        updateModifyTime();
         this.imageName = imageName;
     }
 
-    public void setCompressImageName(String compressImageName){
+    public void setCompressImageName(String compressImageName) {
         this.compressImageName = compressImageName;
     }
 
     public void setPriority(int priority) {
-        updateModifyTime();
         this.priority = priority;
+    }
+
+    public Image save(String path, MultipartFile file, FileRepository fileRepository) throws IOException {
+        FileToken fileToken = LocalFileToken.save(file.getInputStream(), path, imageName);
+        if (!fileRepository.save(fileToken) || !fileRepository.compressAndSave(imageName, compressImageName, path)) {
+            throw new IllegalArgumentException("파일 저장 실패");
+        }
+        return this;
+    }
+
+    public void delete(FileRepository fileRepository, String resourcePath) {
+        fileRepository.delete(LocalFileToken.delete(resourcePath, imageName));
+        fileRepository.delete(LocalFileToken.delete(resourcePath, compressImageName));
     }
 }

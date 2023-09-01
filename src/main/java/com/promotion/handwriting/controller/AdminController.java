@@ -1,7 +1,7 @@
 package com.promotion.handwriting.controller;
 
 import com.promotion.handwriting.dto.AdminDto;
-import com.promotion.handwriting.dto.http.ApiResponse;
+import com.promotion.handwriting.dto.response.ApiResponse;
 import com.promotion.handwriting.dto.LoginDto;
 import com.promotion.handwriting.security.JwtService;
 import com.promotion.handwriting.service.business.UserService;

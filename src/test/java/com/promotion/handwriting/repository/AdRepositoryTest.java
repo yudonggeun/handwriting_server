@@ -31,12 +31,21 @@ class AdRepositoryTest {
     @Autowired
     ImageRepository imageRepository;
 
-    Ad test_intro_ad = Ad.createAd(AdType.INTRO, "", "소개입니다.", "/test_file");
-    Ad test_content1 = Ad.createAd(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1");
-    Ad test_content2 = Ad.createAd(AdType.CONTENT, "test Content2", "소2개입니다.", "/" + "test_file2");
-    Ad test_content3 = Ad.createAd(AdType.CONTENT, "test Content3", "소34개입니다.", "/" + "test_file34");
-    Ad test_content4 = Ad.createAd(AdType.CONTENT, "test Content4", "소4개입니다.", "/" + "test_fi4le");
-    Ad test_content5 = Ad.createAd(AdType.CONTENT, "findAdWithImagesById", "소개입니다.", "/test_file");
+    Ad test_intro_ad = createAd(AdType.INTRO, "", "소개입니다.", "/test_file");
+    Ad test_content1 = createAd(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1");
+    Ad test_content2 = createAd(AdType.CONTENT, "test Content2", "소2개입니다.", "/" + "test_file2");
+    Ad test_content3 = createAd(AdType.CONTENT, "test Content3", "소34개입니다.", "/" + "test_file34");
+    Ad test_content4 = createAd(AdType.CONTENT, "test Content4", "소4개입니다.", "/" + "test_fi4le");
+    Ad test_content5 = createAd(AdType.CONTENT, "findAdWithImagesById", "소개입니다.", "/test_file");
+
+    private Ad createAd(AdType type, String title, String detail, String resourcePath) {
+        return Ad.builder()
+                .type(type)
+                .title(title)
+                .detail(detail)
+                .resourcePath(resourcePath)
+                .build();
+    }
 
     Image image1 = Image.builder().priority(0).imageName("test1.png").build();
     Image image2 = Image.builder().priority(1).imageName("test2.png").build();

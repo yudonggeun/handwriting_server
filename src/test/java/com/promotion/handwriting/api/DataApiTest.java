@@ -2,7 +2,6 @@ package com.promotion.handwriting.api;
 
 import com.promotion.handwriting.controller.DataController;
 import com.promotion.handwriting.dto.ContentDto;
-import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.dto.image.UrlImageDto;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.service.business.DataService;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.mockito.BDDMockito.given;

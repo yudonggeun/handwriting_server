@@ -2,6 +2,8 @@ package com.promotion.handwriting.entity;
 
 
 import lombok.Getter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,24 +17,14 @@ public class BasisEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @Column(name = "create_time", nullable = false)
+    @CreatedDate
     private LocalDateTime createTime;
     @Column(name = "modify_time", nullable = false)
+    @LastModifiedDate
     private LocalDateTime modifyTime;
 
     public BasisEntity() {
         this.createTime = LocalDateTime.now();
         this.modifyTime = this.createTime;
-    }
-
-    public LocalDateTime getCreateTime() {
-        return createTime;
-    }
-
-    public LocalDateTime getModifyTime() {
-        return modifyTime;
-    }
-
-    public void updateModifyTime(){
-        this.modifyTime = LocalDateTime.now();
     }
 }

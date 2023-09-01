@@ -4,9 +4,8 @@ import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.DeleteFileDto;
 import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.dto.SimpleContentDto;
-import com.promotion.handwriting.dto.http.ApiResponse;
-import com.promotion.handwriting.dto.image.ImageDto;
-import com.promotion.handwriting.dto.image.MultipartImageDto;
+import com.promotion.handwriting.dto.request.CreateContentRequest;
+import com.promotion.handwriting.dto.response.ApiResponse;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.service.business.DataService;
 import com.promotion.handwriting.util.UrlUtil;
@@ -70,27 +69,22 @@ public class DataController {
     }
 
     @PutMapping("/content")
-    public ApiResponse createContent(@RequestPart(name = "dto") ContentDto dto,
-                                     @RequestPart(value = "image", required = false) List<MultipartFile> imageFiles) throws IOException {
+    public ApiResponse createContent(@RequestPart(name = "dto") CreateContentRequest request,
+                                     @RequestPart(value = "image", required = false) List<MultipartFile> images) throws IOException {
 
-        log.info("PUT : /data/content [input] >> dto : " + dto);
-        log.info("PUT : /data/content [input] >> imageFiles : " + imageFiles);
-
-        if (imageFiles != null) {
-            List<ImageDto> imageDtos = imageFiles.stream()
-                    .map(MultipartImageDto::make)
-                    .collect(Collectors.toList());
-            dto.setImages(imageDtos);
-        }
-        return ApiResponse.success(dataService.addContentAd(dto));
+        log.info("PUT : /data/content [input] >> dto : " + request);
+        log.info("PUT : /data/content [input] >> imageFiles : " + images);
+        return ApiResponse.success(dataService.addContentAd(request, images));
     }
 
     @PutMapping("/detail/{id}")
     public ApiResponse addDetailImages(@PathVariable("id") String id,
-                                       @RequestPart(name = "image", required = false) List<MultipartFile> imageFiles) {
+                                       @RequestPart(name = "image", required = false) List<MultipartFile> imageFiles) throws IOException {
         log.info("append images at " + id);
 
-        imageFiles.forEach(file -> dataService.addImageAtAd(file, Long.parseLong(id)));
+        for (MultipartFile file: imageFiles) {
+            dataService.addImage(file, Long.parseLong(id));
+        }
         return ApiResponse.success(true);
     }
 

@@ -5,16 +5,14 @@ import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.dto.SimpleContentDto;
 import com.promotion.handwriting.dto.file.FileToken;
 import com.promotion.handwriting.dto.file.LocalFileToken;
-import com.promotion.handwriting.dto.image.ImageDto;
-import com.promotion.handwriting.dto.image.MultipartImageDto;
 import com.promotion.handwriting.dto.image.UrlImageDto;
+import com.promotion.handwriting.dto.request.CreateContentRequest;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.database.AdRepository;
 import com.promotion.handwriting.repository.database.ImageRepository;
 import com.promotion.handwriting.repository.file.FileRepository;
-import com.promotion.handwriting.util.ImageUtil;
 import com.promotion.handwriting.util.UrlUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,63 +38,24 @@ public class DataServiceImpl implements DataService {
     private final FileRepository fileRepository;
 
     @Override
-    public ContentDto addContentAd(ContentDto dto) throws IOException {
-        Ad ad = Ad.createAd(AdType.CONTENT, dto.getTitle(), dto.getDescription(), "/content/" + UUID.randomUUID());
+    public ContentDto addContentAd(CreateContentRequest req, List<MultipartFile> images) throws IOException {
+        var content = Ad.builder()
+                .type(AdType.CONTENT)
+                .title(req.getTitle())
+                .detail(req.getDescription())
+                .resourcePath("/content/" + UUID.randomUUID())
+                .build();
 
-        for (ImageDto imageDto : dto.getImages()) {
-            if (imageDto instanceof MultipartImageDto) {
-                MultipartImageDto multipartImageDto = (MultipartImageDto) imageDto;
-                MultipartFile file = multipartImageDto.getMultipartFile();
-
-                //파일을 저장한다.
-                String originalFilename = file.getOriginalFilename();
-                String compressFilename = ImageUtil.compressImageName(originalFilename);
-                String resourcePath = ad.getResourcePath();
-                FileToken fileToken = LocalFileToken.save(file.getInputStream(), resourcePath, originalFilename);
-
-                if (!fileRepository.save(fileToken) || !fileRepository.compressAndSave(originalFilename, compressFilename, resourcePath)) {
-                    throw new IllegalArgumentException("파일 저장 실패");
-                }
-                //db에 image에 대한 데이터를 생성한다.
-                Image image = Image.builder()
-                        .priority(Integer.MAX_VALUE)
-                        .imageName(originalFilename)
-                        .compressImageName(compressFilename)
-                        .build();
-                ad.addImage(image);
-            }
+        for (MultipartFile file : images) {
+            content.createImage(file, fileRepository);
         }
-        adRepository.save(ad);
-        return ad.contentDto();
+        return content.contentDto();
     }
 
     @Override
-    public String addImageAtAd(MultipartFile imageFile, long adId) {
-        try {
-            Ad ad = adRepository.findById(adId).orElseThrow();
-            //파일을 저장한다.
-            String originalFilename = imageFile.getOriginalFilename();
-            String compressFilename = ImageUtil.compressImageName(originalFilename);
-            FileToken originToken = new LocalFileToken(imageFile.getInputStream(), ad.getResourcePath(), originalFilename);
-            if (!fileRepository.save(originToken) || !fileRepository.compressAndSave(originalFilename, compressFilename, ad.getResourcePath())) {
-                throw new IllegalArgumentException("파일 저장 실패");
-            }
-            //db에 image에 대한 데이터를 생성한다.
-            Image image = Image.builder()
-                    .priority(Integer.MAX_VALUE)
-                    .imageName(originalFilename)
-                    .compressImageName(compressFilename)
-                    .build();
-
-            ad.addImage(image);
-            return originalFilename;
-        } catch (IllegalArgumentException ex) {
-            ex.printStackTrace();
-            return null;
-        } catch (IOException ex) {
-            log.error("multipart getInputStream() 에러 발생 At DataService.createImageAtAd");
-            return null;
-        }
+    public String addImage(MultipartFile imageFile, long adId) throws IOException {
+        var ad = adRepository.getReferenceById(adId);
+        return ad.createImage(imageFile, fileRepository);
     }
 
     @Transactional(readOnly = true)
@@ -109,14 +68,12 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public List<UrlImageDto> getImageUrlAtContent(String contentId, int start, int end) {
-        Ad content = adRepository.findAdWithImagesById(Long.parseLong(contentId));
-        return content.getImages()
-                .stream()
-                .map(image -> {
-                    String originUrl = UrlUtil.getImageUrl(content.getResourcePath(), image.getImageName());
-                    String compressUrl = UrlUtil.getImageUrl(content.getResourcePath(), image.getCompressImageName());
-                    return UrlImageDto.make(originUrl, compressUrl);
-                }).collect(Collectors.toList());
+        return adRepository.findAdWithImagesById(Long.parseLong(contentId))
+                .getImages().stream()
+                .map(image -> UrlImageDto.make(
+                        UrlUtil.getImageUrl(adRepository.findAdWithImagesById(Long.parseLong(contentId)).getResourcePath(), image.getImageName()),
+                        UrlUtil.getImageUrl(adRepository.findAdWithImagesById(Long.parseLong(contentId)).getResourcePath(), image.getCompressImageName())))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -129,37 +86,26 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public boolean updateIntro(IntroDto dto, MultipartFile file) throws IOException {
-        Ad intro = adRepository.findByType(AdType.INTRO).get(0);
+        var content = adRepository.findByType(AdType.INTRO).get(0);
 
         StringBuilder sb = new StringBuilder();
-        //TODO css로 해결하는것이 경제적
+        //todo 단락을 나누는 기준은 sperate로 하면 이상하다.
         dto.getComments().forEach(comment -> sb.append(comment).append(IntroDto.separate));
         sb.deleteCharAt(sb.length() - 1);
 
-        intro.setDetail(sb.toString());
+        content.setDetail(sb.toString());
 
-        Image introImage = intro.getImages().get(0);
-        if (!(file == null)) {
-            String resourcePath = intro.getResourcePath();
-            String originalFilename = file.getOriginalFilename();
-            String compressFilename = ImageUtil.compressImageName(originalFilename);
-            //파일 삭제
-            fileRepository.delete(LocalFileToken.delete(resourcePath, introImage.getCompressImageName()));
-            fileRepository.delete(LocalFileToken.delete(resourcePath, introImage.getImageName()));
-            //파일 저장
-            fileRepository.save(LocalFileToken.save(file.getInputStream(), resourcePath, originalFilename));
-            fileRepository.compressAndSave(originalFilename, compressFilename, resourcePath);
-
-            introImage.setImageName(originalFilename);
-            introImage.setCompressImageName(compressFilename);
+        if (file != null) {
+            content.createImage(file, fileRepository);
+            content.getImages()
+                    .forEach(image -> image.delete(fileRepository, content.getResourcePath()));
         }
         return true;
     }
 
     @Override
     public void deleteAd(long id) {
-
-        Ad content = adRepository.findAdWithImagesById(id);
+        var content = adRepository.findAdWithImagesById(id);
         FileToken token = LocalFileToken.deleteDirectory(content.getResourcePath());
         fileRepository.deleteDirectory(token);
         imageRepository.deleteAllByAd(id);
@@ -168,18 +114,14 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public void deleteImages(List<String> fileNames, long adId) {
-        Ad ad = adRepository.findAdWithImagesById(adId);
-
-        List<Image> deleteImage = ad.getImages().stream()
-                .filter(image -> fileNames.contains(image.getImageName()) || fileNames.contains(image.getCompressImageName()))
+        var content = adRepository.findAdWithImagesById(adId);
+        List<Image> deleteImage = content.getImages().stream()
+                .filter(image -> fileNames.contains(image.getImageName()))
                 .collect(Collectors.toList());
 
-        //파일 삭제
-        deleteImage.forEach(image -> {
-            fileRepository.delete(LocalFileToken.delete(ad.getResourcePath(), image.getImageName()));
-            fileRepository.delete(LocalFileToken.delete(ad.getResourcePath(), image.getCompressImageName()));
-        });
-        //데이터 삭제
+        for (var image : deleteImage) {
+            image.delete(fileRepository, content.getResourcePath());
+        }
         imageRepository.deleteAllInBatch(deleteImage);
     }
 }
