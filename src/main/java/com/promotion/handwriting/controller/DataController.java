@@ -8,9 +8,11 @@ import com.promotion.handwriting.dto.request.CreateContentRequest;
 import com.promotion.handwriting.dto.response.ApiResponse;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.service.business.DataService;
-import com.promotion.handwriting.util.UrlUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,15 +29,14 @@ public class DataController {
     private final DataService dataService;
 
     @GetMapping("/content")
-    public ApiResponse getPromotionInformation() throws IOException {
-        return ApiResponse.success(dataService.getContentDtos(AdType.CONTENT));
+    public ApiResponse getPromotionInformation(@PageableDefault(size = 5) Pageable pageable) throws IOException {
+        return ApiResponse.success(dataService.getContentDtos(AdType.CONTENT, pageable));
     }
 
     @Deprecated
     @GetMapping("/intro")
     public ApiResponse getPromotionIntroInformation() throws IOException {
-        //todo 오류 발생 가능성 : 리펙토링 예정 추후 url 통합으로 해결할 것
-        IntroDto introDto = dataService.getContentDtos(AdType.INTRO).get(0).introDto();
+        IntroDto introDto = dataService.getContentDtos(AdType.INTRO, PageRequest.of(0, 1)).getContent().get(0).introDto();
         return ApiResponse.success(introDto);
     }
 
@@ -82,7 +83,7 @@ public class DataController {
                                        @RequestPart(name = "image", required = false) List<MultipartFile> imageFiles) throws IOException {
         log.info("append images at " + id);
 
-        for (MultipartFile file: imageFiles) {
+        for (MultipartFile file : imageFiles) {
             dataService.addImage(file, Long.parseLong(id));
         }
         return ApiResponse.success(true);
@@ -93,13 +94,13 @@ public class DataController {
                                           @RequestBody DeleteFileDto fileUrls) {
         log.info("delete images at " + adId);
 
-            //url 데이터 가공한다. TODO front 에서 정제하면 좋다.
-            List<String> fileList = fileUrls.getFiles().stream()
-                    .map(UrlUtil::removeUrlPath)
-                    .collect(Collectors.toList());
+        //url 데이터 가공한다. TODO front 에서 정제하면 좋다.
+        List<String> fileList = fileUrls.getFiles().stream()
+                .map(url -> url.substring(url.lastIndexOf("/") + 1))
+                .collect(Collectors.toList());
 
-            dataService.deleteImages(fileList, Long.parseLong(adId));
+        dataService.deleteImages(fileList, Long.parseLong(adId));
 
-            return ApiResponse.success(true);
+        return ApiResponse.success(true);
     }
 }

@@ -1,6 +1,5 @@
 package com.promotion.handwriting.dto;
 
-import com.promotion.handwriting.dto.image.ImageDto;
 import com.promotion.handwriting.dto.image.UrlImageDto;
 import lombok.Builder;
 import lombok.Data;
@@ -15,10 +14,10 @@ public class ContentDto {
     String id;
     String title;
     String description;
-    List<ImageDto> images;
+    List<Object> images; // todo object 리스트 변경 필요
 
     @Builder
-    private ContentDto(String id, String title, String description, List<ImageDto> images) {
+    private ContentDto(String id, String title, String description, List<Object> images) {
         this.id = id;
         this.title = title;
         this.description = description;

@@ -1,7 +1,7 @@
 package com.promotion.handwriting.service.file;
 
-import com.promotion.handwriting.dto.file.LocalFileToken;
 import com.promotion.handwriting.dto.file.FileToken;
+import com.promotion.handwriting.dto.file.LocalFileToken;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.repository.file.FileRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.IOException;
 
 @Primary
 @Service

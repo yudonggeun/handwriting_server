@@ -1,12 +1,10 @@
 package com.promotion.handwriting.entity;
 
 import com.promotion.handwriting.dto.ContentDto;
-import com.promotion.handwriting.dto.image.ImageDto;
 import com.promotion.handwriting.dto.image.UrlImageDto;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.file.FileRepository;
 import com.promotion.handwriting.util.ImageUtil;
-import com.promotion.handwriting.util.UrlUtil;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -77,18 +75,14 @@ public class Ad extends BasisEntity {
         }
     }
 
-    public ContentDto contentDto() {
+    public ContentDto contentDto(String imageUrl) {
         if (this.getType() != AdType.CONTENT) {
             throw new RuntimeException("Ad type is not intro. convert method need AdType.CONTENT ad");
         }
 
-        List<ImageDto> dtoImage = getImages().stream()
-                .map(image -> {
-                    String originUrl = UrlUtil.getImageUrl(this.getResourcePath(), image.getImageName());
-                    String compressUrl = UrlUtil.getImageUrl(this.getResourcePath(),
-                            image.getCompressImageName() == null ? image.getImageName() : image.getCompressImageName());
-                    return (ImageDto) UrlImageDto.make(originUrl, compressUrl);
-                }).collect(Collectors.toList());
+        List<Object> dtoImage = getImages().stream()
+                .map(image -> UrlImageDto.make(image.getImageUrl(imageUrl), image.getCompressImageUrl(imageUrl)))
+                .collect(Collectors.toList());
 
         return ContentDto.builder()
                 .id(getId() + "")
@@ -99,7 +93,7 @@ public class Ad extends BasisEntity {
     }
 
     /**
-     * @param image          file
+     * @param image file
      * @param fileRepository
      * @return 저장된 파일의 원본 이미지 반환
      * @throws IOException

@@ -32,9 +32,6 @@ public abstract class AbstractFileToken implements FileToken {
     }
 
     @Override
-    abstract public FileTokenType getTokenType();
-
-    @Override
     public String getDirectory() {
         return resourcePath;
     }
@@ -42,16 +39,6 @@ public abstract class AbstractFileToken implements FileToken {
     @Override
     public String getFileName() {
         return filename;
-    }
-
-    @Override
-    public String getAbsolutePath() {
-        return resourcePath + "/" + filename;
-    }
-
-    @Override
-    public String getIdentifier() {
-        return filename.substring(0, filename.lastIndexOf('.'));
     }
 
     @Override

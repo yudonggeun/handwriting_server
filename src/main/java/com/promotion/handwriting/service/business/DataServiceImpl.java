@@ -11,10 +11,14 @@ import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.database.AdRepository;
 import com.promotion.handwriting.repository.database.ImageRepository;
 import com.promotion.handwriting.repository.file.FileRepository;
-import com.promotion.handwriting.util.UrlUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +38,8 @@ public class DataServiceImpl implements DataService {
     private final AdRepository adRepository;
     private final ImageRepository imageRepository;
     private final FileRepository fileRepository;
+    @Value("${spring.url.image}")
+    private String imageUrl;
 
     @Override
     public ContentDto addContentAd(CreateContentRequest req, List<MultipartFile> images) throws IOException {
@@ -47,7 +53,7 @@ public class DataServiceImpl implements DataService {
         for (MultipartFile file : images) {
             content.createImage(file, fileRepository);
         }
-        return content.contentDto();
+        return content.contentDto(imageUrl);
     }
 
     @Override
@@ -58,19 +64,17 @@ public class DataServiceImpl implements DataService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<ContentDto> getContentDtos(AdType type) {
-        return adRepository.findByType(type).stream()
-                .map(Ad::contentDto)
-                .collect(Collectors.toList());
+    public Page<ContentDto> getContentDtos(AdType type, Pageable pageable) {
+        Page<Ad> pages = adRepository.findByType(type, pageable);
+        List<ContentDto> list = pages.getContent().stream().map(content -> content.contentDto(imageUrl)).collect(Collectors.toList());
+        return new PageImpl<>(list, pageable, pages.getTotalElements());
     }
 
     @Override
     public List<UrlImageDto> getImageUrlAtContent(String contentId, int start, int end) {
         return adRepository.findWithImageById(Long.parseLong(contentId))
                 .getImages().stream()
-                .map(image -> UrlImageDto.make(
-                        UrlUtil.getImageUrl(adRepository.findWithImageById(Long.parseLong(contentId)).getResourcePath(), image.getImageName()),
-                        UrlUtil.getImageUrl(adRepository.findWithImageById(Long.parseLong(contentId)).getResourcePath(), image.getCompressImageName())))
+                .map(image -> UrlImageDto.make(image.getImageUrl(imageUrl), image.getCompressImageUrl(imageUrl)))
                 .collect(Collectors.toList());
     }
 
@@ -84,7 +88,7 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public boolean updateIntro(IntroDto dto, MultipartFile file) throws IOException {
-        var content = adRepository.findByType(AdType.INTRO).get(0);
+        var content = adRepository.findByType(AdType.INTRO, PageRequest.of(0, 1)).getContent().get(0);
 
         StringBuilder sb = new StringBuilder();
         //todo 단락을 나누는 기준은 sperate로 하면 이상하다.

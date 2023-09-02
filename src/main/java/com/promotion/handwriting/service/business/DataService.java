@@ -6,6 +6,8 @@ import com.promotion.handwriting.dto.image.UrlImageDto;
 import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.dto.request.CreateContentRequest;
 import com.promotion.handwriting.enums.AdType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -19,7 +21,7 @@ public interface DataService {
     String addImage(MultipartFile imageFile, long adId) throws IOException;
 
     //컨텐츠 조회
-    List<ContentDto> getContentDtos(AdType type) throws IOException;
+    Page<ContentDto> getContentDtos(AdType type, Pageable pageable) throws IOException;
 
     //컨텐트 이미지 조회
     List<UrlImageDto> getImageUrlAtContent(String contentId, int start, int end);

@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -29,7 +30,7 @@ public class ExceptionHandleTest {
     @DisplayName("예외 발생 시")
     @Test
     public void hookException() throws Exception {
-        given(dataService.getContentDtos(AdType.CONTENT))
+        given(dataService.getContentDtos(AdType.CONTENT, any()))
                 .willThrow(RuntimeException.class);
         this.mockMvc.perform(get("/data/content").accept(MediaType.APPLICATION_JSON))
                 .andExpectAll(

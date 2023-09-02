@@ -6,7 +6,7 @@ import lombok.Data;
  * 이미지의 compress iamge 경로와 original 경로를 나타내는 DTO
  */
 @Data
-public class UrlImageDto implements ImageDto {
+public class UrlImageDto {
     String original;
     String compress;
 

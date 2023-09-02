@@ -18,13 +18,4 @@ public class LocalFileToken extends AbstractFileToken {
     public static FileToken delete( String resourcePath, String filename) {
         return new LocalFileToken(null, resourcePath, filename);
     }
-
-
-    public static FileToken deleteDirectory(String resourcePath) {
-        return new LocalFileToken(null, resourcePath, "");
-    }
-    @Override
-    public FileTokenType getTokenType() {
-        return this.type;
-    }
 }

@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
  * multipartFile을 통한 이미지 데이터
  */
 @Data
-public class MultipartImageDto implements ImageDto {
+public class MultipartImageDto {
 
     private MultipartFile multipartFile;
 

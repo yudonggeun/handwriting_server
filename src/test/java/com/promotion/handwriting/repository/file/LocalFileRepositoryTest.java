@@ -10,7 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 class LocalFileRepositoryTest {
 
     @Autowired
-    LocalFileRepository localFileRepository;
+    FileRepository localFileRepository;
     String path = "/";
 
     @Test

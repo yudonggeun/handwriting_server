@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -49,10 +50,10 @@ class AdRepositoryTest {
         adRepository.save(createAd(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1"));
         adRepository.save(createAd(AdType.INTRO, "test intro", "intro소1개입니다.", "/" + "test_file1"));
         // then
-        assertThat(adRepository.findByType(AdType.CONTENT)).hasSize(2)
+        assertThat(adRepository.findByType(AdType.CONTENT, PageRequest.of(0, 2))).hasSize(2)
                 .extracting("type", "title", "detail", "resourcePath")
                 .contains(tuple(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1"));
-        assertThat(adRepository.findByType(AdType.INTRO)).hasSize(1)
+        assertThat(adRepository.findByType(AdType.INTRO, PageRequest.of(0, 1))).hasSize(1)
                 .extracting("type", "title", "detail", "resourcePath")
                 .contains(tuple(AdType.INTRO, "test intro", "intro소1개입니다.", "/" + "test_file1"));
     }

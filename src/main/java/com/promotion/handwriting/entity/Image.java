@@ -71,4 +71,14 @@ public class Image extends BasisEntity {
         fileRepository.delete(LocalFileToken.delete(resourcePath, imageName));
         fileRepository.delete(LocalFileToken.delete(resourcePath, compressImageName));
     }
+
+    public String getCompressImageUrl(String imageUrl) {
+        if (compressImageName == null) return getImageUrl(imageUrl);
+        return imageUrl + ad.getResourcePath() + "/" + getCompressImageName();
+    }
+
+    public String getImageUrl(String imageUrl) {
+        return imageUrl + ad.getResourcePath() + "/" + getImageName();
+    }
+
 }

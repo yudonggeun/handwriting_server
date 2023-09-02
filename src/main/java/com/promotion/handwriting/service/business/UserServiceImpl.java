@@ -19,27 +19,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean login(String id, String pw) {
-        try {
-            User user = userRepository.findByUserId(id).orElseThrow();
-            log.info("password : " + pw + " match result : " + encoder.matches(pw, user.getPassword()));
-            return encoder.matches(pw, user.getPassword());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        User user = userRepository.findByUserId(id).orElseThrow();
+        log.info("password : " + pw + " match result : " + encoder.matches(pw, user.getPassword()));
+        return encoder.matches(pw, user.getPassword());
     }
 
     @Override
     public boolean join(String id, String pw) {
         long userCount = userRepository.count();
-        if (userCount != 0) {
-            return false;
-        }
-        User newUser = User.builder()
+        if (userCount != 0) return false;
+        userRepository.save(User.builder()
                 .userId(id)
                 .password(encoder.encode(pw))
-                .type(UserType.OWNER).build();
-        userRepository.save(newUser);
+                .type(UserType.OWNER).build());
         return true;
     }
 }
