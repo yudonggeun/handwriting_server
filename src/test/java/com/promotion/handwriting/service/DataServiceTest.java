@@ -1,9 +1,28 @@
 package com.promotion.handwriting.service;
 
+import com.promotion.handwriting.dto.IntroDto;
+import com.promotion.handwriting.entity.Ad;
+import com.promotion.handwriting.entity.Image;
+import com.promotion.handwriting.enums.AdType;
+import com.promotion.handwriting.repository.database.AdRepository;
+import com.promotion.handwriting.service.business.DataService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.*;
 
 @Slf4j
 @SpringBootTest
@@ -11,6 +30,38 @@ import org.springframework.test.context.ActiveProfiles;
 @Rollback
 class DataServiceTest {
 
+    @MockBean
+    AdRepository adRepository;
+    @Autowired
+    DataService dataService;
+
+    @Value("${spring.url.image}")
+    private String imageUrl;
+
+    @DisplayName("표지 화면에 필요한 정보를 반환한다.")
+    @Test
+    public void mainPageData() {
+        // given
+        Ad content = createContent("this is title", AdType.INTRO, "hello world");
+        content.addImage(createImage(content, "test.jpg", "compress.jpg"));
+        new IntroDto("this is title", "/test.jpg", "hello world");
+        given(adRepository.findByType(eq(AdType.INTRO)))
+                .willReturn(content);
+        // when
+        IntroDto mainPageData = dataService.mainPageData();
+        // then
+        assertThat(mainPageData)
+                .extracting("title", "imageUrl", "description")
+                .containsExactly("this is title", imageUrl + content.getResourcePath() + "/test.jpg", "hello world");
+    }
+
+    private static Image createImage(Ad content, String image, String compressImage) {
+        return Image.builder().content(content).imageName(image).compressImageName(compressImage).priority(1).build();
+    }
+
+    private Ad createContent(String tittle, AdType type, String detail) {
+        return Ad.builder().title(tittle).detail(detail).type(type).resourcePath("/path").build();
+    }
 //    @Autowired
 //    DataService dataService;
 //    @Autowired

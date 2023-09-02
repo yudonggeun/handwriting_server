@@ -2,31 +2,33 @@ package com.promotion.handwriting.api;
 
 import com.promotion.handwriting.controller.DataController;
 import com.promotion.handwriting.dto.ContentDto;
+import com.promotion.handwriting.dto.IntroDto;
 import com.promotion.handwriting.dto.image.UrlImageDto;
-import com.promotion.handwriting.enums.AdType;
+import com.promotion.handwriting.dto.request.ContentChangeRequest;
+import com.promotion.handwriting.dto.request.CreateContentRequest;
+import com.promotion.handwriting.dto.request.DeleteContentRequest;
+import com.promotion.handwriting.dto.request.ImageDeleteRequest;
 import com.promotion.handwriting.service.business.DataService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.FieldDescriptor;
-import org.springframework.restdocs.payload.JsonFieldType;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
+import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -76,21 +78,21 @@ public class DataApiTest extends RestDocs {
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
                 responseFields(
-                        field(
+                        fields(
                                 commonFieldDescriptors(),
                                 pageResponseFieldDescriptors(),
                                 List.of(
-                                        fieldWithPath("data.content[].id").type(JsonFieldType.STRING)
+                                        fieldWithPath("data.content[].id").type(STRING)
                                                 .description("컨텐츠 식별 id"),
-                                        fieldWithPath("data.content[].title").type(JsonFieldType.STRING)
+                                        fieldWithPath("data.content[].title").type(STRING)
                                                 .description("컨텐츠 제목"),
-                                        fieldWithPath("data.content[].description").type(JsonFieldType.STRING)
+                                        fieldWithPath("data.content[].description").type(STRING)
                                                 .description("컨텐츠 상세 정보"),
-                                        fieldWithPath("data.content[].images").type(JsonFieldType.ARRAY)
+                                        fieldWithPath("data.content[].images").type(ARRAY)
                                                 .description("컨텐츠 이미지 경로 정보"),
-                                        fieldWithPath("data.content[].images[].original").type(JsonFieldType.STRING)
+                                        fieldWithPath("data.content[].images[].original").type(STRING)
                                                 .description("원본 이미지 경로"),
-                                        fieldWithPath("data.content[].images[].compress").type(JsonFieldType.STRING)
+                                        fieldWithPath("data.content[].images[].compress").type(STRING)
                                                 .description("압축 이미지 경로")
                                 )
                         )
@@ -100,20 +102,13 @@ public class DataApiTest extends RestDocs {
 
 
     @Deprecated
-    @DisplayName("표지 정보 조회 : 삭제 예정 url")
+    @DisplayName("표지 정보 조회 API : 삭제 예정 url")
     @Test
     public void getIntro() throws Exception {
 
         var image = "/intro/image.jpg";
-        var dto = ContentDto.builder()
-                .images(List.of(new UrlImageDto(image, "")))
-                .id("001")
-                .title("title")
-                .description("글1#글2#글3")
-                .build();
-
-        given(dataService.getContentDtos(any(), any()))
-                .willReturn(new PageImpl<>(List.of(dto), PageRequest.of(0, 1), 1));
+        given(dataService.mainPageData())
+                .willReturn(new IntroDto("title", image, "detail"));
 
 
         mockMvc.perform(get("/data/intro")).andDo(print())
@@ -121,9 +116,9 @@ public class DataApiTest extends RestDocs {
                         status().isOk(),
                         jsonPath("$.responseTime").exists(),
                         jsonPath("$.status").value("success"),
-                        jsonPath("$.data").exists(),
-                        jsonPath("$.data.image").value(image),
-                        jsonPath("$.data.comments").exists()
+                        jsonPath("$.data.title").value("title"),
+                        jsonPath("$.data.imageUrl").value(image),
+                        jsonPath("$.data.description").value("detail")
                 )
                 .andDo(
                         document("get-intro",
@@ -132,15 +127,224 @@ public class DataApiTest extends RestDocs {
                                 responseFields(
                                         fieldWithPath("responseTime")
                                                 .description("응답 시간"),
-                                        fieldWithPath("status").type(JsonFieldType.STRING)
+                                        fieldWithPath("status").type(STRING)
                                                 .description("응답 상태"),
-                                        fieldWithPath("data").type(JsonFieldType.OBJECT)
+                                        fieldWithPath("data").type(OBJECT)
                                                 .description("컨텐츠 리스트"),
-                                        fieldWithPath("data.image").type(JsonFieldType.STRING)
+                                        fieldWithPath("data.imageUrl").type(STRING)
                                                 .description("인트로 이미지 uri"),
-                                        fieldWithPath("data.comments").type(JsonFieldType.ARRAY)
-                                                .description("페이지 소개글 리스트")
+                                        fieldWithPath("data.description").type(STRING)
+                                                .description("페이지 소개글"),
+                                        fieldWithPath("data.title").type(STRING)
+                                                .description("페이지 제목")
                                 )
+                        )
+                );
+    }
+
+    @DisplayName("특정한 컨텐츠의 이미지 정보를 조회 API")
+    @Test
+    public void getImageList() throws Exception {
+        //given
+        given(dataService.getImageUrls(any(), any()))
+                .willReturn(new PageImpl<>(
+                        List.of(UrlImageDto.make("/orginal.jpg", "/compress.jpg")),
+                        PageRequest.of(0, 1),
+                        1
+                ));
+
+        //when //then
+        mockMvc.perform(get("/data/content/image?content_id=1&page=0&size=5"))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.status").value("success"),
+                        jsonPath("$.responseTime").exists(),
+                        jsonPath("$.data.content[0].original").value("/orginal.jpg"),
+                        jsonPath("$.data.content[0].compress").value("/compress.jpg")
+                )
+                .andDo(
+                        document("get image list",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
+                                responseFields(
+                                        fields(
+                                                commonFieldDescriptors(),
+                                                pageResponseFieldDescriptors(),
+                                                List.of(
+                                                        fieldWithPath("data.content[].original")
+                                                                .description("원본 이미지 url"),
+                                                        fieldWithPath("data.content[].compress")
+                                                                .description("압축 이미지 url")
+                                                )
+                                        )
+                                )
+
+                        )
+                );
+    }
+
+    @DisplayName("메인 페이지 갱신 API")
+    @Test
+    public void updateIntro() throws Exception {
+        // given
+        var dto = new MockMultipartFile("dto", "dto", "application/json",
+                mapper.writeValueAsString(new IntroDto("title", "/image.jpg", "detail")).getBytes());
+        MockMultipartFile image = new MockMultipartFile("image", "image.png", "image/png", "<<png data>>".getBytes());
+        // when //then
+        mockMvc.perform(multipart("/data/intro")
+                        .file(dto)
+                        .file(image)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.status").value("success"),
+                        jsonPath("$.responseTime").exists()
+                )
+                .andDo(
+                        document("post-intro",
+                                responseFields(
+                                        fields(
+                                                commonFieldDescriptors(),
+                                                List.of(
+                                                        fieldWithPath("data").ignored()
+                                                )
+                                        )
+                                )
+                        )
+                );
+    }
+
+    @DisplayName("컨텐츠 정보 수정 API")
+    @Test
+    public void updateContent() throws Exception {
+        // given
+        var request = new ContentChangeRequest();
+        request.setId(1);
+        request.setTitle("change title");
+        request.setDescription("change description");
+        String requestBody = mapper.writeValueAsString(request);
+
+        // when // then
+        mockMvc.perform(post("/data/content")
+                        .content(requestBody).contentType("application/json"))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.status").value("success"),
+                        jsonPath("$.responseTime").exists()
+                ).andDo(
+                        document("post-content",
+                                requestFields(
+                                        fieldWithPath("id").description("컨텐츠 id").type(NUMBER),
+                                        fieldWithPath("description").description("컨텐츠 부연 설명").type(STRING),
+                                        fieldWithPath("title").description("컨텐츠 제목").type(STRING)
+                                ),
+                                responseFields(
+                                        commonFieldDescriptors()
+                                )
+                        )
+                );
+    }
+
+    @DisplayName("컨텐츠 삭제 API")
+    @Test
+    public void deleteContent() throws Exception {
+        //given
+        var request = new DeleteContentRequest();
+        request.setContentId(1l);
+        var requestString = mapper.writeValueAsString(request);
+        // when //then
+        mockMvc.perform(delete("/data/content")
+                        .content(requestString)
+                        .contentType("application/json"))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.status").value("success"),
+                        jsonPath("$.responseTime").exists()
+                ).andDo(
+                        document("delete-content",
+                                responseFields(
+                                        fields(
+                                                commonFieldDescriptors()
+                                        )
+                                )
+                        )
+                );
+    }
+
+    @DisplayName("컨텐츠 추가 API")
+    @Test
+    public void createContent() throws Exception {
+        // given
+        var request = new CreateContentRequest();
+        request.setId("1");
+        request.setTitle("my title");
+        request.setDescription("my description");
+        var dto = new MockMultipartFile("dto", "dto", "application/json",
+                mapper.writeValueAsString(request).getBytes());
+        var image = new MockMultipartFile("image", "image.png", "image/png", "<<png data>>".getBytes());
+        // when //then
+        mockMvc.perform(multipart(HttpMethod.PUT, "/data/content")
+                        .file(dto)
+                        .file(image)
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.status").value("success"),
+                        jsonPath("$.responseTime").exists()
+                )
+                .andDo(
+                        document("post-intro",
+                                responseFields(commonFieldDescriptors())
+                        )
+                );
+    }
+
+    @DisplayName("컨텐츠 이미지 추가 API")
+    @Test
+    public void addDetailImages() throws Exception {
+        //given
+        var image = new MockMultipartFile("image", "image.png", "image/png", "<<png data>>".getBytes());
+        //when //then
+        mockMvc.perform(multipart(HttpMethod.PUT, "/data/detail/1")
+                        .file(image)
+                        .contentType("application/json")
+                )
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.status").value("success"),
+                        jsonPath("$.responseTime").exists()
+                ).andDo(
+                        document("put-content",
+                                responseFields(commonFieldDescriptors())
+                        )
+                );
+    }
+
+    @DisplayName("이미지 삭제 API")
+    @Test
+    public void deleteDetailImages() throws Exception {
+        //given
+        var request = new ImageDeleteRequest();
+        //when //then
+        mockMvc.perform(delete("/data/detail/1")
+                        .content(mapper.writeValueAsString(request))
+                        .contentType("application/json"))
+                .andDo(print())
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.status").value("success"),
+                        jsonPath("$.responseTime").exists()
+                ).andDo(
+                        document("delete-image",
+                                responseFields(commonFieldDescriptors())
                         )
                 );
     }
@@ -148,7 +352,8 @@ public class DataApiTest extends RestDocs {
     private List<FieldDescriptor> commonFieldDescriptors() {
         return List.of(
                 fieldWithPath("responseTime").description("응답 시간"),
-                fieldWithPath("status").type(JsonFieldType.STRING).description("응답 상태")
+                fieldWithPath("status").type(STRING).description("응답 상태"),
+                fieldWithPath("data").ignored()
         );
     }
 
@@ -164,7 +369,7 @@ public class DataApiTest extends RestDocs {
                 fieldWithPath("data.pageable.sort.empty").ignored(),
                 fieldWithPath("data.pageable.sort.sorted").ignored(),
                 fieldWithPath("data.pageable.sort.unsorted").ignored(),
-                fieldWithPath("data.last").description("마지막 페이지 여부").type(JsonFieldType.BOOLEAN),
+                fieldWithPath("data.last").description("마지막 페이지 여부").type(BOOLEAN),
                 fieldWithPath("data.size").description("페이지 크기"),
                 fieldWithPath("data.number").description("데이터 수"),
                 fieldWithPath("data.first").description("첫 페이지 여부"),
@@ -176,7 +381,7 @@ public class DataApiTest extends RestDocs {
         );
     }
 
-    private FieldDescriptor[] field(List<FieldDescriptor>... fields) {
+    private FieldDescriptor[] fields(List<FieldDescriptor>... fields) {
         List<FieldDescriptor> all = new LinkedList<>();
         for (List<FieldDescriptor> field : fields) all.addAll(field);
         return all.toArray(new FieldDescriptor[0]);

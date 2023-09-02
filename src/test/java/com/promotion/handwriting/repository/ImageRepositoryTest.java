@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,7 @@ class ImageRepositoryTest {
         // when
         imageRepository.deleteAllByAdId(content.getId());
         // then
-        assertThat(imageRepository.findByAdId(content.getId())).isEmpty();
+        assertThat(imageRepository.findByAdId(content.getId(), PageRequest.of(0, 1))).isEmpty();
     }
 
     @DisplayName("특정 컨텐츠에 이미지 데이터를 저장하면 컨텐츠 id로 이미지 조회시 저장된 이미지가 조회된다.")
@@ -51,7 +52,7 @@ class ImageRepositoryTest {
                 .priority(1)
                 .build());
         // when
-        List<Image> images = imageRepository.findByAdId(content.getId());
+        List<Image> images = imageRepository.findByAdId(content.getId(), PageRequest.of(0, 1)).getContent();
         // then
         assertThat(images).map(e -> e.getId()).contains(image.getId());
     }

@@ -39,7 +39,7 @@ class AdRepositoryTest {
         adRepository.deleteById(content.getId());
         // then
         assertThat(adRepository.findById(content.getId())).isEmpty();
-        assertThat(imageRepository.findByAdId(content.getId())).isEmpty();
+        assertThat(imageRepository.findByAdId(content.getId(), PageRequest.of(0, 1))).isEmpty();
     }
 
     @DisplayName("Content 타입의 컨텐츠는 모두 content 타입이다.")

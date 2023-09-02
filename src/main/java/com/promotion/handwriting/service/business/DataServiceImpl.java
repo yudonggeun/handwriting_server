@@ -2,7 +2,7 @@ package com.promotion.handwriting.service.business;
 
 import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.IntroDto;
-import com.promotion.handwriting.dto.SimpleContentDto;
+import com.promotion.handwriting.dto.request.ContentChangeRequest;
 import com.promotion.handwriting.dto.image.UrlImageDto;
 import com.promotion.handwriting.dto.request.CreateContentRequest;
 import com.promotion.handwriting.entity.Ad;
@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -71,38 +73,29 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public List<UrlImageDto> getImageUrlAtContent(String contentId, int start, int end) {
-        return adRepository.findWithImageById(Long.parseLong(contentId))
-                .getImages().stream()
-                .map(image -> UrlImageDto.make(image.getImageUrl(imageUrl), image.getCompressImageUrl(imageUrl)))
-                .collect(Collectors.toList());
+    public Page<UrlImageDto> getImageUrls(String contentId, Pageable pageable) {
+        return imageRepository.findByAdId(Long.parseLong(contentId), pageable)
+                .map(image -> UrlImageDto.make(image.getImageUrl(imageUrl), image.getCompressImageUrl(imageUrl)));
     }
 
     @Override
-    public boolean updateContent(SimpleContentDto dto) {
+    public void updateContent(ContentChangeRequest dto) {
         Ad ad = adRepository.getReferenceById(dto.getId());
         ad.setDetail(dto.getDescription());
         ad.setTitle(dto.getTitle());
-        return true;
     }
 
     @Override
-    public boolean updateIntro(IntroDto dto, MultipartFile file) throws IOException {
+    public void updateIntro(IntroDto dto, MultipartFile file) throws IOException {
         var content = adRepository.findByType(AdType.INTRO, PageRequest.of(0, 1)).getContent().get(0);
 
-        StringBuilder sb = new StringBuilder();
-        //todo 단락을 나누는 기준은 sperate로 하면 이상하다.
-        dto.getComments().forEach(comment -> sb.append(comment).append(IntroDto.separate));
-        sb.deleteCharAt(sb.length() - 1);
-
-        content.setDetail(sb.toString());
+        content.setDetail(dto.getDescription());
 
         if (file != null) {
             content.createImage(file, fileRepository);
             content.getImages()
                     .forEach(image -> image.delete(fileRepository, content.getResourcePath()));
         }
-        return true;
     }
 
     @Override
@@ -124,5 +117,19 @@ public class DataServiceImpl implements DataService {
             image.delete(fileRepository, content.getResourcePath());
         }
         imageRepository.deleteAllInBatch(deleteImage);
+    }
+
+    @Override
+    public IntroDto mainPageData() {
+        try {
+            Ad mainPage = adRepository.findByType(AdType.INTRO);
+            Image image = mainPage.getImages().get(0);
+            String mainPageImageUrl = image.getImageUrl(imageUrl);
+            return new IntroDto(mainPage.getTitle(), mainPageImageUrl, mainPage.getDetail());
+        } catch (NoResultException | NonUniqueResultException e) {
+            throw new IllegalStateException("메인 페이지 정보 칼럼이 1개가 아닙니다. 데이터를 확인해주세요");
+        } catch (IndexOutOfBoundsException e) {
+            throw new IllegalStateException("메인 페이지 이미지 정보가 존재하지 않습니다.");
+        }
     }
 }
