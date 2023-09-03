@@ -25,26 +25,17 @@ public class JwtAuthenticationFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String jwtHeader = ((HttpServletRequest) request).getHeader("Authorization");
 
-        String jwtHeader = httpRequest.getHeader("Authorization");
+        if(jwtHeader != null && jwtHeader.startsWith("Bearer")){
+            String jwtToken = jwtHeader.replace("Bearer", "").trim();
+            String userName = jwtService.getUserName(jwtToken);
 
-        if (jwtHeader == null || !jwtHeader.startsWith("Bearer")) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        String jwtToken = jwtHeader.replace("Bearer", "").trim();
-
-        String userName = jwtService.getUserName(jwtToken);//서명 확인
-
-        log.info("username : " + userName);
-        if (userName != null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
-
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (userName != null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+                Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
         chain.doFilter(request, response);
     }

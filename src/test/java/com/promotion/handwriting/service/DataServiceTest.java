@@ -1,6 +1,6 @@
 package com.promotion.handwriting.service;
 
-import com.promotion.handwriting.dto.IntroDto;
+import com.promotion.handwriting.dto.MainPageDto;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.enums.AdType;
@@ -13,12 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -44,11 +40,11 @@ class DataServiceTest {
         // given
         Ad content = createContent("this is title", AdType.INTRO, "hello world");
         content.addImage(createImage(content, "test.jpg", "compress.jpg"));
-        new IntroDto("this is title", "/test.jpg", "hello world");
+        new MainPageDto("this is title", "/test.jpg", "hello world");
         given(adRepository.findByType(eq(AdType.INTRO)))
                 .willReturn(content);
         // when
-        IntroDto mainPageData = dataService.mainPageData();
+        MainPageDto mainPageData = dataService.mainPageData();
         // then
         assertThat(mainPageData)
                 .extracting("title", "imageUrl", "description")

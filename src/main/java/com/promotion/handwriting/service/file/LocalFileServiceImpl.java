@@ -1,7 +1,5 @@
 package com.promotion.handwriting.service.file;
 
-import com.promotion.handwriting.dto.file.FileToken;
-import com.promotion.handwriting.dto.file.LocalFileToken;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.repository.file.FileRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,21 +26,19 @@ public class LocalFileServiceImpl implements FileService {
         String compressFileName = "compress-" + originFileName;
         String originFilePath = resourcePath + "/" + originFileName;
         String targetFilePath = resourcePath + "/" + compressFileName;
-        FileToken token = new LocalFileToken(file.getInputStream(), resourcePath, originFileName);
 
-        fileRepository.save(token);
+        fileRepository.save(originFileName, resourcePath, file.getInputStream());
         fileRepository.compressAndSave(originFilePath, targetFilePath, resourcePath);
 
-        return Image.builder().imageName(token.getFileName())
+        return Image.builder()
+                .imageName(originFileName)
                 .compressImageName(compressFileName)
                 .build();
     }
 
     @Override
     public boolean deleteImage(Image image, String resourcePath) {
-        FileToken token1 = new LocalFileToken(null, resourcePath, image.getImageName());
-        FileToken token2 = new LocalFileToken(null, resourcePath, image.getImageName());
-
-        return fileRepository.delete(token1) && fileRepository.delete(token2);
+        return fileRepository.delete(resourcePath, image.getImageName()) &&
+                fileRepository.delete(resourcePath, image.getCompressImageName());
     }
 }

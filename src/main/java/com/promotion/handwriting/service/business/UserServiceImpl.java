@@ -8,6 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
+
 
 @Service
 @Slf4j
@@ -18,20 +21,24 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder encoder;
 
     @Override
-    public boolean login(String id, String pw) {
-        User user = userRepository.findByUserId(id).orElseThrow();
-        log.info("password : " + pw + " match result : " + encoder.matches(pw, user.getPassword()));
-        return encoder.matches(pw, user.getPassword());
+    public void login(String id, String pw) {
+        try {
+            String encryptPassword = userRepository.findByUserId(id).getPassword();
+            if(!encoder.matches(pw, encryptPassword)) throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        } catch (NoResultException | NonUniqueResultException e) {
+            throw new IllegalArgumentException("해당 아이디를 가진 유저가 없습니다.");
+        }
     }
 
     @Override
-    public boolean join(String id, String pw) {
-        long userCount = userRepository.count();
-        if (userCount != 0) return false;
-        userRepository.save(User.builder()
-                .userId(id)
-                .password(encoder.encode(pw))
-                .type(UserType.OWNER).build());
-        return true;
+    public void join(String id, String pw) {
+        try{
+            userRepository.save(User.builder()
+                    .userId(id)
+                    .password(encoder.encode(pw))
+                    .type(UserType.OWNER).build());
+        } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException("회원가입 실패");
+        }
     }
 }

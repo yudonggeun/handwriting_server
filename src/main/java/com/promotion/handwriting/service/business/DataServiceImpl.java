@@ -1,9 +1,10 @@
 package com.promotion.handwriting.service.business;
 
 import com.promotion.handwriting.dto.ContentDto;
-import com.promotion.handwriting.dto.IntroDto;
-import com.promotion.handwriting.dto.request.ContentChangeRequest;
-import com.promotion.handwriting.dto.image.UrlImageDto;
+import com.promotion.handwriting.dto.MainPageDto;
+import com.promotion.handwriting.dto.request.ChangeContentRequest;
+import com.promotion.handwriting.dto.ImageUrlDto;
+import com.promotion.handwriting.dto.request.ChangeMainPageRequest;
 import com.promotion.handwriting.dto.request.CreateContentRequest;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
@@ -73,23 +74,23 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public Page<UrlImageDto> getImageUrls(String contentId, Pageable pageable) {
+    public Page<ImageUrlDto> getImageUrls(String contentId, Pageable pageable) {
         return imageRepository.findByAdId(Long.parseLong(contentId), pageable)
-                .map(image -> UrlImageDto.make(image.getImageUrl(imageUrl), image.getCompressImageUrl(imageUrl)));
+                .map(image -> ImageUrlDto.make(image.getImageUrl(imageUrl), image.getCompressImageUrl(imageUrl)));
     }
 
     @Override
-    public void updateContent(ContentChangeRequest dto) {
-        Ad ad = adRepository.getReferenceById(dto.getId());
-        ad.setDetail(dto.getDescription());
-        ad.setTitle(dto.getTitle());
+    public void updateContent(ChangeContentRequest request) {
+        Ad ad = adRepository.getReferenceById(request.getId());
+        ad.setDetail(request.getDescription());
+        ad.setTitle(request.getTitle());
     }
 
     @Override
-    public void updateIntro(IntroDto dto, MultipartFile file) throws IOException {
+    public void updateIntro(ChangeMainPageRequest req, MultipartFile file) throws IOException {
         var content = adRepository.findByType(AdType.INTRO, PageRequest.of(0, 1)).getContent().get(0);
 
-        content.setDetail(dto.getDescription());
+        content.setDetail(req.getDescription());
 
         if (file != null) {
             content.createImage(file, fileRepository);
@@ -120,12 +121,12 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public IntroDto mainPageData() {
+    public MainPageDto mainPageData() {
         try {
             Ad mainPage = adRepository.findByType(AdType.INTRO);
             Image image = mainPage.getImages().get(0);
             String mainPageImageUrl = image.getImageUrl(imageUrl);
-            return new IntroDto(mainPage.getTitle(), mainPageImageUrl, mainPage.getDetail());
+            return new MainPageDto(mainPage.getTitle(), mainPageImageUrl, mainPage.getDetail());
         } catch (NoResultException | NonUniqueResultException e) {
             throw new IllegalStateException("메인 페이지 정보 칼럼이 1개가 아닙니다. 데이터를 확인해주세요");
         } catch (IndexOutOfBoundsException e) {

@@ -6,6 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class ImageDeleteRequest {
+public class DeleteImageRequest {
     List<String> files = new ArrayList<>();
 }

@@ -1,7 +1,5 @@
 package com.promotion.handwriting.entity;
 
-import com.promotion.handwriting.dto.file.FileToken;
-import com.promotion.handwriting.dto.file.LocalFileToken;
 import com.promotion.handwriting.repository.file.FileRepository;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -32,10 +30,6 @@ public class Image extends BasisEntity {
         this.compressImageName = compressImageName;
     }
 
-    public int getPriority() {
-        return priority;
-    }
-
     public String getImageName() {
         return imageName;
     }
@@ -48,28 +42,16 @@ public class Image extends BasisEntity {
         this.ad = ad;
     }
 
-    public void setImageName(String imageName) {
-        this.imageName = imageName;
-    }
-
-    public void setCompressImageName(String compressImageName) {
-        this.compressImageName = compressImageName;
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
 
     public Image save(String path, MultipartFile file, FileRepository fileRepository) throws IOException {
-        FileToken fileToken = LocalFileToken.save(file.getInputStream(), path, imageName);
-        fileRepository.save(fileToken);
+        fileRepository.save(imageName, path, file.getInputStream());
         fileRepository.compressAndSave(imageName, compressImageName, path);
         return this;
     }
 
     public void delete(FileRepository fileRepository, String resourcePath) {
-        fileRepository.delete(LocalFileToken.delete(resourcePath, imageName));
-        fileRepository.delete(LocalFileToken.delete(resourcePath, compressImageName));
+        fileRepository.delete(resourcePath, imageName);
+        fileRepository.delete(resourcePath, compressImageName);
     }
 
     public String getCompressImageUrl(String imageUrl) {

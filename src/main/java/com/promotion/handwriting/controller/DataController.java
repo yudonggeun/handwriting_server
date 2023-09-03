@@ -1,10 +1,6 @@
 package com.promotion.handwriting.controller;
 
-import com.promotion.handwriting.dto.request.ImageDeleteRequest;
-import com.promotion.handwriting.dto.IntroDto;
-import com.promotion.handwriting.dto.request.ContentChangeRequest;
-import com.promotion.handwriting.dto.request.CreateContentRequest;
-import com.promotion.handwriting.dto.request.DeleteContentRequest;
+import com.promotion.handwriting.dto.request.*;
 import com.promotion.handwriting.dto.response.ApiResponse;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.service.business.DataService;
@@ -19,7 +15,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.promotion.handwriting.dto.response.ApiResponse.*;
+import static com.promotion.handwriting.dto.response.ApiResponse.success;
 
 @RequestMapping("/data")
 @RestController
@@ -47,13 +43,13 @@ public class DataController {
 
     @PostMapping("/intro")
     public ApiResponse updateIntro(@RequestPart(name = "file", required = false) MultipartFile file,
-                                   @RequestPart(name = "dto") IntroDto dto) throws IOException {
-        dataService.updateIntro(dto, file);
+                                   @RequestPart(name = "dto") ChangeMainPageRequest request) throws IOException {
+        dataService.updateIntro(request, file);
         return success(null);
     }
 
     @PostMapping("/content")
-    public ApiResponse updateContent(@RequestBody ContentChangeRequest request) {
+    public ApiResponse updateContent(@RequestBody ChangeContentRequest request) {
         dataService.updateContent(request);
         return success(null);
     }
@@ -80,7 +76,7 @@ public class DataController {
 
     @DeleteMapping("/detail/{id}")
     public ApiResponse deleteDetailImages(@PathVariable("id") String adId,
-                                          @RequestBody ImageDeleteRequest fileUrls) {
+                                          @RequestBody DeleteImageRequest fileUrls) {
         //url 데이터 가공한다. TODO front 에서 정제하면 좋다.
         List<String> fileList = fileUrls.getFiles().stream()
                 .map(url -> url.substring(url.lastIndexOf("/") + 1))

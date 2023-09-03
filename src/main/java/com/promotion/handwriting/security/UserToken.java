@@ -8,9 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 public class UserToken implements UserDetails, OAuth2User {
@@ -33,9 +31,7 @@ public class UserToken implements UserDetails, OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> collections = new ArrayList<>();
-        collections.add(new SimpleGrantedAuthority(user.getRole().toString()));
-        return collections;
+        return List.of(new SimpleGrantedAuthority(user.getRole().toString()));
     }
 
     @Override
@@ -45,7 +41,6 @@ public class UserToken implements UserDetails, OAuth2User {
 
     @Override
     public String getPassword() {
-        log.info("getPassword : " + user.getPassword());
         return user.getPassword();
     }
 

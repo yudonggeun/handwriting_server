@@ -1,6 +1,5 @@
 package com.promotion.handwriting.repository.file;
 
-import com.promotion.handwriting.dto.file.FileToken;
 import com.promotion.handwriting.util.ImageUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -49,13 +49,17 @@ public class FileRepository {
         return fileResourcePath + imagePath;
     }
 
-    public void save(FileToken token) throws IOException {
-        Resource resource = loader.getResource(getImageResourcePath() + token.getDirectory());
-        Path directory = resource.getFile().toPath();
-        Path location = directory.resolve(token.getFileName());
+    public void save(String fileName, String directory, InputStream data) throws IOException {
+
+        Path location = loader.getResource(getImageResourcePath() + directory)
+                .getFile()
+                .toPath()
+                .resolve(fileName);
+
         if (!location.toFile().createNewFile())
             throw new IllegalArgumentException("토큰 식별자가 중복되었습니다.");
-        FileCopyUtils.copy(token.getInputStream(), Files.newOutputStream(location));
+
+        FileCopyUtils.copy(data, Files.newOutputStream(location));
     }
 
     public boolean compressAndSave(String originFilename, String targetFilename, String resourcePath) throws IOException {
@@ -64,15 +68,14 @@ public class FileRepository {
 
         File originFile = new File(directoryPath + "/" + originFilename);
         if (!originFile.exists()) return false;
-        String compressFileName = ImageUtil.compressImageName(originFilename);
-        return ImageUtil.compress(originFile.getAbsolutePath(), directoryPath + "/" + compressFileName);
+        return ImageUtil.compress(originFile.getAbsolutePath(), directoryPath + "/" + targetFilename);
     }
 
-    public boolean delete(FileToken token) {
+    public boolean delete(String directory, String fileName) {
         try {
-            Resource resource = loader.getResource(getImageResourcePath() + token.getDirectory());
-            Path directory = resource.getFile().toPath();
-            File file = new File(directory.toAbsolutePath() + "/" + token.getFileName());
+            Resource resource = loader.getResource(getImageResourcePath() + directory);
+            Path path = resource.getFile().toPath();
+            File file = new File(path.toAbsolutePath() + "/" + fileName);
             if (!file.exists()) {
                 log.error("파일 삭제 실패 : 파일이 존재하지 않습니다.");
             } else if (!file.isFile()) {
@@ -80,7 +83,7 @@ public class FileRepository {
             }
             return file.delete();
         } catch (IOException ex) {
-            log.error("파일 삭제 실패 : " + token.getDirectory() + "/" + token.getFileName());
+            log.error("파일 삭제 실패 : " + directory + "/" + fileName);
             return false;
         }
     }

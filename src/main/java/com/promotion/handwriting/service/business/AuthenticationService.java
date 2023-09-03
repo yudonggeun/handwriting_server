@@ -40,8 +40,7 @@ public class AuthenticationService extends DefaultOAuth2UserService implements U
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try{
-            User user = userRepository.findByUserId(username).orElseThrow();
-            return new UserToken(user);
+            return new UserToken(userRepository.findByUserId(username));
         } catch (NoSuchElementException ex){
             throw new UsernameNotFoundException("NoSuchElementException");
         }
@@ -79,7 +78,7 @@ public class AuthenticationService extends DefaultOAuth2UserService implements U
 
         try {
             log.info(userId + ", " + password);
-            User user = userRepository.findByUserId(userId).orElseThrow();
+            User user = userRepository.findByUserId(userId);
             UserToken userToken = new UserToken(user);
 
             if (!encoder.matches(password, user.getPassword()))

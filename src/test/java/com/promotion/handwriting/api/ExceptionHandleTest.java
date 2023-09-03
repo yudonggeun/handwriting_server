@@ -1,6 +1,5 @@
 package com.promotion.handwriting.api;
 
-import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.service.business.DataService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,7 +29,7 @@ public class ExceptionHandleTest {
     @DisplayName("예외 발생 시")
     @Test
     public void hookException() throws Exception {
-        given(dataService.getContentDtos(AdType.CONTENT, any()))
+        given(dataService.getContentDtos(any(), any()))
                 .willThrow(RuntimeException.class);
         this.mockMvc.perform(get("/data/content").accept(MediaType.APPLICATION_JSON))
                 .andExpectAll(

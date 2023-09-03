@@ -1,7 +1,7 @@
 package com.promotion.handwriting.entity;
 
 import com.promotion.handwriting.dto.ContentDto;
-import com.promotion.handwriting.dto.image.UrlImageDto;
+import com.promotion.handwriting.dto.ImageUrlDto;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.file.FileRepository;
 import com.promotion.handwriting.util.ImageUtil;
@@ -76,24 +76,20 @@ public class Ad extends BasisEntity {
     }
 
     public ContentDto contentDto(String imageUrl) {
-        if (this.getType() != AdType.CONTENT) {
-            throw new RuntimeException("Ad type is not intro. convert method need AdType.CONTENT ad");
-        }
-
         List<Object> dtoImage = getImages().stream()
-                .map(image -> UrlImageDto.make(image.getImageUrl(imageUrl), image.getCompressImageUrl(imageUrl)))
+                .map(image -> ImageUrlDto.make(image.getImageUrl(imageUrl), image.getCompressImageUrl(imageUrl)))
                 .collect(Collectors.toList());
 
-        return ContentDto.builder()
-                .id(getId() + "")
-                .title(getTitle())
-                .description(detail)
-                .images(dtoImage)
-                .build();
+        var dto = new ContentDto();
+        dto.setId(getId() + "");
+        dto.setTitle(title);
+        dto.setDescription(detail);
+        dto.setImages(dtoImage);
+        return dto;
     }
 
     /**
-     * @param image file
+     * @param image          file
      * @param fileRepository
      * @return 저장된 파일의 원본 이미지 반환
      * @throws IOException

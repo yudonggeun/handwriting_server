@@ -3,7 +3,7 @@ package com.promotion.handwriting.dto.request;
 import lombok.Data;
 
 @Data
-public class ContentChangeRequest {
+public class ChangeContentRequest {
     long id;
     String description;
     String title;

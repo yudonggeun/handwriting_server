@@ -37,19 +37,15 @@ public class JwtService {
                 .sign(Algorithm.HMAC256(secret));
     }
 
-    public String getUserName(String jwtToken){
+    public String getUserName(String jwtToken) {
         try {
             DecodedJWT decode = JWT.require(Algorithm.HMAC256(secret))
                     .withIssuer(issuer)
                     .build()
                     .verify(jwtToken);
             return decode.getClaim("id").asString();
-        } catch (TokenExpiredException e){
-            log.info("The Token has expired");
-            return null;
-        } catch (Exception e){
-            e.printStackTrace();
-            return null;
+        } catch (TokenExpiredException e) {
+            throw new IllegalArgumentException("jwt token has expired");
         }
     }
 }

@@ -26,12 +26,12 @@ public class ImageUtil {
      * @return if process is working good, return true. if not, return false.
      */
     public static boolean compress(String targetPath, String compressImagePath) {
-        String formatName = format(targetPath);
+        String format = format(targetPath);
         try {
-            if (formatName.equals("jpg")) {
+            if (format.equals("jpg")) {
                 resizeImage(targetPath, compressImagePath);
                 compressImage(compressImagePath, compressImagePath, 1f);
-            } else if (formatName.equals("png")) {
+            } else if (format.equals("png")) {
                 resizeImage(targetPath, compressImagePath);
             } else {
                 return false;

@@ -2,12 +2,12 @@ package com.promotion.handwriting.api;
 
 import com.promotion.handwriting.controller.DataController;
 import com.promotion.handwriting.dto.ContentDto;
-import com.promotion.handwriting.dto.IntroDto;
-import com.promotion.handwriting.dto.image.UrlImageDto;
-import com.promotion.handwriting.dto.request.ContentChangeRequest;
+import com.promotion.handwriting.dto.MainPageDto;
+import com.promotion.handwriting.dto.ImageUrlDto;
+import com.promotion.handwriting.dto.request.ChangeContentRequest;
 import com.promotion.handwriting.dto.request.CreateContentRequest;
 import com.promotion.handwriting.dto.request.DeleteContentRequest;
-import com.promotion.handwriting.dto.request.ImageDeleteRequest;
+import com.promotion.handwriting.dto.request.DeleteImageRequest;
 import com.promotion.handwriting.service.business.DataService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,15 +51,10 @@ public class DataApiTest extends RestDocs {
         var description = "content detail";
         PageRequest pageable = PageRequest.of(0, 1);
         given(dataService.getContentDtos(any(), any()))
-                .willReturn(new PageImpl<>(List.of(ContentDto.builder()
-                        .id(id)
-                        .title(title)
-                        .description(description)
-                        .images(List.of(
-                                UrlImageDto.make("/image/origin/test.jpg", "/image/compress/test.jpg"),
-                                UrlImageDto.make("/image/origin/test.jpg", "/image/compress/test.jpg")
-                        ))
-                        .build()), pageable, 2));
+                .willReturn(new PageImpl<>(List.of(contentDto(id, title, description, List.of(
+                        ImageUrlDto.make("/image/origin/test.jpg", "/image/compress/test.jpg"),
+                        ImageUrlDto.make("/image/origin/test.jpg", "/image/compress/test.jpg")
+                ))), pageable, 2));
 
         this.mockMvc.perform(get("/data/content?page=0&size=1")
                 .accept(MediaType.APPLICATION_JSON)
@@ -108,7 +103,7 @@ public class DataApiTest extends RestDocs {
 
         var image = "/intro/image.jpg";
         given(dataService.mainPageData())
-                .willReturn(new IntroDto("title", image, "detail"));
+                .willReturn(new MainPageDto("title", image, "detail"));
 
 
         mockMvc.perform(get("/data/intro")).andDo(print())
@@ -148,7 +143,7 @@ public class DataApiTest extends RestDocs {
         //given
         given(dataService.getImageUrls(any(), any()))
                 .willReturn(new PageImpl<>(
-                        List.of(UrlImageDto.make("/orginal.jpg", "/compress.jpg")),
+                        List.of(ImageUrlDto.make("/orginal.jpg", "/compress.jpg")),
                         PageRequest.of(0, 1),
                         1
                 ));
@@ -189,7 +184,7 @@ public class DataApiTest extends RestDocs {
     public void updateIntro() throws Exception {
         // given
         var dto = new MockMultipartFile("dto", "dto", "application/json",
-                mapper.writeValueAsString(new IntroDto("title", "/image.jpg", "detail")).getBytes());
+                mapper.writeValueAsString(new MainPageDto("title", "/image.jpg", "detail")).getBytes());
         MockMultipartFile image = new MockMultipartFile("image", "image.png", "image/png", "<<png data>>".getBytes());
         // when //then
         mockMvc.perform(multipart("/data/intro")
@@ -205,6 +200,8 @@ public class DataApiTest extends RestDocs {
                 )
                 .andDo(
                         document("post-intro",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
                                 responseFields(
                                         fields(
                                                 commonFieldDescriptors(),
@@ -221,7 +218,7 @@ public class DataApiTest extends RestDocs {
     @Test
     public void updateContent() throws Exception {
         // given
-        var request = new ContentChangeRequest();
+        var request = new ChangeContentRequest();
         request.setId(1);
         request.setTitle("change title");
         request.setDescription("change description");
@@ -237,6 +234,8 @@ public class DataApiTest extends RestDocs {
                         jsonPath("$.responseTime").exists()
                 ).andDo(
                         document("post-content",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
                                 requestFields(
                                         fieldWithPath("id").description("컨텐츠 id").type(NUMBER),
                                         fieldWithPath("description").description("컨텐츠 부연 설명").type(STRING),
@@ -267,6 +266,8 @@ public class DataApiTest extends RestDocs {
                         jsonPath("$.responseTime").exists()
                 ).andDo(
                         document("delete-content",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
                                 responseFields(
                                         fields(
                                                 commonFieldDescriptors()
@@ -301,6 +302,8 @@ public class DataApiTest extends RestDocs {
                 )
                 .andDo(
                         document("post-intro",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
                                 responseFields(commonFieldDescriptors())
                         )
                 );
@@ -332,7 +335,7 @@ public class DataApiTest extends RestDocs {
     @Test
     public void deleteDetailImages() throws Exception {
         //given
-        var request = new ImageDeleteRequest();
+        var request = new DeleteImageRequest();
         //when //then
         mockMvc.perform(delete("/data/detail/1")
                         .content(mapper.writeValueAsString(request))
@@ -385,5 +388,14 @@ public class DataApiTest extends RestDocs {
         List<FieldDescriptor> all = new LinkedList<>();
         for (List<FieldDescriptor> field : fields) all.addAll(field);
         return all.toArray(new FieldDescriptor[0]);
+    }
+
+    private ContentDto contentDto(String id, String title, String description, List<Object> images) {
+        ContentDto dto = new ContentDto();
+        dto.setId(id);
+        dto.setTitle(title);
+        dto.setDescription(description);
+        dto.setImages(images);
+        return dto;
     }
 }
