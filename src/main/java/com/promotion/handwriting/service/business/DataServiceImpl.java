@@ -54,7 +54,7 @@ public class DataServiceImpl implements DataService {
                 .build();
 
         for (MultipartFile file : images) {
-            content.createImage(file, fileRepository);
+            content.addImage(file, fileRepository);
         }
         return content.contentDto(imageUrl);
     }
@@ -62,7 +62,7 @@ public class DataServiceImpl implements DataService {
     @Override
     public String addImage(MultipartFile imageFile, long adId) throws IOException {
         var ad = adRepository.getReferenceById(adId);
-        return ad.createImage(imageFile, fileRepository);
+        return ad.addImage(imageFile, fileRepository).getImageName();
     }
 
     @Transactional(readOnly = true)
@@ -76,7 +76,7 @@ public class DataServiceImpl implements DataService {
     @Override
     public Page<ImageUrlDto> getImageUrls(String contentId, Pageable pageable) {
         return imageRepository.findByAdId(Long.parseLong(contentId), pageable)
-                .map(image -> ImageUrlDto.make(image.getImageUrl(imageUrl), image.getCompressImageUrl(imageUrl)));
+                .map(image -> image.urlDto(imageUrl));
     }
 
     @Override
@@ -92,10 +92,14 @@ public class DataServiceImpl implements DataService {
 
         content.setDetail(req.getDescription());
 
+        var resourcePath = content.getResourcePath();
+
         if (file != null) {
-            content.createImage(file, fileRepository);
-            content.getImages()
-                    .forEach(image -> image.delete(fileRepository, content.getResourcePath()));
+            content.addImage(file, fileRepository);
+            content.getImages().forEach(image -> {
+                fileRepository.delete(resourcePath, image.getImageName());
+                fileRepository.delete(resourcePath, image.getZipImageName());
+            });
         }
     }
 
@@ -115,7 +119,8 @@ public class DataServiceImpl implements DataService {
                 .collect(Collectors.toList());
 
         for (var image : deleteImage) {
-            image.delete(fileRepository, content.getResourcePath());
+            fileRepository.delete(content.getResourcePath(), image.getImageName());
+            fileRepository.delete(content.getResourcePath(), image.getZipImageName());
         }
         imageRepository.deleteAllInBatch(deleteImage);
     }
@@ -125,7 +130,7 @@ public class DataServiceImpl implements DataService {
         try {
             Ad mainPage = adRepository.findByType(AdType.INTRO);
             Image image = mainPage.getImages().get(0);
-            String mainPageImageUrl = image.getImageUrl(imageUrl);
+            String mainPageImageUrl = image.urlDto(imageUrl).getOriginal();
             return new MainPageDto(mainPage.getTitle(), mainPageImageUrl, mainPage.getDetail());
         } catch (NoResultException | NonUniqueResultException e) {
             throw new IllegalStateException("메인 페이지 정보 칼럼이 1개가 아닙니다. 데이터를 확인해주세요");

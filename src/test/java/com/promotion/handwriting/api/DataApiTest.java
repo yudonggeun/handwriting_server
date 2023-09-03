@@ -52,8 +52,8 @@ public class DataApiTest extends RestDocs {
         PageRequest pageable = PageRequest.of(0, 1);
         given(dataService.getContentDtos(any(), any()))
                 .willReturn(new PageImpl<>(List.of(contentDto(id, title, description, List.of(
-                        ImageUrlDto.make("/image/origin/test.jpg", "/image/compress/test.jpg"),
-                        ImageUrlDto.make("/image/origin/test.jpg", "/image/compress/test.jpg")
+                        new ImageUrlDto("/image/origin/test.jpg", "/image/compress/test.jpg"),
+                        new ImageUrlDto("/image/origin/test.jpg", "/image/compress/test.jpg")
                 ))), pageable, 2));
 
         this.mockMvc.perform(get("/data/content?page=0&size=1")
@@ -143,7 +143,7 @@ public class DataApiTest extends RestDocs {
         //given
         given(dataService.getImageUrls(any(), any()))
                 .willReturn(new PageImpl<>(
-                        List.of(ImageUrlDto.make("/orginal.jpg", "/compress.jpg")),
+                        List.of(new ImageUrlDto("/orginal.jpg", "/compress.jpg")),
                         PageRequest.of(0, 1),
                         1
                 ));
@@ -390,7 +390,7 @@ public class DataApiTest extends RestDocs {
         return all.toArray(new FieldDescriptor[0]);
     }
 
-    private ContentDto contentDto(String id, String title, String description, List<Object> images) {
+    private ContentDto contentDto(String id, String title, String description, List<ImageUrlDto> images) {
         ContentDto dto = new ContentDto();
         dto.setId(id);
         dto.setTitle(title);

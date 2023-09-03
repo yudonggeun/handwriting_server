@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
@@ -77,11 +79,5 @@ class AdRepositoryTest {
                 .detail(detail)
                 .resourcePath(resourcePath)
                 .build();
-    }
-
-    @AfterEach
-    void tearDown() {
-        imageRepository.deleteAllInBatch();
-        adRepository.deleteAllInBatch();
     }
 }

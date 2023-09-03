@@ -9,5 +9,5 @@ public class ContentDto {
     String id;
     String title;
     String description;
-    List<Object> images; // todo object 리스트 변경 필요
+    List<ImageUrlDto> images;
 }

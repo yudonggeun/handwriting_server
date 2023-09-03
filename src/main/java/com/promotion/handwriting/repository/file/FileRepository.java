@@ -32,21 +32,20 @@ public class FileRepository {
                           @Value("${directory.root}") String projectRootPath,
                           @Value("${directory.image}") String imagePath) throws IOException {
         this.loader = loader;
-        this.imagePath = imagePath;
         String os = System.getProperty("os.name").toLowerCase();
-        this.fileResourcePath = (os.contains("win") ? "file:///" : "file:") + resourcePath;
+        String fileResourcePath = (os.contains("win") ? "file:///" : "file:") + resourcePath;
         if (fileResourcePath.charAt(fileResourcePath.length() - 1) == '/') {
             fileResourcePath = fileResourcePath.substring(0, fileResourcePath.length() - 1);
         }
+        imageResourcePath = fileResourcePath + imagePath;
         createDirectories(Paths.get(resourcePath + projectRootPath));
         createDirectories(Paths.get(resourcePath + imagePath));
     }
 
-    private final String imagePath;
-    private String fileResourcePath;
+    private String imageResourcePath;
 
-    public String getImageResourcePath() {
-        return fileResourcePath + imagePath;
+    private String getImageResourcePath() {
+        return imageResourcePath;
     }
 
     public void save(String fileName, String directory, InputStream data) throws IOException {
@@ -71,20 +70,12 @@ public class FileRepository {
         return ImageUtil.compress(originFile.getAbsolutePath(), directoryPath + "/" + targetFilename);
     }
 
-    public boolean delete(String directory, String fileName) {
+    public void delete(String directory, String fileName) {
         try {
-            Resource resource = loader.getResource(getImageResourcePath() + directory);
-            Path path = resource.getFile().toPath();
-            File file = new File(path.toAbsolutePath() + "/" + fileName);
-            if (!file.exists()) {
-                log.error("파일 삭제 실패 : 파일이 존재하지 않습니다.");
-            } else if (!file.isFile()) {
-                log.error("파일 삭제 실패 : 파일이 아닙니다.");
-            }
-            return file.delete();
+            String path = loader.getResource(getImageResourcePath() + directory).getFile().getAbsolutePath();
+            new File(path + "/" + fileName).delete();
         } catch (IOException ex) {
-            log.error("파일 삭제 실패 : " + directory + "/" + fileName);
-            return false;
+            throw new IllegalArgumentException("파일 삭제 실패 : " + directory + "/" + fileName);
         }
     }
 

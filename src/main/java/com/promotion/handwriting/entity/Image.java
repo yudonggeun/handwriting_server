@@ -1,12 +1,10 @@
 package com.promotion.handwriting.entity;
 
-import com.promotion.handwriting.repository.file.FileRepository;
+import com.promotion.handwriting.dto.ImageUrlDto;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
-import java.io.IOException;
 
 @Entity
 @NoArgsConstructor
@@ -17,9 +15,9 @@ public class Image extends BasisEntity {
     private Ad ad;
     @Column(name = "PRIORITY")
     private int priority;
-    @Column(name = "IMAGE_NAME")
+    @Column(name = "IMAGE_NAME", unique = true)
     private String imageName;
-    @Column(name = "COMPRESS_IMAGE_NAME")
+    @Column(name = "COMPRESS_IMAGE_NAME", unique = true)
     private String compressImageName;
 
     @Builder
@@ -34,33 +32,20 @@ public class Image extends BasisEntity {
         return imageName;
     }
 
-    public String getCompressImageName() {
+    public String getZipImageName() {
         return compressImageName;
     }
 
-    public void setAd(Ad ad) {
-        this.ad = ad;
+    public ImageUrlDto urlDto(String imageUrl) {
+        return new ImageUrlDto(getImageUrl(imageUrl), getCompressImageUrl(imageUrl));
     }
 
-
-    public Image save(String path, MultipartFile file, FileRepository fileRepository) throws IOException {
-        fileRepository.save(imageName, path, file.getInputStream());
-        fileRepository.compressAndSave(imageName, compressImageName, path);
-        return this;
-    }
-
-    public void delete(FileRepository fileRepository, String resourcePath) {
-        fileRepository.delete(resourcePath, imageName);
-        fileRepository.delete(resourcePath, compressImageName);
-    }
-
-    public String getCompressImageUrl(String imageUrl) {
+    private String getCompressImageUrl(String imageUrl) {
         if (compressImageName == null) return getImageUrl(imageUrl);
-        return imageUrl + ad.getResourcePath() + "/" + getCompressImageName();
+        return (imageUrl + ad.getResourcePath() + "/" + compressImageName).replace("//", "/");
     }
 
-    public String getImageUrl(String imageUrl) {
-        return imageUrl + ad.getResourcePath() + "/" + getImageName();
+    private String getImageUrl(String imageUrl) {
+        return (imageUrl + ad.getResourcePath() + "/" + getImageName()).replace("//", "/");
     }
-
 }

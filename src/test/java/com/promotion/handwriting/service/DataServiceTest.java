@@ -39,7 +39,7 @@ class DataServiceTest {
     public void mainPageData() {
         // given
         Ad content = createContent("this is title", AdType.INTRO, "hello world");
-        content.addImage(createImage(content, "test.jpg", "compress.jpg"));
+        content.getImages().add(createImage(content, "test.jpg", "compress.jpg"));
         new MainPageDto("this is title", "/test.jpg", "hello world");
         given(adRepository.findByType(eq(AdType.INTRO)))
                 .willReturn(content);

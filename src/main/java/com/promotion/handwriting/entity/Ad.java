@@ -15,7 +15,6 @@ import javax.persistence.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
@@ -31,7 +30,7 @@ public class Ad extends BasisEntity {
     private String title;
     @Column(name = "DETAIL")
     private String detail;
-    @Column(name = "RESOURCE_PATH")
+    @Column(name = "RESOURCE_PATH", unique = true, updatable = false)
     private String resourcePath;
     @OneToMany(mappedBy = "ad", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
@@ -54,30 +53,9 @@ public class Ad extends BasisEntity {
         this.detail = detail;
     }
 
-    public void addImage(Image image) {
-        if (this.images.stream().filter(i -> i.getImageName().equals(image.getImageName())).toArray().length == 0) {
-            image.setAd(this);
-            this.images.add(image);
-        } else {
-            log.error("Ad.addImage : 저장할 이미지의 이름이 이미 존재합니다. [저장실패이미지]" + image.getImageName());
-        }
-    }
-
-    public void addImages(List<Image> images) {
-        Set<String> imageNames = this.images.stream().map(Image::getImageName).collect(Collectors.toSet());
-        for (Image image : images) {
-            if (imageNames.contains(image.getImageName())) {
-                log.error("Ad.addImage : 저장할 이미지의 이름이 이미 존재합니다. [저장실패이미지]" + image.getImageName());
-            } else {
-                image.setAd(this);
-                this.images.add(image);
-            }
-        }
-    }
-
     public ContentDto contentDto(String imageUrl) {
-        List<Object> dtoImage = getImages().stream()
-                .map(image -> ImageUrlDto.make(image.getImageUrl(imageUrl), image.getCompressImageUrl(imageUrl)))
+        List<ImageUrlDto> dtoImage = getImages().stream()
+                .map(i -> i.urlDto(imageUrl))
                 .collect(Collectors.toList());
 
         var dto = new ContentDto();
@@ -88,24 +66,20 @@ public class Ad extends BasisEntity {
         return dto;
     }
 
-    /**
-     * @param image          file
-     * @param fileRepository
-     * @return 저장된 파일의 원본 이미지 반환
-     * @throws IOException
-     */
-    public String createImage(MultipartFile file, FileRepository fileRepository) throws IOException {
+    public Image addImage(MultipartFile file, FileRepository fileRepository) throws IOException {
         var originalFilename = file.getOriginalFilename();
         var compressFilename = ImageUtil.compressImageName(originalFilename);
 
-        addImage(Image.builder()
+        Image image = Image.builder()
                 .content(this)
                 .priority(Integer.MAX_VALUE)
                 .imageName(originalFilename)
                 .compressImageName(compressFilename)
-                .build()
-                .save(resourcePath, file, fileRepository));
+                .build();
 
-        return originalFilename;
+        fileRepository.save(originalFilename, resourcePath, file.getInputStream());
+        fileRepository.compressAndSave(originalFilename, compressFilename, resourcePath);
+        images.add(image);
+        return image;
     }
 }

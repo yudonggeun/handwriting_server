@@ -7,15 +7,11 @@ import lombok.Data;
  */
 @Data
 public class ImageUrlDto {
-    String original;
-    String compress;
+    private String original;
+    private String compress;
 
     public ImageUrlDto(String original, String compress) {
         this.original = original;
         this.compress = compress;
-    }
-
-    public static ImageUrlDto make(String original, String compress){
-        return new ImageUrlDto(original, compress);
     }
 }
