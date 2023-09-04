@@ -38,11 +38,6 @@ public class DataApiTest extends RestDocs {
     @MockBean
     private DataService dataService;
 
-    @Override
-    protected Object initController() {
-        return new DataController(dataService);
-    }
-
     @DisplayName("홍보 목록 조회 API")
     @Test
     public void getPromotionInfo() throws Exception {
@@ -52,8 +47,8 @@ public class DataApiTest extends RestDocs {
         PageRequest pageable = PageRequest.of(0, 1);
         given(dataService.getContentDtos(any(), any()))
                 .willReturn(new PageImpl<>(List.of(contentDto(id, title, description, List.of(
-                        new ImageUrlDto("/image/origin/test.jpg", "/image/compress/test.jpg"),
-                        new ImageUrlDto("/image/origin/test.jpg", "/image/compress/test.jpg")
+                        new ImageUrlDto(1, "/image/origin/test.jpg", "/image/compress/test.jpg"),
+                        new ImageUrlDto(2, "/image/origin/test.jpg", "/image/compress/test.jpg")
                 ))), pageable, 2));
 
         this.mockMvc.perform(get("/data/content?page=0&size=1")
@@ -88,7 +83,9 @@ public class DataApiTest extends RestDocs {
                                         fieldWithPath("data.content[].images[].original").type(STRING)
                                                 .description("원본 이미지 경로"),
                                         fieldWithPath("data.content[].images[].compress").type(STRING)
-                                                .description("압축 이미지 경로")
+                                                .description("압축 이미지 경로"),
+                                        fieldWithPath("data.content[].images[].id").type(NUMBER)
+                                                .description("이미지 id")
                                 )
                         )
                 )
@@ -143,7 +140,7 @@ public class DataApiTest extends RestDocs {
         //given
         given(dataService.getImageUrls(any(), any()))
                 .willReturn(new PageImpl<>(
-                        List.of(new ImageUrlDto("/orginal.jpg", "/compress.jpg")),
+                        List.of(new ImageUrlDto(1, "/orginal.jpg", "/compress.jpg")),
                         PageRequest.of(0, 1),
                         1
                 ));
@@ -167,10 +164,9 @@ public class DataApiTest extends RestDocs {
                                                 commonFieldDescriptors(),
                                                 pageResponseFieldDescriptors(),
                                                 List.of(
-                                                        fieldWithPath("data.content[].original")
-                                                                .description("원본 이미지 url"),
-                                                        fieldWithPath("data.content[].compress")
-                                                                .description("압축 이미지 url")
+                                                        fieldWithPath("data.content[].id").description("이미지 id"),
+                                                        fieldWithPath("data.content[].original").description("원본 이미지 url"),
+                                                        fieldWithPath("data.content[].compress").description("압축 이미지 url")
                                                 )
                                         )
                                 )
@@ -282,7 +278,6 @@ public class DataApiTest extends RestDocs {
     public void createContent() throws Exception {
         // given
         var request = new CreateContentRequest();
-        request.setId("1");
         request.setTitle("my title");
         request.setDescription("my description");
         var dto = new MockMultipartFile("dto", "dto", "application/json",
@@ -336,8 +331,10 @@ public class DataApiTest extends RestDocs {
     public void deleteDetailImages() throws Exception {
         //given
         var request = new DeleteImageRequest();
+        request.setContentId(1l);
+        request.setImageIds(List.of(1l, 2l));
         //when //then
-        mockMvc.perform(delete("/data/detail/1")
+        mockMvc.perform(delete("/data/detail")
                         .content(mapper.writeValueAsString(request))
                         .contentType("application/json"))
                 .andDo(print())

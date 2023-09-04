@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,7 +65,7 @@ public class Ad extends BasisEntity {
         return dto;
     }
 
-    public Image addImage(MultipartFile file, FileRepository fileRepository) throws IOException {
+    public Image addImage(MultipartFile file, FileRepository fileRepository) {
         var originalFilename = file.getOriginalFilename();
         var compressFilename = ImageUtil.compressImageName(originalFilename);
 
@@ -77,8 +76,7 @@ public class Ad extends BasisEntity {
                 .compressImageName(compressFilename)
                 .build();
 
-        fileRepository.save(originalFilename, resourcePath, file.getInputStream());
-        fileRepository.compressAndSave(originalFilename, compressFilename, resourcePath);
+        fileRepository.save(originalFilename, compressFilename, resourcePath, file);
         images.add(image);
         return image;
     }

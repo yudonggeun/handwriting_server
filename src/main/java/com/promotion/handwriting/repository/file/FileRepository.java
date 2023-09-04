@@ -1,5 +1,6 @@
 package com.promotion.handwriting.repository.file;
 
+import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.util.ImageUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +50,15 @@ public class FileRepository {
         return imageResourcePath;
     }
 
-    public void save(String fileName, String directory, InputStream data) throws IOException {
+    public void save(String fileName, String compressFileName, String directoryPath, MultipartFile multipartFile){
+        try {
+            save(fileName, directoryPath, multipartFile.getInputStream());
+            compressAndSave(fileName, compressFileName, directoryPath);
+        } catch (IOException e){
+            throw new RuntimeException("파일 저장 실패");
+        }
+    }
+    private void save(String fileName, String directory, InputStream data) throws IOException {
 
         Path location = loader.getResource(getImageResourcePath() + directory)
                 .getFile()
@@ -61,7 +71,7 @@ public class FileRepository {
         FileCopyUtils.copy(data, Files.newOutputStream(location));
     }
 
-    public boolean compressAndSave(String originFilename, String targetFilename, String resourcePath) throws IOException {
+    private boolean compressAndSave(String originFilename, String targetFilename, String resourcePath) throws IOException {
         Resource resource = loader.getResource(getImageResourcePath() + resourcePath);
         String directoryPath = resource.getFile().getAbsolutePath();
 

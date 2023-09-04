@@ -63,27 +63,20 @@ public class DataController {
     @PutMapping("/content")
     public ApiResponse createContent(@RequestPart(name = "dto") CreateContentRequest request,
                                      @RequestPart(value = "image", required = false) List<MultipartFile> images) throws IOException {
-        return success(dataService.addContentAd(request, images));
+        return success(dataService.newContent(request, images));
     }
 
     @PutMapping("/detail/{id}")
     public ApiResponse addDetailImages(@PathVariable("id") String id,
                                        @RequestPart(name = "image", required = false) List<MultipartFile> imageFiles) throws IOException {
         for (MultipartFile file : imageFiles)
-            dataService.addImage(file, Long.parseLong(id));
+            dataService.newImage(file, Long.parseLong(id));
         return success(null);
     }
 
-    @DeleteMapping("/detail/{id}")
-    public ApiResponse deleteDetailImages(@PathVariable("id") String adId,
-                                          @RequestBody DeleteImageRequest fileUrls) {
-        //url 데이터 가공한다. TODO front 에서 정제하면 좋다.
-        List<String> fileList = fileUrls.getFiles().stream()
-                .map(url -> url.substring(url.lastIndexOf("/") + 1))
-                .collect(Collectors.toList());
-
-        dataService.deleteImages(fileList, Long.parseLong(adId));
-
+    @DeleteMapping("/detail")
+    public ApiResponse deleteDetailImages(@RequestBody DeleteImageRequest request) {
+        dataService.deleteImages(request.getImageIds(), request.getContentId());
         return success(null);
     }
 }

@@ -1,11 +1,8 @@
 package com.promotion.handwriting.service;
 
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import com.promotion.handwriting.TestClass;
 
-@SpringBootTest
-@ActiveProfiles("test")
-class FileServiceTest {
+class FileServiceTest extends TestClass {
 
 //    @Autowired
 //    FileService fileService;

@@ -3,10 +3,12 @@ package com.promotion.handwriting.entity;
 import com.promotion.handwriting.dto.ImageUrlDto;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 
 @Entity
+@ToString
 @NoArgsConstructor
 public class Image extends BasisEntity {
 
@@ -37,7 +39,7 @@ public class Image extends BasisEntity {
     }
 
     public ImageUrlDto urlDto(String imageUrl) {
-        return new ImageUrlDto(getImageUrl(imageUrl), getCompressImageUrl(imageUrl));
+        return new ImageUrlDto(getId(), getImageUrl(imageUrl), getCompressImageUrl(imageUrl));
     }
 
     private String getCompressImageUrl(String imageUrl) {

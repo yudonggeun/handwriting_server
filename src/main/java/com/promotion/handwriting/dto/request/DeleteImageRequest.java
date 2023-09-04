@@ -7,5 +7,6 @@ import java.util.List;
 
 @Data
 public class DeleteImageRequest {
-    List<String> files = new ArrayList<>();
+    Long contentId;
+    List<Long> imageIds = new ArrayList<>();
 }

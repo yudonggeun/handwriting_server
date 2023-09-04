@@ -1,30 +1,22 @@
 package com.promotion.handwriting.repository;
 
+import com.promotion.handwriting.TestClass;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.database.AdRepository;
 import com.promotion.handwriting.repository.database.ImageRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 @Slf4j
-@SpringBootTest
-@ActiveProfiles("test")
-@Rollback
-class AdRepositoryTest {
+class AdRepositoryTest extends TestClass {
 
     @Autowired
     AdRepository adRepository;
@@ -35,12 +27,13 @@ class AdRepositoryTest {
     @Test
     public void deleteById() {
         // given
-        Ad content = adRepository.save(createAd(AdType.CONTENT, "", "", "/"));
+        Ad content = saveContent(AdType.CONTENT, "", "", "/");
         imageRepository.saveAndFlush(Image.builder().content(content).build());
         // when
+        imageRepository.deleteAllInBatch();
         adRepository.deleteById(content.getId());
         // then
-        assertThat(adRepository.findById(content.getId())).isEmpty();
+        assertThat(adRepository.findById(content.getId())).isNull();
         assertThat(imageRepository.findByAdId(content.getId(), PageRequest.of(0, 1))).isEmpty();
     }
 
@@ -48,9 +41,9 @@ class AdRepositoryTest {
     @Test
     public void findByType() {
         // given when
-        adRepository.save(createAd(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1"));
-        adRepository.save(createAd(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1"));
-        adRepository.save(createAd(AdType.INTRO, "test intro", "intro소1개입니다.", "/" + "test_file1"));
+        saveContent(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1");
+        saveContent(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1");
+        saveContent(AdType.INTRO, "test intro", "intro소1개입니다.", "/" + "test_file1");
         // then
         assertThat(adRepository.findByType(AdType.CONTENT, PageRequest.of(0, 2))).hasSize(2)
                 .extracting("type", "title", "detail", "resourcePath")
@@ -64,20 +57,21 @@ class AdRepositoryTest {
     @Test
     public void findById() {
         // given
-        Ad content = adRepository.saveAndFlush(createAd(AdType.CONTENT, "", "", "/"));
-        imageRepository.saveAndFlush(Image.builder().content(content).build());
+        Ad content = saveContent(AdType.CONTENT, "", "", "/");
+        imageRepository.saveAndFlush(Image.builder().imageName("image").compressImageName("co").content(content).build());
         // when
         var findContent = adRepository.findWithImageById(content.getId());
         // then
         assertThat(content.getId()).isEqualTo(findContent.getId());
         assertThat(findContent.getImages()).hasSize(1);
     }
-    private Ad createAd(AdType type, String title, String detail, String resourcePath) {
-        return Ad.builder()
-                .type(type)
+
+    private Ad saveContent(AdType adType, String title, String detail, String resourcePath) {
+        return adRepository.saveAndFlush(Ad.builder()
+                .type(adType)
                 .title(title)
                 .detail(detail)
                 .resourcePath(resourcePath)
-                .build();
+                .build());
     }
 }

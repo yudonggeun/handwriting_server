@@ -7,10 +7,12 @@ import lombok.Data;
  */
 @Data
 public class ImageUrlDto {
+    private long id;
     private String original;
     private String compress;
 
-    public ImageUrlDto(String original, String compress) {
+    public ImageUrlDto(long id, String original, String compress) {
+        this.id = id;
         this.original = original;
         this.compress = compress;
     }

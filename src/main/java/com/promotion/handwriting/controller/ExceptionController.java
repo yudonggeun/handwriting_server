@@ -3,6 +3,7 @@ package com.promotion.handwriting.controller;
 
 import com.promotion.handwriting.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -15,10 +16,11 @@ import static com.promotion.handwriting.dto.response.ApiResponse.fail;
 @RestControllerAdvice
 public class ExceptionController {
 
-    @ExceptionHandler({IllegalStateException.class})
+    @ExceptionHandler({IllegalStateException.class, ConstraintViolationException.class})
     public ApiResponse serverErrorHandle5XX(Exception e) {
         String message = "내부 서버에 이상이 있습니다. 관리자에게 문의해주세요.";
         log.error(e.getMessage());
+        e.printStackTrace();
         return fail(message);
     }
 

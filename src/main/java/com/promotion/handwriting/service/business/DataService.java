@@ -17,12 +17,12 @@ import java.util.List;
 public interface DataService {
 
     //컨텐츠 추가
-    ContentDto addContentAd(CreateContentRequest request, List<MultipartFile> images) throws IOException;
+    ContentDto newContent(CreateContentRequest request, List<MultipartFile> images);
     //컨텐츠 이미지 추가
-    String addImage(MultipartFile imageFile, long adId) throws IOException;
+    String newImage(MultipartFile imageFile, long adId) ;
 
     //컨텐츠 조회
-    Page<ContentDto> getContentDtos(AdType type, Pageable pageable) throws IOException;
+    Page<ContentDto> getContentDtos(AdType type, Pageable pageable);
 
     //컨텐트 이미지 조회
     Page<ImageUrlDto> getImageUrls(String contentId, Pageable pageable);
@@ -35,7 +35,7 @@ public interface DataService {
     //컨텐츠 삭제
     void deleteAd(long id) throws IOException;
     //이미지 삭제
-    void deleteImages(List<String> fileNames, long adId);
+    void deleteImages(List<Long> images, long adId);
 
     MainPageDto mainPageData();
 }

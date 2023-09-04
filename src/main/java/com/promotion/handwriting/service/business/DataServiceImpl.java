@@ -1,9 +1,9 @@
 package com.promotion.handwriting.service.business;
 
 import com.promotion.handwriting.dto.ContentDto;
+import com.promotion.handwriting.dto.ImageUrlDto;
 import com.promotion.handwriting.dto.MainPageDto;
 import com.promotion.handwriting.dto.request.ChangeContentRequest;
-import com.promotion.handwriting.dto.ImageUrlDto;
 import com.promotion.handwriting.dto.request.ChangeMainPageRequest;
 import com.promotion.handwriting.dto.request.CreateContentRequest;
 import com.promotion.handwriting.entity.Ad;
@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -24,11 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Primary
@@ -45,24 +44,25 @@ public class DataServiceImpl implements DataService {
     private String imageUrl;
 
     @Override
-    public ContentDto addContentAd(CreateContentRequest req, List<MultipartFile> images) throws IOException {
+    public ContentDto newContent(CreateContentRequest req, List<MultipartFile> images) {
         var content = Ad.builder()
                 .type(AdType.CONTENT)
                 .title(req.getTitle())
                 .detail(req.getDescription())
-                .resourcePath("/content/" + UUID.randomUUID())
+                .resourcePath(req.getPath())
                 .build();
 
-        for (MultipartFile file : images) {
-            content.addImage(file, fileRepository);
+        if (images != null) {
+            images.forEach(file -> content.addImage(file, fileRepository));
         }
         return content.contentDto(imageUrl);
     }
 
     @Override
-    public String addImage(MultipartFile imageFile, long adId) throws IOException {
-        var ad = adRepository.getReferenceById(adId);
-        return ad.addImage(imageFile, fileRepository).getImageName();
+    public String newImage(MultipartFile imageFile, long contentId) {
+        return adRepository.findById(contentId)
+                .addImage(imageFile, fileRepository)
+                .getImageName();
     }
 
     @Transactional(readOnly = true)
@@ -87,7 +87,7 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public void updateIntro(ChangeMainPageRequest req, MultipartFile file) throws IOException {
+    public void updateIntro(ChangeMainPageRequest req, MultipartFile file) {
         var content = adRepository.findByType(AdType.INTRO, PageRequest.of(0, 1)).getContent().get(0);
 
         content.setDetail(req.getDescription());
@@ -112,17 +112,8 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public void deleteImages(List<String> fileNames, long adId) {
-        var content = adRepository.findWithImageById(adId);
-        List<Image> deleteImage = content.getImages().stream()
-                .filter(image -> fileNames.contains(image.getImageName()))
-                .collect(Collectors.toList());
-
-        for (var image : deleteImage) {
-            fileRepository.delete(content.getResourcePath(), image.getImageName());
-            fileRepository.delete(content.getResourcePath(), image.getZipImageName());
-        }
-        imageRepository.deleteAllInBatch(deleteImage);
+    public void deleteImages(List<Long> images, long adId) {
+        imageRepository.deleteAllByAdIdAndIdIn(adId, images);
     }
 
     @Override
@@ -132,7 +123,7 @@ public class DataServiceImpl implements DataService {
             Image image = mainPage.getImages().get(0);
             String mainPageImageUrl = image.urlDto(imageUrl).getOriginal();
             return new MainPageDto(mainPage.getTitle(), mainPageImageUrl, mainPage.getDetail());
-        } catch (NoResultException | NonUniqueResultException e) {
+        } catch (NonUniqueResultException | IncorrectResultSizeDataAccessException e) {
             throw new IllegalStateException("메인 페이지 정보 칼럼이 1개가 아닙니다. 데이터를 확인해주세요");
         } catch (IndexOutOfBoundsException e) {
             throw new IllegalStateException("메인 페이지 이미지 정보가 존재하지 않습니다.");

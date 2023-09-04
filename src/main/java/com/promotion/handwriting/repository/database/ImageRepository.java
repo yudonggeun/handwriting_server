@@ -15,4 +15,6 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     void deleteAllByAdId(@Param("ad_id") long adId);
 
     Page<Image> findByAdId(long ad, Pageable pageable);
+
+    void deleteAllByAdIdAndIdIn(long adId, List<Long> images);
 }

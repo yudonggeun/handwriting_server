@@ -19,6 +19,7 @@ public interface AdRepository extends JpaRepository<Ad, Long> {
     @EntityGraph(attributePaths = {"images"})
     Ad findWithImageById(@Param("id") Long id);
 
+    Ad findById(long id);
     @Modifying(clearAutomatically = true)
     void deleteById(long id);
 
