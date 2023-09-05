@@ -10,7 +10,7 @@ import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.database.AdRepository;
-import com.promotion.handwriting.repository.database.ImageRepository;
+import com.promotion.handwriting.repository.database.JpaImageRepository;
 import com.promotion.handwriting.repository.file.FileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public class DataServiceImpl implements DataService {
 
     private final AdRepository adRepository;
-    private final ImageRepository imageRepository;
+    private final JpaImageRepository imageRepository;
     private final FileRepository fileRepository;
     @Value("${spring.url.image}")
     private String imageUrl;
@@ -47,34 +47,33 @@ public class DataServiceImpl implements DataService {
                 .type(AdType.CONTENT)
                 .title(req.getTitle())
                 .detail(req.getDescription())
-                .resourcePath(req.getPath())
                 .build();
 
         if (images != null) {
             images.forEach(file -> content.addImage(file, fileRepository));
         }
-        return content.contentDto(imageUrl);
+        return content.contentDto();
     }
 
     @Override
     public String newImage(MultipartFile imageFile, long contentId) {
         return adRepository.findById(contentId)
                 .addImage(imageFile, fileRepository)
-                .getImageName();
+                .getImageUrl();
     }
 
     @Transactional(readOnly = true)
     @Override
     public Page<ContentDto> getContentDtos(AdType type, Pageable pageable) {
         Page<Ad> pages = adRepository.findByType(type, pageable);
-        List<ContentDto> list = pages.getContent().stream().map(content -> content.contentDto(imageUrl)).collect(Collectors.toList());
+        List<ContentDto> list = pages.getContent().stream().map(content -> content.contentDto()).collect(Collectors.toList());
         return new PageImpl<>(list, pageable, pages.getTotalElements());
     }
 
     @Override
     public Page<ImageUrlDto> getImageUrls(String contentId, Pageable pageable) {
         return imageRepository.findByAdId(Long.parseLong(contentId), pageable)
-                .map(image -> image.urlDto(imageUrl));
+                .map(image -> image.urlDto());
     }
 
     @Override
@@ -91,24 +90,22 @@ public class DataServiceImpl implements DataService {
         content.setDetail(req.getDescription());
 
         if (file != null) {
-            content.getImages().forEach(image -> deleteImage(content.getResourcePath(), image));
+            content.getImages().forEach(image -> fileRepository.delete(image));
             content.addImage(file, fileRepository);
         }
     }
 
     @Override
-    public void deleteContent(long id){
-        var content = adRepository.findWithImageById(id);
-        fileRepository.deleteDirectory(content.getResourcePath());
+    public void deleteContent(long id) {
+        imageRepository.findByAdId(id).forEach(image -> fileRepository.delete(image));
         imageRepository.deleteAllByAdId(id);
         adRepository.deleteById(id);
     }
 
     @Override
     public void deleteImages(List<Long> images, long contentId) {
-        Ad content = adRepository.findById(contentId);
-        imageRepository.findByIdIn(images).forEach(image -> deleteImage(content.getResourcePath(), image));
-        imageRepository.deleteAllByAdIdAndIdIn(contentId, images);
+        imageRepository.findByIdIn(images).forEach(image -> fileRepository.delete(image));
+        imageRepository.deleteAllByIdIn(images);
     }
 
     @Override
@@ -116,17 +113,12 @@ public class DataServiceImpl implements DataService {
         try {
             Ad mainPage = adRepository.findByType(AdType.INTRO);
             Image image = mainPage.getImages().get(0);
-            String mainPageImageUrl = image.urlDto(imageUrl).getOriginal();
+            String mainPageImageUrl = image.urlDto().getOriginal();
             return new MainPageDto(mainPage.getTitle(), mainPageImageUrl, mainPage.getDetail());
         } catch (NonUniqueResultException | IncorrectResultSizeDataAccessException e) {
             throw new IllegalStateException("메인 페이지 정보 칼럼이 1개가 아닙니다. 데이터를 확인해주세요");
         } catch (IndexOutOfBoundsException e) {
             throw new IllegalStateException("메인 페이지 이미지 정보가 존재하지 않습니다.");
         }
-    }
-
-    private void deleteImage(String resourcePath, Image image) {
-        fileRepository.delete(resourcePath, image.getImageName());
-        fileRepository.delete(resourcePath, image.getZipImageName());
     }
 }

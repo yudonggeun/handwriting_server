@@ -29,18 +29,15 @@ public class Ad extends BasisEntity {
     private String title;
     @Column(name = "DETAIL")
     private String detail;
-    @Column(name = "RESOURCE_PATH", unique = true, updatable = false)
-    private String resourcePath;
     @OneToMany(mappedBy = "ad", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
 
     @Builder
-    private Ad(AdType type, String title, String detail, String resourcePath) {
+    private Ad(AdType type, String title, String detail) {
         super();
         this.type = type;
         this.title = title;
         this.detail = detail;
-        this.resourcePath = resourcePath;
         this.images = new ArrayList<>();
     }
 
@@ -52,9 +49,9 @@ public class Ad extends BasisEntity {
         this.detail = detail;
     }
 
-    public ContentDto contentDto(String imageUrl) {
+    public ContentDto contentDto() {
         List<ImageUrlDto> dtoImage = getImages().stream()
-                .map(i -> i.urlDto(imageUrl))
+                .map(i -> i.urlDto())
                 .collect(Collectors.toList());
 
         var dto = new ContentDto();
@@ -76,7 +73,7 @@ public class Ad extends BasisEntity {
                 .compressImageName(compressFilename)
                 .build();
 
-        fileRepository.save(originalFilename, compressFilename, resourcePath, file);
+        fileRepository.save(image, file);
         images.add(image);
         return image;
     }

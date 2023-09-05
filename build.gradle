@@ -42,6 +42,10 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
     runtimeOnly 'mysql:mysql-connector-java' //mysql
 
+    // file to multipartfile
+    testCompileOnly group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
+    testCompileOnly group: 'commons-io', name: 'commons-io', version: '2.4'
+
     //h2
     testImplementation'com.h2database:h2'
 }

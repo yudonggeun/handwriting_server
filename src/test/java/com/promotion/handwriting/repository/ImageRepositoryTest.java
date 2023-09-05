@@ -5,7 +5,7 @@ import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.database.AdRepository;
-import com.promotion.handwriting.repository.database.ImageRepository;
+import com.promotion.handwriting.repository.database.JpaImageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +25,7 @@ class ImageRepositoryTest extends TestClass {
     @Autowired
     AdRepository adRepository;
     @Autowired
-    ImageRepository imageRepository;
+    JpaImageRepository imageRepository;
 
     @DisplayName("컨텐츠에 속한 이미지가 전부 삭제된다.")
     @Test
@@ -55,10 +55,10 @@ class ImageRepositoryTest extends TestClass {
     public void deleteAllByAdIdAndIdIn() {
         //given
         Ad content = saveContent(AdType.CONTENT, "title", "", "/");
-        Image deleteImage = saveImage(content, "zip.jpg", "data.jpg");
-        Image image = saveImage(content, "zip.jpg", "data.jpg");
+        Image deleteImage = saveImage(content, "deleteAllByAdIdAndIdInZip1.jpg", "deleteAllByAdIdAndIdInData1.jpg");
+        Image image = saveImage(content, "deleteAllByAdIdAndIdInZip2.jpg", "deleteAllByAdIdAndIdInData2.jpg");
         //when
-        imageRepository.deleteAllByAdIdAndIdIn(content.getId(), List.of(deleteImage.getId()));
+        imageRepository.deleteAllByIdIn(List.of(deleteImage.getId()));
         Page<Image> images = imageRepository.findByAdId(content.getId(), PageRequest.of(0, 10));
         //then
         assertThat(images).hasSize(1);
@@ -76,7 +76,6 @@ class ImageRepositoryTest extends TestClass {
                 .type(type)
                 .title(title)
                 .detail(detail)
-                .resourcePath(path)
                 .build());
     }
 

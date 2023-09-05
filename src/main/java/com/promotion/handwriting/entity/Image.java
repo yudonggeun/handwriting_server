@@ -1,7 +1,6 @@
 package com.promotion.handwriting.entity;
 
 import com.promotion.handwriting.dto.ImageUrlDto;
-import com.promotion.handwriting.repository.file.FileRepository;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -18,7 +17,7 @@ public class Image extends BasisEntity {
     private Ad ad;
     @Column(name = "PRIORITY")
     private int priority;
-    @Column(name = "IMAGE_NAME", unique = true)
+    @Column(name = "IMAGE_NAME", unique = true, nullable = false)
     private String imageName;
     @Column(name = "COMPRESS_IMAGE_NAME", unique = true)
     private String compressImageName;
@@ -28,27 +27,27 @@ public class Image extends BasisEntity {
         this.ad = content;
         this.priority = priority;
         this.imageName = imageName;
-        this.compressImageName = compressImageName;
+        this.compressImageName = compressImageName == null ? imageName : compressImageName;
     }
 
     public String getImageName() {
         return imageName;
     }
 
-    public String getZipImageName() {
+    public String getCompressImageName() {
         return compressImageName;
     }
 
-    public ImageUrlDto urlDto(String imageUrl) {
-        return new ImageUrlDto(getId(), getImageUrl(imageUrl), getCompressImageUrl(imageUrl));
+    public String getImageUrl() {
+        return "/" + imageName;
     }
 
-    private String getCompressImageUrl(String imageUrl) {
-        if (compressImageName == null) return getImageUrl(imageUrl);
-        return (imageUrl + ad.getResourcePath() + "/" + compressImageName).replace("//", "/");
+    public String getCompressImageUrl() {
+        return "/" + compressImageName;
     }
 
-    private String getImageUrl(String imageUrl) {
-        return (imageUrl + ad.getResourcePath() + "/" + getImageName()).replace("//", "/");
+
+    public ImageUrlDto urlDto() {
+        return new ImageUrlDto(getId(), getImageUrl(), getCompressImageUrl());
     }
 }

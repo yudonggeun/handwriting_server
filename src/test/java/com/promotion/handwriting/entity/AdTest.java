@@ -45,19 +45,18 @@ class AdTest {
         when(file.getOriginalFilename()).thenReturn("file.jpg");
 
         var content = Ad.builder().type(AdType.CONTENT)
-                .resourcePath("/path")
                 .detail("detail")
                 .title("title")
                 .build();
         content.addImage(file, fileRepository);
 
         // when
-        var dto = content.contentDto("/root");
+        var dto = content.contentDto();
         // then
         assertThat(dto).extracting("title", "description")
                 .containsExactly("title", "detail");
         assertThat(dto.getImages().get(0).getOriginal())
-                .hasToString("/root/path/file.jpg");
+                .hasToString("/file.jpg");
     }
 
     @DisplayName("이미지를 추가한다.")
@@ -69,7 +68,6 @@ class AdTest {
         when(file.getOriginalFilename()).thenReturn("file.jpg");
 
         var content = Ad.builder().type(AdType.CONTENT)
-                .resourcePath("/path")
                 .detail("detail")
                 .title("title")
                 .build();
@@ -77,6 +75,6 @@ class AdTest {
         content.addImage(file, fileRepository);
         // then
         Image image = content.getImages().get(0);
-        assertThat(image.getImageName()).isEqualTo("file.jpg");
+        assertThat(image.getImageUrl()).isEqualTo("/file.jpg");
     }
 }

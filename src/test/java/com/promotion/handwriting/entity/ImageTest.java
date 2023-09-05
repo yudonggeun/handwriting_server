@@ -14,46 +14,57 @@ class ImageTest {
     @Test
     public void getImageName() {
         // given
-        Image image = Image.builder().imageName("myImage.jpg").build();
+        Image image = createImage("myImage.jpg", null, null);
         // when then
-        assertThat(image.getImageName()).isEqualTo("myImage.jpg");
+        assertThat(image.getImageUrl()).isEqualTo("/myImage.jpg");
     }
 
     @DisplayName("압축 이미지 이름을 반환한다.")
     @Test
     public void getZipImageName() {
         // given
-        Image image = Image.builder().compressImageName("myImage.jpg").build();
+        var image = createImage("data.jpg", "myImage.jpg", null);
         // when then
-        assertThat(image.getZipImageName()).isEqualTo("myImage.jpg");
+        assertThat(image.getCompressImageUrl()).isEqualTo("/myImage.jpg");
     }
 
     @DisplayName("주어진 imageUrl 에 알맞는 이미지 엑세스 url 토큰을 생성한다.")
     @Nested
-    class urlDto{
-        Ad content = Ad.builder().resourcePath("/content").build();
+    class urlDto {
+
+        Ad content = Ad.builder().build();
+
         @DisplayName("image 저장 디렉토리 경로가 '/' 일 때")
         @Test
-        void root(){
+        void root() {
             // given
-            Image image = Image.builder().content(content).compressImageName("compress.jpg").imageName("original.jpg").build();
+            var image = createImage("original.jpg", "compress.jpg", content);
             // when
-            ImageUrlDto urlDto = image.urlDto("/");
+            ImageUrlDto urlDto = image.urlDto();
             // then
             assertThat(urlDto).extracting("original", "compress")
-                    .containsExactly("/content/original.jpg", "/content/compress.jpg");
+                    .containsExactly("/original.jpg", "/compress.jpg");
         }
 
         @DisplayName("image 저장 디렉토리 경로가 '/'가 아닐 때")
         @Test
-        void directory(){
+        void directory() {
             // given
-            Image image = Image.builder().content(content).compressImageName("compress.jpg").imageName("original.jpg").build();
+            var image = createImage("original.jpg", "compress.jpg", content);
             // when
-            ImageUrlDto urlDto = image.urlDto("/root");
+            ImageUrlDto urlDto = image.urlDto();
             // then
             assertThat(urlDto).extracting("original", "compress")
-                    .containsExactly("/root/content/original.jpg", "/root/content/compress.jpg");
+                    .containsExactly("/original.jpg", "/compress.jpg");
         }
+
+    }
+
+    private Image createImage(String imageName, String compressImageName, Ad content) {
+        return Image.builder()
+                .imageName(imageName)
+                .compressImageName(compressImageName)
+                .content(content)
+                .build();
     }
 }

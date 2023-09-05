@@ -5,7 +5,7 @@ import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.repository.database.AdRepository;
-import com.promotion.handwriting.repository.database.ImageRepository;
+import com.promotion.handwriting.repository.database.JpaImageRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,14 +21,14 @@ class AdRepositoryTest extends TestClass {
     @Autowired
     AdRepository adRepository;
     @Autowired
-    ImageRepository imageRepository;
+    JpaImageRepository imageRepository;
 
     @DisplayName("특정 id를 가진 content는 삭제되고 하위 이미지도 같이 삭제되어야한다.")
     @Test
     public void deleteById() {
         // given
-        Ad content = saveContent(AdType.CONTENT, "", "", "/");
-        imageRepository.saveAndFlush(Image.builder().content(content).build());
+        Ad content = saveContent(AdType.CONTENT, "", "");
+        saveImage(content, "zipDeleteById.jpg", "deleteById.jpg");
         // when
         imageRepository.deleteAllInBatch();
         adRepository.deleteById(content.getId());
@@ -41,24 +41,24 @@ class AdRepositoryTest extends TestClass {
     @Test
     public void findByType() {
         // given when
-        saveContent(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1");
-        saveContent(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1");
-        saveContent(AdType.INTRO, "test intro", "intro소1개입니다.", "/" + "test_file1");
+        saveContent(AdType.CONTENT, "test Content1", "소1개입니다.");
+        saveContent(AdType.CONTENT, "test Content1", "소1개입니다.");
+        saveContent(AdType.INTRO, "test intro", "intro소1개입니다.");
         // then
         assertThat(adRepository.findByType(AdType.CONTENT, PageRequest.of(0, 2))).hasSize(2)
-                .extracting("type", "title", "detail", "resourcePath")
-                .contains(tuple(AdType.CONTENT, "test Content1", "소1개입니다.", "/" + "test_file1"));
+                .extracting("type", "title", "detail")
+                .contains(tuple(AdType.CONTENT, "test Content1", "소1개입니다."));
         assertThat(adRepository.findByType(AdType.INTRO, PageRequest.of(0, 1))).hasSize(1)
-                .extracting("type", "title", "detail", "resourcePath")
-                .contains(tuple(AdType.INTRO, "test intro", "intro소1개입니다.", "/" + "test_file1"));
+                .extracting("type", "title", "detail")
+                .contains(tuple(AdType.INTRO, "test intro", "intro소1개입니다."));
     }
 
     @DisplayName("특정 id의 컨텐츠를 조회시 id 값이 같고 관련된 image를 조회할 수 있다.")
     @Test
     public void findById() {
         // given
-        Ad content = saveContent(AdType.CONTENT, "", "", "/");
-        imageRepository.saveAndFlush(Image.builder().imageName("image").compressImageName("co").content(content).build());
+        Ad content = saveContent(AdType.CONTENT, "", "");
+        saveImage(content, "co.jpg", "image.jpg");
         // when
         var findContent = adRepository.findWithImageById(content.getId());
         // then
@@ -66,12 +66,20 @@ class AdRepositoryTest extends TestClass {
         assertThat(findContent.getImages()).hasSize(1);
     }
 
-    private Ad saveContent(AdType adType, String title, String detail, String resourcePath) {
+    private Image saveImage(Ad content, String zipFileName, String fileName) {
+        return imageRepository.saveAndFlush(Image.builder()
+                .content(content)
+                .imageName(fileName)
+                .compressImageName(zipFileName)
+                .priority(1)
+                .build());
+    }
+
+    private Ad saveContent(AdType adType, String title, String detail) {
         return adRepository.saveAndFlush(Ad.builder()
                 .type(adType)
                 .title(title)
                 .detail(detail)
-                .resourcePath(resourcePath)
                 .build());
     }
 }
