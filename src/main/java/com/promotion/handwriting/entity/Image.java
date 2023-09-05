@@ -1,6 +1,7 @@
 package com.promotion.handwriting.entity;
 
 import com.promotion.handwriting.dto.ImageUrlDto;
+import com.promotion.handwriting.repository.file.FileRepository;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.ToString;

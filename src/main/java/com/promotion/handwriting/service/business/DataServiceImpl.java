@@ -19,14 +19,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.NonUniqueResultException;
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,24 +85,19 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public void updateIntro(ChangeMainPageRequest req, MultipartFile file) {
-        var content = adRepository.findByType(AdType.INTRO, PageRequest.of(0, 1)).getContent().get(0);
-
+    public void updateMainPage(ChangeMainPageRequest req, MultipartFile file) {
+        var content = adRepository.findByType(AdType.INTRO);
+        content.setTitle(req.getTitle());
         content.setDetail(req.getDescription());
 
-        var resourcePath = content.getResourcePath();
-
         if (file != null) {
+            content.getImages().forEach(image -> deleteImage(content.getResourcePath(), image));
             content.addImage(file, fileRepository);
-            content.getImages().forEach(image -> {
-                fileRepository.delete(resourcePath, image.getImageName());
-                fileRepository.delete(resourcePath, image.getZipImageName());
-            });
         }
     }
 
     @Override
-    public void deleteAd(long id) throws IOException {
+    public void deleteContent(long id){
         var content = adRepository.findWithImageById(id);
         fileRepository.deleteDirectory(content.getResourcePath());
         imageRepository.deleteAllByAdId(id);
@@ -112,8 +105,10 @@ public class DataServiceImpl implements DataService {
     }
 
     @Override
-    public void deleteImages(List<Long> images, long adId) {
-        imageRepository.deleteAllByAdIdAndIdIn(adId, images);
+    public void deleteImages(List<Long> images, long contentId) {
+        Ad content = adRepository.findById(contentId);
+        imageRepository.findByIdIn(images).forEach(image -> deleteImage(content.getResourcePath(), image));
+        imageRepository.deleteAllByAdIdAndIdIn(contentId, images);
     }
 
     @Override
@@ -128,5 +123,10 @@ public class DataServiceImpl implements DataService {
         } catch (IndexOutOfBoundsException e) {
             throw new IllegalStateException("메인 페이지 이미지 정보가 존재하지 않습니다.");
         }
+    }
+
+    private void deleteImage(String resourcePath, Image image) {
+        fileRepository.delete(resourcePath, image.getImageName());
+        fileRepository.delete(resourcePath, image.getZipImageName());
     }
 }

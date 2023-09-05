@@ -50,14 +50,15 @@ public class FileRepository {
         return imageResourcePath;
     }
 
-    public void save(String fileName, String compressFileName, String directoryPath, MultipartFile multipartFile){
+    public void save(String fileName, String compressFileName, String directoryPath, MultipartFile multipartFile) {
         try {
             save(fileName, directoryPath, multipartFile.getInputStream());
             compressAndSave(fileName, compressFileName, directoryPath);
-        } catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException("파일 저장 실패");
         }
     }
+
     private void save(String fileName, String directory, InputStream data) throws IOException {
 
         Path location = loader.getResource(getImageResourcePath() + directory)
@@ -89,8 +90,12 @@ public class FileRepository {
         }
     }
 
-    public void deleteDirectory(String directoryPath) throws IOException {
-        deleteDirectory(loader.getResource(getImageResourcePath() + directoryPath).getFile());
+    public void deleteDirectory(String directoryPath) {
+        try {
+            deleteDirectory(loader.getResource(getImageResourcePath() + directoryPath).getFile());
+        } catch (IOException e) {
+            throw new RuntimeException("파일 삭제 실패 : " + e.getMessage());
+        }
     }
 
     private void deleteDirectory(File directory) {

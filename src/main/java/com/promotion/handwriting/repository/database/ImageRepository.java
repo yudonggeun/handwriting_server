@@ -17,4 +17,6 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     Page<Image> findByAdId(long ad, Pageable pageable);
 
     void deleteAllByAdIdAndIdIn(long adId, List<Long> images);
+
+    List<Image> findByIdIn(List<Long> images);
 }

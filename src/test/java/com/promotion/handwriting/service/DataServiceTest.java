@@ -4,6 +4,7 @@ import com.promotion.handwriting.TestClass;
 import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.MainPageDto;
 import com.promotion.handwriting.dto.request.ChangeContentRequest;
+import com.promotion.handwriting.dto.request.ChangeMainPageRequest;
 import com.promotion.handwriting.dto.request.CreateContentRequest;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
@@ -30,6 +31,7 @@ import java.util.List;
 import static com.promotion.handwriting.enums.AdType.CONTENT;
 import static com.promotion.handwriting.enums.AdType.INTRO;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -44,7 +46,6 @@ class DataServiceTest extends TestClass {
     @MockBean
     FileRepository fileRepository;
 
-
     @Value("${spring.url.image}")
     private String imageUrl;
 
@@ -58,10 +59,8 @@ class DataServiceTest extends TestClass {
     @Test
     public void mainPageData() {
         // given
-        Ad content = createContent("this is title", INTRO, "hello world");
-        content.getImages().add(createImage(content, "test.jpg", "compress.jpg"));
-        adRepository.save(content);
-        new MainPageDto("this is title", "/test.jpg", "hello world");
+        var content = saveContent(INTRO, "this is title", "hello world", "/root");
+        saveImage(content, "test.jpg", "compress.jpg");
         // when
         MainPageDto mainPageData = dataService.mainPageData();
         // then
@@ -117,7 +116,7 @@ class DataServiceTest extends TestClass {
     @Test
     public void newImage() {
         //given
-        var content = adRepository.saveAndFlush(createContent("title", CONTENT, "detail"));
+        var content = saveContent(CONTENT, "title", "detail", "/root");
         var id = content.getId();
         MultipartFile file = Mockito.mock(MultipartFile.class);
         when(file.getOriginalFilename()).thenReturn("image1.jpg");
@@ -197,7 +196,7 @@ class DataServiceTest extends TestClass {
     }
 
 
-    @DisplayName("컨텐츠를 변경된다.")
+    @DisplayName("컨텐츠를 수정")
     @Test
     public void updateContent() {
         //given
@@ -214,12 +213,49 @@ class DataServiceTest extends TestClass {
                 .containsExactly("after title", "after detail", id);
     }
 
-    private static Image createImage(Ad content, String image, String compressImage) {
-        return Image.builder().content(content).imageName(image).compressImageName(compressImage).priority(1).build();
+    @DisplayName("메인 페이지 수정")
+    @Test
+    public void updateIntro() {
+        //given
+        var mainPage = saveContent(INTRO, "main page", "detail", "/root");
+
+        var file = mock(MultipartFile.class);
+        when(file.getOriginalFilename()).thenReturn("mock.jpg");
+
+        var request = new ChangeMainPageRequest();
+        request.setDescription("after detail");
+        request.setTitle("after title");
+        //when
+        dataService.updateMainPage(request, file);
+        //then
+        MainPageDto afterMainPage = dataService.mainPageData();
+        assertThat(afterMainPage).extracting("title", "description", "imageUrl")
+                .containsExactly("after title", "after detail", imageUrl + mainPage.getResourcePath() + "/mock.jpg");
     }
 
-    private Ad createContent(String tittle, AdType type, String detail) {
-        return Ad.builder().title(tittle).detail(detail).type(type).resourcePath("/path").build();
+    @DisplayName("이미지 삭제")
+    @Test
+    public void deleteImages() {
+        //given
+        Ad content = saveContent(CONTENT, "c", "d", "/");
+        Image image = saveImage(content, "image.jpg", "zip.jpg");
+        //when
+        dataService.deleteImages(List.of(image.getId()), content.getId());
+        //then
+        assertThat(imageRepository.findById(image.getId())).isEmpty();
+    }
+
+    @DisplayName("컨텐츠 삭제")
+    @Test
+    public void deleteContent() {
+        //given
+        Ad content = saveContent(CONTENT, "c", "d", "/");
+        saveImage(content, "image.jpg", "zip.jpg");
+        //when
+        dataService.deleteContent(content.getId());
+        //then
+        assertThat(adRepository.findById(content.getId())).isNull();
+        assertThat(imageRepository.findByAdId(content.getId(), PageRequest.of(0, 1000))).hasSize(0);
     }
 
     private Image saveImage(Ad content, String originalName, String compressName) {
@@ -238,37 +274,4 @@ class DataServiceTest extends TestClass {
                 .resourcePath(resourcePath)
                 .build());
     }
-//
-//    @Test
-//    public void amendIntro() {
-//        IntroDto introDto = new IntroDto();
-//        introDto.setComments(List.of("test", "test1", UUID.randomUUID().toString()));
-//        introDto.setImage("new Image");
-//
-//        dataService.amendIntro(introDto);
-//
-//        IntroDto findIntroDto = dataService.getIntroDto();
-//
-//        List<String> comments = findIntroDto.getComments();
-//        log.info("set : "  + introDto.getImage());
-//        log.info("find : " + findIntroDto.getImage());
-//        for (String comment : comments) {
-//            assertThat(introDto.getComments().contains(comment)).isTrue();
-//        }
-//        assertThat(findIntroDto.getImage().contains(introDto.getImage())).isTrue();
-//    }
-//
-//    @Test
-//    public void deleteAd() throws IOException {
-//        List<ContentDto> dtos = dataService.getContentDtos();
-//
-//        int size = dtos.size();
-//        ContentDto dto = dtos.get(0);
-//
-//        dataService.deleteAd(Long.parseLong(dto.getId()));
-//
-//        assertThat(size).isSameAs(dataService.getContentDtos().size()+1);
-//
-//        dataService.createContentAd(dto);
-//    }
 }

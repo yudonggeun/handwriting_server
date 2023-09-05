@@ -1,9 +1,9 @@
 package com.promotion.handwriting.service.business;
 
 import com.promotion.handwriting.dto.ContentDto;
-import com.promotion.handwriting.dto.request.ChangeContentRequest;
 import com.promotion.handwriting.dto.ImageUrlDto;
 import com.promotion.handwriting.dto.MainPageDto;
+import com.promotion.handwriting.dto.request.ChangeContentRequest;
 import com.promotion.handwriting.dto.request.ChangeMainPageRequest;
 import com.promotion.handwriting.dto.request.CreateContentRequest;
 import com.promotion.handwriting.enums.AdType;
@@ -18,8 +18,9 @@ public interface DataService {
 
     //컨텐츠 추가
     ContentDto newContent(CreateContentRequest request, List<MultipartFile> images);
+
     //컨텐츠 이미지 추가
-    String newImage(MultipartFile imageFile, long adId) ;
+    String newImage(MultipartFile imageFile, long adId);
 
     //컨텐츠 조회
     Page<ContentDto> getContentDtos(AdType type, Pageable pageable);
@@ -28,12 +29,14 @@ public interface DataService {
     Page<ImageUrlDto> getImageUrls(String contentId, Pageable pageable);
 
     //인트로 수정
-    void updateIntro(ChangeMainPageRequest request, MultipartFile file) throws IOException;
+    void updateMainPage(ChangeMainPageRequest request, MultipartFile file);
+
     //컨텐츠 수정
     void updateContent(ChangeContentRequest request);
 
     //컨텐츠 삭제
-    void deleteAd(long id) throws IOException;
+    void deleteContent(long id);
+
     //이미지 삭제
     void deleteImages(List<Long> images, long adId);
 

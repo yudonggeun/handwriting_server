@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.promotion.handwriting.dto.response.ApiResponse.success;
 
@@ -44,7 +43,7 @@ public class DataController {
     @PostMapping("/intro")
     public ApiResponse updateIntro(@RequestPart(name = "file", required = false) MultipartFile file,
                                    @RequestPart(name = "dto") ChangeMainPageRequest request) throws IOException {
-        dataService.updateIntro(request, file);
+        dataService.updateMainPage(request, file);
         return success(null);
     }
 
@@ -56,7 +55,7 @@ public class DataController {
 
     @DeleteMapping("/content")
     public ApiResponse deleteContent(@RequestBody DeleteContentRequest request) throws IOException {
-        dataService.deleteAd(request.getContentId());
+        dataService.deleteContent(request.getContentId());
         return success(null);
     }
 
