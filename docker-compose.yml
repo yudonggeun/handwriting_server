@@ -1,0 +1,54 @@
+# local host 전용
+services:
+  frontend:
+    image: nginx
+    ports:
+      - "3000:3000"
+
+  backend:
+    image: backapp
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      JWT_SECRET: testsecret
+      # google oauth secrets
+      GOOGLE_CLIENTID:
+      GOOGLE_CLIENT_SECRET:
+      GOOGLE_REDIRECT_URL:
+      #kakao oauth secret
+      KAKAO_CLIENTID:
+      KAKAO_SECRET:
+      KAKAO_REDIRECT_URL:
+      #profile
+      spring_profiles_active: local
+
+  gateway:
+    image: kong
+    ports:
+      - "80:8000"
+      - "443:8443"
+      - "8001:8001"
+      - "8444:8444"
+    networks:
+      - kong-net
+    environment:
+      KONG_DATABASE: off
+      KONG_DECLARATIVE_CONFIG: /kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
+    configs:
+      - kong.yml
+
+configs:
+  https_config:
+    file: ./https-config.conf
+  kong.yml:
+    file: gateway/kong.yml
+
+networks:
+  kong-net:

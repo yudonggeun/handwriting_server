@@ -1,0 +1,16 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: handwriting_spring
+    url: http://host.docker.internal:8080
+    routes:
+      - name: spring_route
+        paths:
+          - /api
+  - name: react
+    url: http://host.docker.internal:3000
+    routes:
+      - name: react_route
+        paths:
+          - /

@@ -1,0 +1,22 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+  url:
+    domain:
+      front: "http://localhost:3000"
+      back: "http://localhost:8080"
+    default: ""
+    image: "/image"
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:~/spring-qna-db
+    username: sa
+    password:
+JWT:
+  EXPIRE_MINUTE: 60
+  ISSUER: "kim yang ja"
+  SECRET: jwt secret

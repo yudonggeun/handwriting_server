@@ -32,6 +32,8 @@ dependencies {
     // spring rest docs
     asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    // h2
+    implementation "com.h2database:h2"
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -43,8 +45,8 @@ dependencies {
     runtimeOnly 'mysql:mysql-connector-java' //mysql
 
     // file to multipartfile
-    testCompileOnly group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
-    testCompileOnly group: 'commons-io', name: 'commons-io', version: '2.4'
+    testImplementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
+    testImplementation group: 'commons-io', name: 'commons-io', version: '2.4'
 
     //h2
     testImplementation'com.h2database:h2'

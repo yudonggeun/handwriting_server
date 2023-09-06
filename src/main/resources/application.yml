@@ -1,7 +1,7 @@
 JWT:
   EXPIRE_MINUTE: 60
   ISSUER: "kim yang ja"
-  SECRET: jwt secret #${JWT_SECRET}
+  SECRET: ${JWT_SECRET}
 
 spring:
   servlet:
@@ -9,13 +9,6 @@ spring:
       enabled: true
       max-file-size: 100MB
       max-request-size: 120MB
-  jpa:
-    hibernate:
-      ddl-auto: update #스테이징과 운영 서버는 validate 또는 none
-    show-sql: true
-    properties:
-      hiberate:
-        format-sql: true
   security:
     oauth2:
       client:
@@ -63,45 +56,3 @@ logging:
 directory:
   root: "/handwriting_resources"
   image: "/handwriting_resources/image"
----
-spring:
-  config:
-    activate:
-      on-profile: test
-  url:
-    domain:
-      front: "http://localhost:3000"
-      back: "http://localhost:8080"
-    default: ""
-    image: "/image"
-  # h2 database web으로 확인
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-  # spring - h2 연결
-  datasource:
-    driverClassName: org.h2.Driver
-    url: jdbc:h2:~/spring-qna-db # embedded Mode : db 데이터 저장 위치 :  ~/spring-qna-db
-  #spring.datasource.url=jdbc:h2:mem:test # In-Memory mode
-    username: sa
-    password:
-  sql:
-    init:
-      mode: always
----
-spring:
-  config:
-    activate:
-      on-profile: deploy
-  url:
-    domain:
-      front: "https://www.beautifulwriting.site"
-      back: "https://www.beautifulwriting.site/api"
-    default: "/api"
-    image: "/api/image"
-  datasource:
-    url: jdbc:mysql://${DATABASE_URL}:3306/handwriting?serverTimezone=UTC&characterEncoding=UTF-8
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver

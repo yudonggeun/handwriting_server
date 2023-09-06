@@ -108,8 +108,8 @@ export JWT_SECRET=123456789...
 
 * 배포 파이프라인
 
-![배포 구조](./introduce/deploy.PNG)
+![배포 구조](introduceeploy.PNG)
 
 * 서비스 구조
 
-![서비스 구조](./introduce/architecture.PNG)
+![서비스 구조](introducerchitecture.PNG)

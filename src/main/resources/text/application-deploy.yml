@@ -1,0 +1,19 @@
+spring:
+  config:
+    activate:
+      on-profile: deploy
+  url:
+    domain:
+      front: "https://www.beautifulwriting.site"
+      back: "https://www.beautifulwriting.site/api"
+    default: "/api"
+    image: "/api/image"
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    url: jdbc:mysql://${DATABASE_URL}:3306/handwriting?serverTimezone=UTC&characterEncoding=UTF-8
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
