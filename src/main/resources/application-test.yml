@@ -16,6 +16,7 @@ spring:
     url: jdbc:h2:~/spring-qna-db
     username: sa
     password:
+
 JWT:
   EXPIRE_MINUTE: 60
   ISSUER: "kim yang ja"

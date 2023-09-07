@@ -1,10 +1,11 @@
 # local host 전용
 services:
-  frontend:
-    image: nginx
-    ports:
-      - "3000:3000"
-
+#  front:
+#    image: frontapp
+#    ports:
+#      - "3000:3000"
+#    environment:
+#      NODE_PATH: docker
   backend:
     image: backapp
     build:
