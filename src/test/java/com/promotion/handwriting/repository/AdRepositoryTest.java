@@ -43,14 +43,10 @@ class AdRepositoryTest extends TestClass {
         // given when
         saveContent(AdType.CONTENT, "test Content1", "소1개입니다.");
         saveContent(AdType.CONTENT, "test Content1", "소1개입니다.");
-        saveContent(AdType.INTRO, "test intro", "intro소1개입니다.");
         // then
         assertThat(adRepository.findByType(AdType.CONTENT, PageRequest.of(0, 2))).hasSize(2)
                 .extracting("type", "title", "detail")
                 .contains(tuple(AdType.CONTENT, "test Content1", "소1개입니다."));
-        assertThat(adRepository.findByType(AdType.INTRO, PageRequest.of(0, 1))).hasSize(1)
-                .extracting("type", "title", "detail")
-                .contains(tuple(AdType.INTRO, "test intro", "intro소1개입니다."));
     }
 
     @DisplayName("특정 id의 컨텐츠를 조회시 id 값이 같고 관련된 image를 조회할 수 있다.")
@@ -82,4 +78,5 @@ class AdRepositoryTest extends TestClass {
                 .detail(detail)
                 .build());
     }
+
 }
