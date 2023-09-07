@@ -64,3 +64,14 @@ include::{snippets}/get image list/http-response.adoc[]
 === Response fields
 include::{snippets}/get image list/response-fields.adoc[]
 ---
+
+= 유저 API
+== 1. 로그인
+=== HTTP Request example
+include::{snippets}/post-login/http-request.adoc[]
+=== Request fields
+include::{snippets}/post-login/request-fields.adoc[]
+=== HTTP Response example
+include::{snippets}/post-login/http-response.adoc[]
+=== Response fields
+include::{snippets}/post-login/response-fields.adoc[]

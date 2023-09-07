@@ -1,6 +1,6 @@
 package com.promotion.handwriting.controller;
 
-import com.promotion.handwriting.dto.LoginDto;
+import com.promotion.handwriting.dto.request.LoginRequest;
 import com.promotion.handwriting.dto.response.ApiResponse;
 import com.promotion.handwriting.security.JwtService;
 import com.promotion.handwriting.service.business.UserService;
@@ -24,7 +24,7 @@ public class AdminController {
     private final UserService loginService;
 
     @PostMapping("/join")
-    public ApiResponse join(@RequestBody LoginDto dto) {
+    public ApiResponse join(@RequestBody LoginRequest dto) {
         loginService.join(dto.getId(), dto.getPw());
         return success(null);
     }
@@ -37,7 +37,7 @@ public class AdminController {
     }
 
     @PostMapping("/login")
-    public ApiResponse requestLogin(@RequestBody LoginDto dto, HttpServletResponse response) throws IOException {
+    public ApiResponse requestLogin(@RequestBody LoginRequest dto, HttpServletResponse response) throws IOException {
         loginService.login(dto.getId(), dto.getPw());
         response.setHeader("Authorization", "Bearer " + jwtService.createJwt(dto.getId()));
         return success(null);

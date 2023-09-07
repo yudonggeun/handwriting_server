@@ -112,13 +112,12 @@ public class DataServiceImpl implements DataService {
     public MainPageDto mainPageData() {
         try {
             Ad mainPage = adRepository.findByType(AdType.INTRO);
-            Image image = mainPage.getImages().get(0);
-            String mainPageImageUrl = image.urlDto().getOriginal();
-            return new MainPageDto(mainPage.getTitle(), mainPageImageUrl, mainPage.getDetail());
+            String originalImageUrl = null;
+            if(mainPage.getImages().size() > 0)
+                originalImageUrl = mainPage.getImages().get(0).getImageUrl();
+            return new MainPageDto(mainPage.getTitle(), originalImageUrl, mainPage.getDetail());
         } catch (NonUniqueResultException | IncorrectResultSizeDataAccessException e) {
             throw new IllegalStateException("메인 페이지 정보 칼럼이 1개가 아닙니다. 데이터를 확인해주세요");
-        } catch (IndexOutOfBoundsException e) {
-            throw new IllegalStateException("메인 페이지 이미지 정보가 존재하지 않습니다.");
         }
     }
 }

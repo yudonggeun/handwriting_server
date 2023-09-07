@@ -1,9 +1,8 @@
 package com.promotion.handwriting.api;
 
-import com.promotion.handwriting.controller.DataController;
 import com.promotion.handwriting.dto.ContentDto;
-import com.promotion.handwriting.dto.MainPageDto;
 import com.promotion.handwriting.dto.ImageUrlDto;
+import com.promotion.handwriting.dto.MainPageDto;
 import com.promotion.handwriting.dto.request.ChangeContentRequest;
 import com.promotion.handwriting.dto.request.CreateContentRequest;
 import com.promotion.handwriting.dto.request.DeleteContentRequest;
