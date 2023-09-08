@@ -2,7 +2,6 @@ package com.promotion.handwriting.controller;
 
 import com.promotion.handwriting.dto.request.*;
 import com.promotion.handwriting.dto.response.ApiResponse;
-import com.promotion.handwriting.enums.AdType;
 import com.promotion.handwriting.service.business.DataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +10,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 import static com.promotion.handwriting.dto.response.ApiResponse.success;
@@ -25,8 +23,8 @@ public class DataController {
     private final DataService dataService;
 
     @GetMapping("/content")
-    public ApiResponse getPromotionInformation(@PageableDefault Pageable pageable) throws IOException {
-        return success(dataService.getContentDtos(AdType.CONTENT, pageable));
+    public ApiResponse getPromotionInformation(SearchContentsRequest request, @PageableDefault Pageable pageable) {
+        return success(dataService.getContentDtos(request, pageable));
     }
 
     @Deprecated
@@ -42,7 +40,7 @@ public class DataController {
 
     @PostMapping("/intro")
     public ApiResponse updateIntro(@RequestPart(name = "file", required = false) MultipartFile file,
-                                   @RequestPart(name = "dto") ChangeMainPageRequest request) throws IOException {
+                                   @RequestPart(name = "dto") ChangeMainPageRequest request) {
         dataService.updateMainPage(request, file);
         return success(null);
     }
@@ -54,20 +52,20 @@ public class DataController {
     }
 
     @DeleteMapping("/content")
-    public ApiResponse deleteContent(@RequestBody DeleteContentRequest request) throws IOException {
+    public ApiResponse deleteContent(@RequestBody DeleteContentRequest request) {
         dataService.deleteContent(request.getContentId());
         return success(null);
     }
 
     @PutMapping("/content")
     public ApiResponse createContent(@RequestPart(name = "dto") CreateContentRequest request,
-                                     @RequestPart(value = "image", required = false) List<MultipartFile> images) throws IOException {
+                                     @RequestPart(value = "image", required = false) List<MultipartFile> images) {
         return success(dataService.newContent(request, images));
     }
 
     @PutMapping("/detail/{id}")
     public ApiResponse addDetailImages(@PathVariable("id") String id,
-                                       @RequestPart(name = "image", required = false) List<MultipartFile> imageFiles) throws IOException {
+                                       @RequestPart(name = "image", required = false) List<MultipartFile> imageFiles) {
         for (MultipartFile file : imageFiles)
             dataService.newImage(file, Long.parseLong(id));
         return success(null);

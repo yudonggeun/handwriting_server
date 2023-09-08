@@ -37,9 +37,9 @@ public class AdminController {
     }
 
     @PostMapping("/login")
-    public ApiResponse requestLogin(@RequestBody LoginRequest dto, HttpServletResponse response) throws IOException {
-        loginService.login(dto.getId(), dto.getPw());
+    public ApiResponse requestLogin(@RequestBody LoginRequest dto, HttpServletResponse response) {
+        var result = loginService.login(dto.getId(), dto.getPw());
         response.setHeader("Authorization", "Bearer " + jwtService.createJwt(dto.getId()));
-        return success(null);
+        return success(result);
     }
 }

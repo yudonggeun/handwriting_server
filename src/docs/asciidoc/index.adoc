@@ -68,10 +68,14 @@ include::{snippets}/get image list/response-fields.adoc[]
 = 유저 API
 == 1. 로그인
 === HTTP Request example
-include::{snippets}/post-login/http-request.adoc[]
+include::{snippets}/login-fail/http-request.adoc[]
 === Request fields
-include::{snippets}/post-login/request-fields.adoc[]
-=== HTTP Response example
-include::{snippets}/post-login/http-response.adoc[]
+include::{snippets}/login-fail/request-fields.adoc[]
+=== HTTP Response example 성공
+include::{snippets}/login-success/http-response.adoc[]
 === Response fields
-include::{snippets}/post-login/response-fields.adoc[]
+include::{snippets}/login-success/response-fields.adoc[]
+=== HTTP Response example 실패
+include::{snippets}/login-fail/http-response.adoc[]
+=== Response fields
+include::{snippets}/login-fail/response-fields.adoc[]

@@ -6,6 +6,7 @@ import com.promotion.handwriting.dto.MainPageDto;
 import com.promotion.handwriting.dto.request.ChangeContentRequest;
 import com.promotion.handwriting.dto.request.ChangeMainPageRequest;
 import com.promotion.handwriting.dto.request.CreateContentRequest;
+import com.promotion.handwriting.dto.request.SearchContentsRequest;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.enums.AdType;
@@ -19,7 +20,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,9 +45,6 @@ class DataServiceTest extends TestClass {
     DataService dataService;
     @MockBean
     FileRepository fileRepository;
-
-    @Value("${spring.url.image}")
-    private String imageUrl;
 
     @AfterEach
     public void after() {
@@ -87,8 +84,9 @@ class DataServiceTest extends TestClass {
         public void whenNoImage() {
             //given //when
             ContentDto dto = dataService.newContent(request, null);
+            Ad content = adRepository.findById(Long.parseLong(dto.getId()));
             //then
-            assertThat(dto).extracting("title", "description")
+            assertThat(content).extracting("title", "detail")
                     .containsExactly("this is content", "hello content");
         }
 
@@ -103,8 +101,9 @@ class DataServiceTest extends TestClass {
             List<MultipartFile> images = List.of(image1, image2);
             //when
             ContentDto dto = dataService.newContent(request, images);
+            Ad content = adRepository.findById(Long.parseLong(dto.getId()));
             //then
-            assertThat(dto).extracting("title", "description")
+            assertThat(content).extracting("title", "detail")
                     .containsExactly("this is content", "hello content");
             assertThat(dto.getImages()).map(urls -> urls.getOriginal())
                     .containsExactly("/image1.jpg", "/image2.jpg");
@@ -141,8 +140,10 @@ class DataServiceTest extends TestClass {
         void whenPageSize5AndPageNumber0() {
             //given
             Pageable pageable = PageRequest.of(0, 5);
+            var request = new SearchContentsRequest();
+            request.setType(CONTENT);
             //when
-            Page<ContentDto> result = dataService.getContentDtos(CONTENT, pageable);
+            Page<ContentDto> result = dataService.getContentDtos(request, pageable);
             //then
             assertThat(result.getNumberOfElements()).isEqualTo(5);
             assertThat(result.getNumber()).isZero();
@@ -153,8 +154,10 @@ class DataServiceTest extends TestClass {
         void whenGetIntroContent() {
             //given
             Pageable pageable = PageRequest.of(0, 5);
+            var request = new SearchContentsRequest();
+            request.setType(INTRO);
             //when
-            Page<ContentDto> result = dataService.getContentDtos(INTRO, pageable);
+            Page<ContentDto> result = dataService.getContentDtos(request, pageable);
             //then
             assertThat(result).hasSize(0);
         }

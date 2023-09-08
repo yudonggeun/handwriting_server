@@ -6,6 +6,7 @@ import com.promotion.handwriting.dto.MainPageDto;
 import com.promotion.handwriting.dto.request.ChangeContentRequest;
 import com.promotion.handwriting.dto.request.ChangeMainPageRequest;
 import com.promotion.handwriting.dto.request.CreateContentRequest;
+import com.promotion.handwriting.dto.request.SearchContentsRequest;
 import com.promotion.handwriting.enums.AdType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +24,7 @@ public interface DataService {
     String newImage(MultipartFile imageFile, long adId);
 
     //컨텐츠 조회
-    Page<ContentDto> getContentDtos(AdType type, Pageable pageable);
+    Page<ContentDto> getContentDtos(SearchContentsRequest request, Pageable pageable);
 
     //컨텐트 이미지 조회
     Page<ImageUrlDto> getImageUrls(String contentId, Pageable pageable);

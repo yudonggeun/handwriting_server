@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
 import java.util.LinkedList;
@@ -27,6 +28,8 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -50,7 +53,7 @@ public class DataApiTest extends RestDocs {
                         new ImageUrlDto(2, "/image/origin/test.jpg", "/image/compress/test.jpg")
                 ))), pageable, 2));
 
-        this.mockMvc.perform(get("/data/content?page=0&size=1")
+        this.mockMvc.perform(RestDocumentationRequestBuilders.get("/data/content?page=0&size=1&type=INTRO")
                 .accept(MediaType.APPLICATION_JSON)
         ).andDo(print()
         ).andExpectAll(
@@ -66,6 +69,9 @@ public class DataApiTest extends RestDocs {
         ).andDo(document("get-content",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
+                pathParameters(
+                        parameterWithName("type").optional().description("컨텐츠 조회 타입 (default=CONTENT, INTRO)")
+                ),
                 responseFields(
                         fields(
                                 commonFieldDescriptors(),

@@ -6,6 +6,7 @@ import com.promotion.handwriting.dto.MainPageDto;
 import com.promotion.handwriting.dto.request.ChangeContentRequest;
 import com.promotion.handwriting.dto.request.ChangeMainPageRequest;
 import com.promotion.handwriting.dto.request.CreateContentRequest;
+import com.promotion.handwriting.dto.request.SearchContentsRequest;
 import com.promotion.handwriting.entity.Ad;
 import com.promotion.handwriting.entity.Image;
 import com.promotion.handwriting.enums.AdType;
@@ -43,11 +44,11 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public ContentDto newContent(CreateContentRequest req, List<MultipartFile> images) {
-        var content = Ad.builder()
+        var content = adRepository.save(Ad.builder()
                 .type(AdType.CONTENT)
                 .title(req.getTitle())
                 .detail(req.getDescription())
-                .build();
+                .build());
 
         if (images != null) {
             images.forEach(file -> content.addImage(file, fileRepository));
@@ -64,8 +65,8 @@ public class DataServiceImpl implements DataService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<ContentDto> getContentDtos(AdType type, Pageable pageable) {
-        Page<Ad> pages = adRepository.findByType(type, pageable);
+    public Page<ContentDto> getContentDtos(SearchContentsRequest request, Pageable pageable) {
+        Page<Ad> pages = adRepository.findByType(request.getType(), pageable);
         List<ContentDto> list = pages.getContent().stream().map(content -> content.contentDto()).collect(Collectors.toList());
         return new PageImpl<>(list, pageable, pages.getTotalElements());
     }

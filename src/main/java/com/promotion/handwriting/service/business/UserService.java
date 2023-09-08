@@ -1,8 +1,8 @@
 package com.promotion.handwriting.service.business;
 
-import java.io.IOException;
+import com.promotion.handwriting.dto.response.LoginSuccessResponse;
 
 public interface UserService {
-    void login(String id, String pw);
+    LoginSuccessResponse login(String id, String pw);
     void join(String id, String pw);
 }

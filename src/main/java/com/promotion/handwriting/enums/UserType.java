@@ -1,7 +1,7 @@
 package com.promotion.handwriting.enums;
 
 public enum UserType {
-    OWNER, USER;
+    ADMIN, USER;
 
     @Override
     public String toString() {
