@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Entity
 @ToString
@@ -23,11 +24,11 @@ public class Image extends BasisEntity {
     private String compressImageName;
 
     @Builder
-    private Image(Ad content, int priority, String imageName, String compressImageName) {
+    private Image(Ad content, int priority, String imageName) {
         this.ad = content;
         this.priority = priority;
-        this.imageName = imageName;
-        this.compressImageName = compressImageName == null ? imageName : compressImageName;
+        this.imageName = UUID.randomUUID() + imageName;
+        this.compressImageName = "zip-" + this.imageName;
     }
 
     public String getImageName() {
@@ -38,16 +39,16 @@ public class Image extends BasisEntity {
         return compressImageName;
     }
 
-    public String getImageUrl() {
+    public String getImagePath() {
         return "/" + imageName;
     }
 
-    public String getCompressImageUrl() {
+    public String getCompressImagePath() {
         return "/" + compressImageName;
     }
 
 
-    public ImageUrlDto urlDto() {
-        return new ImageUrlDto(getId(), getImageUrl(), getCompressImageUrl());
+    public ImageUrlDto urlDto(String imageUrl) {
+        return new ImageUrlDto(getId(), imageUrl + getImagePath(), imageUrl + getCompressImagePath());
     }
 }

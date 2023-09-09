@@ -14,56 +14,36 @@ class ImageTest {
     @Test
     public void getImageName() {
         // given
-        Image image = createImage("myImage.jpg", null, null);
+        Image image = createImage("myImage.jpg", null);
         // when then
-        assertThat(image.getImageUrl()).isEqualTo("/myImage.jpg");
+        assertThat(image.getImagePath()).matches("/.*myImage.jpg");
     }
 
-    @DisplayName("압축 이미지 이름을 반환한다.")
+    @DisplayName("압축 이미지는 zip-{imageName}이다.")
     @Test
     public void getZipImageName() {
         // given
-        var image = createImage("data.jpg", "myImage.jpg", null);
+        var image = createImage("data.jpg", null);
         // when then
-        assertThat(image.getCompressImageUrl()).isEqualTo("/myImage.jpg");
+        assertThat(image.getCompressImagePath()).matches("/zip-.*data.jpg");
     }
 
     @DisplayName("주어진 imageUrl 에 알맞는 이미지 엑세스 url 토큰을 생성한다.")
-    @Nested
-    class urlDto {
-
+    @Test
+    void root() {
+        // given
         Ad content = Ad.builder().build();
-
-        @DisplayName("image 저장 디렉토리 경로가 '/' 일 때")
-        @Test
-        void root() {
-            // given
-            var image = createImage("original.jpg", "compress.jpg", content);
-            // when
-            ImageUrlDto urlDto = image.urlDto();
-            // then
-            assertThat(urlDto).extracting("original", "compress")
-                    .containsExactly("/original.jpg", "/compress.jpg");
-        }
-
-        @DisplayName("image 저장 디렉토리 경로가 '/'가 아닐 때")
-        @Test
-        void directory() {
-            // given
-            var image = createImage("original.jpg", "compress.jpg", content);
-            // when
-            ImageUrlDto urlDto = image.urlDto();
-            // then
-            assertThat(urlDto).extracting("original", "compress")
-                    .containsExactly("/original.jpg", "/compress.jpg");
-        }
-
+        var image = createImage("original.jpg", content);
+        // when
+        ImageUrlDto urlDto = image.urlDto("");
+        // then
+        assertThat(urlDto.getOriginal()).matches("/.*original.jpg");
+        assertThat(urlDto.getCompress()).matches("/zip.*original.jpg");
     }
 
-    private Image createImage(String imageName, String compressImageName, Ad content) {
+    private Image createImage(String imageName, Ad content) {
         return Image.builder()
                 .imageName(imageName)
-                .compressImageName(compressImageName)
                 .content(content)
                 .build();
     }

@@ -43,7 +43,7 @@ class ImageRepositoryTest extends TestClass {
     void findByAd() {
         // given
         var content = saveContent(AdType.CONTENT, "findAdWithImagesById", "소개입니다.", "/test_file");
-        Image image = saveImage(content, "test", "test");
+        Image image = saveImage(content, "test");
         // when
         List<Image> images = imageRepository.findByAdId(content.getId(), PageRequest.of(0, 1)).getContent();
         // then
@@ -55,8 +55,8 @@ class ImageRepositoryTest extends TestClass {
     public void deleteAllByAdIdAndIdIn() {
         //given
         Ad content = saveContent(AdType.CONTENT, "title", "", "/");
-        Image deleteImage = saveImage(content, "deleteAllByAdIdAndIdInZip1.jpg", "deleteAllByAdIdAndIdInData1.jpg");
-        Image image = saveImage(content, "deleteAllByAdIdAndIdInZip2.jpg", "deleteAllByAdIdAndIdInData2.jpg");
+        Image deleteImage = saveImage(content, "deleteAllByAdIdAndIdInData1.jpg");
+        Image image = saveImage(content, "deleteAllByAdIdAndIdInData2.jpg");
         //when
         imageRepository.deleteAllByIdIn(List.of(deleteImage.getId()));
         Page<Image> images = imageRepository.findByAdId(content.getId(), PageRequest.of(0, 10));
@@ -79,11 +79,10 @@ class ImageRepositoryTest extends TestClass {
                 .build());
     }
 
-    private Image saveImage(Ad content, String zipFileName, String fileName) {
+    private Image saveImage(Ad content, String fileName) {
         return imageRepository.saveAndFlush(Image.builder()
                 .content(content)
                 .imageName(fileName)
-                .compressImageName(zipFileName)
                 .priority(1)
                 .build());
     }

@@ -301,7 +301,7 @@ public class DataApiTest extends RestDocs {
                         jsonPath("$.responseTime").exists()
                 )
                 .andDo(
-                        document("post-intro",
+                        document("put-content",
                                 preprocessRequest(prettyPrint()),
                                 preprocessResponse(prettyPrint()),
                                 responseFields(commonFieldDescriptors())
@@ -325,7 +325,9 @@ public class DataApiTest extends RestDocs {
                         jsonPath("$.status").value("success"),
                         jsonPath("$.responseTime").exists()
                 ).andDo(
-                        document("put-content",
+                        document("put-image",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
                                 responseFields(commonFieldDescriptors())
                         )
                 );
@@ -349,6 +351,8 @@ public class DataApiTest extends RestDocs {
                         jsonPath("$.responseTime").exists()
                 ).andDo(
                         document("delete-image",
+                                preprocessRequest(prettyPrint()),
+                                preprocessResponse(prettyPrint()),
                                 responseFields(commonFieldDescriptors())
                         )
                 );

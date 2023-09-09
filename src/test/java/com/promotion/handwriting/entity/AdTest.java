@@ -38,7 +38,7 @@ class AdTest {
 
     @DisplayName("도메인 객체 정보를 담은 데이터 객체를 생성한다.")
     @Test
-    void createDto() throws IOException {
+    void createDto() {
         // given
         var fileRepository = mock(FileRepository.class);
         var file = mock(MultipartFile.class);
@@ -51,17 +51,17 @@ class AdTest {
         content.addImage(file, fileRepository);
 
         // when
-        var dto = content.contentDto();
+        var dto = content.contentDto("");
         // then
         assertThat(dto).extracting("title", "description")
                 .containsExactly("title", "detail");
         assertThat(dto.getImages().get(0).getOriginal())
-                .hasToString("/file.jpg");
+                .matches("/.*file.jpg");
     }
 
     @DisplayName("이미지를 추가한다.")
     @Test
-    void addImage() throws IOException {
+    void addImage() {
         // given
         var fileRepository = mock(FileRepository.class);
         var file = mock(MultipartFile.class);
@@ -75,6 +75,6 @@ class AdTest {
         content.addImage(file, fileRepository);
         // then
         Image image = content.getImages().get(0);
-        assertThat(image.getImageUrl()).isEqualTo("/file.jpg");
+        assertThat(image.getImagePath()).matches("/.*file.jpg");
     }
 }

@@ -1,6 +1,7 @@
 package com.promotion.handwriting.service;
 
 import com.promotion.handwriting.TestClass;
+import com.promotion.handwriting.WebConfig;
 import com.promotion.handwriting.dto.ContentDto;
 import com.promotion.handwriting.dto.MainPageDto;
 import com.promotion.handwriting.dto.request.ChangeContentRequest;
@@ -15,6 +16,7 @@ import com.promotion.handwriting.repository.database.JpaImageRepository;
 import com.promotion.handwriting.repository.file.FileRepository;
 import com.promotion.handwriting.service.business.DataService;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -43,6 +45,8 @@ class DataServiceTest extends TestClass {
     JpaImageRepository imageRepository;
     @Autowired
     DataService dataService;
+    @Autowired
+    WebConfig config;
     @MockBean
     FileRepository fileRepository;
 
@@ -57,13 +61,14 @@ class DataServiceTest extends TestClass {
     public void mainPageData() {
         // given
         var content = saveContent(INTRO, "this is title", "hello world");
-        saveImage(content, "test.jpg", "compress.jpg");
+        saveImage(content, "test.jpg");
         // when
         MainPageDto mainPageData = dataService.mainPageData();
         // then
         assertThat(mainPageData)
-                .extracting("title", "imageUrl", "description")
-                .containsExactly("this is title", "/test.jpg", "hello world");
+                .extracting("title", "description")
+                .containsExactly("this is title", "hello world");
+        assertThat(mainPageData.getImageUrl()).matches(config.getImageUrl() + "/.*test.jpg");
     }
 
     @DisplayName("새로운 컨텐츠 추가")
@@ -96,8 +101,8 @@ class DataServiceTest extends TestClass {
             //given
             MultipartFile image1 = Mockito.mock(MultipartFile.class);
             MultipartFile image2 = Mockito.mock(MultipartFile.class);
-            when(image1.getOriginalFilename()).thenReturn("image1.jpg");
-            when(image2.getOriginalFilename()).thenReturn("image2.jpg");
+            when(image1.getOriginalFilename()).thenReturn("image.jpg");
+            when(image2.getOriginalFilename()).thenReturn("image.jpg");
             List<MultipartFile> images = List.of(image1, image2);
             //when
             ContentDto dto = dataService.newContent(request, images);
@@ -105,8 +110,10 @@ class DataServiceTest extends TestClass {
             //then
             assertThat(content).extracting("title", "detail")
                     .containsExactly("this is content", "hello content");
-            assertThat(dto.getImages()).map(urls -> urls.getOriginal())
-                    .containsExactly("/image1.jpg", "/image2.jpg");
+            dto.getImages().forEach(url -> {
+                assertThat(url.getOriginal()).matches(config.getImageUrl() + "/.*image.jpg");
+                assertThat(url.getCompress()).matches(config.getImageUrl() + "/zip-.*image.jpg");
+            });
         }
     }
 
@@ -121,7 +128,7 @@ class DataServiceTest extends TestClass {
         //when
         String imageName = dataService.newImage(file, id);
         //then
-        assertThat(imageName).isEqualTo("/" + file.getOriginalFilename());
+        assertThat(imageName).matches("/.*" + file.getOriginalFilename());
     }
 
     @DisplayName("컨텐츠 내용 조회시")
@@ -173,7 +180,7 @@ class DataServiceTest extends TestClass {
         void init() {
             Ad content = saveContent(CONTENT, "content", "detail");
             for (int i = 0; i < 20; i++) {
-                saveImage(content, "fileGetImage" + i + ".jpg", "zipGetImage" + i + ".jpg");
+                saveImage(content, "fileGetImage" + i + ".jpg");
             }
             contentId = content.getId() + "";
         }
@@ -215,24 +222,31 @@ class DataServiceTest extends TestClass {
                 .containsExactly("after title", "after detail", id);
     }
 
-    @DisplayName("메인 페이지 수정")
-    @Test
-    public void updateIntro() {
-        //given
-        var mainPage = saveContent(INTRO, "main page", "detail");
+    @Nested
+    class MainPageUpdate{
+        @DisplayName("메인 페이지 수정")
+        @Test
+        public void updateMainPage() {
+            // before
+            saveContent(INTRO, "main page", "detail");
+            //given
+            for(int time = 0; time < 3; time++) {
+                var file = mock(MultipartFile.class);
+                String imageFileName = time + "mock.jpg";
+                when(file.getOriginalFilename()).thenReturn(imageFileName);
 
-        var file = mock(MultipartFile.class);
-        when(file.getOriginalFilename()).thenReturn("mock.jpg");
-
-        var request = new ChangeMainPageRequest();
-        request.setDescription("after detail");
-        request.setTitle("after title");
-        //when
-        dataService.updateMainPage(request, file);
-        //then
-        MainPageDto afterMainPage = dataService.mainPageData();
-        assertThat(afterMainPage).extracting("title", "description", "imageUrl")
-                .containsExactly("after title", "after detail", "/mock.jpg");
+                var request = new ChangeMainPageRequest();
+                request.setDescription("after detail" + time);
+                request.setTitle("after title" + time);
+                //when
+                dataService.updateMainPage(request, file);
+                //then
+                MainPageDto afterMainPage = dataService.mainPageData();
+                assertThat(afterMainPage).extracting("title", "description")
+                        .containsExactly("after title" + time, "after detail" + time);
+                assertThat(afterMainPage.getImageUrl()).matches(config.getImageUrl() + "/.*" + imageFileName);
+            }
+        }
     }
 
     @DisplayName("이미지 삭제")
@@ -240,7 +254,7 @@ class DataServiceTest extends TestClass {
     public void deleteImages() {
         //given
         Ad content = saveContent(CONTENT, "c", "d");
-        Image image = saveImage(content, "image.jpg", "zip.jpg");
+        Image image = saveImage(content, "image.jpg");
         //when
         dataService.deleteImages(List.of(image.getId()), content.getId());
         //then
@@ -252,7 +266,7 @@ class DataServiceTest extends TestClass {
     public void deleteContent() {
         //given
         Ad content = saveContent(CONTENT, "c", "d");
-        saveImage(content, "image.jpg", "zip.jpg");
+        saveImage(content, "image.jpg");
         //when
         dataService.deleteContent(content.getId());
         //then
@@ -260,11 +274,10 @@ class DataServiceTest extends TestClass {
         assertThat(imageRepository.findByAdId(content.getId(), PageRequest.of(0, 1000))).hasSize(0);
     }
 
-    private Image saveImage(Ad content, String originalName, String compressName) {
+    private Image saveImage(Ad content, String originalName) {
         return imageRepository.saveAndFlush(Image.builder()
                 .imageName(originalName)
                 .content(content)
-                .compressImageName(compressName)
                 .build());
     }
 

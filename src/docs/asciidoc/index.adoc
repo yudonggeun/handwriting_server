@@ -35,34 +35,48 @@ include::{snippets}/get-content/http-request.adoc[]
 include::{snippets}/get-content/http-response.adoc[]
 === Response fields
 include::{snippets}/get-content/response-fields.adoc[]
-== 2. 컨텐츠 수정
-=== HTTP Request example
-include::{snippets}/post-content/http-request.adoc[]
-=== HTTP Response example
-include::{snippets}/post-content/http-response.adoc[]
-=== Response fields
-include::{snippets}/post-content/response-fields.adoc[]
-== 3. 컨텐츠 추가
-=== HTTP Request example
-include::{snippets}/put-content/http-request.adoc[]
-=== HTTP Response example
-include::{snippets}/put-content/http-response.adoc[]
-=== Response fields
-include::{snippets}/put-content/response-fields.adoc[]
-== 4. 컨텐츠 삭제
-=== HTTP Request example
-include::{snippets}/delete-content/http-request.adoc[]
-=== HTTP Response example
-include::{snippets}/delete-content/http-response.adoc[]
-=== Response fields
-include::{snippets}/delete-content/response-fields.adoc[]
-== 5. 컨텐츠 이미지 조회
+== 2. 컨텐츠 이미지 조회
 === HTTP Request example
 include::{snippets}/get image list/http-request.adoc[]
 === HTTP Response example
 include::{snippets}/get image list/http-response.adoc[]
 === Response fields
 include::{snippets}/get image list/response-fields.adoc[]
+== 3. 컨텐츠 수정
+=== HTTP Request example
+include::{snippets}/post-content/http-request.adoc[]
+=== HTTP Response example
+include::{snippets}/post-content/http-response.adoc[]
+=== Response fields
+include::{snippets}/post-content/response-fields.adoc[]
+== 4. 컨텐츠 추가
+=== HTTP Request example
+include::{snippets}/put-content/http-request.adoc[]
+=== HTTP Response example
+include::{snippets}/put-content/http-response.adoc[]
+=== Response fields
+include::{snippets}/put-content/response-fields.adoc[]
+== 5. 컨텐츠 이미지 추가
+=== HTTP Request example
+include::{snippets}/put-image/http-request.adoc[]
+=== HTTP Response example
+include::{snippets}/put-image/http-response.adoc[]
+=== Response fields
+include::{snippets}/put-image/response-fields.adoc[]
+== 6. 컨텐츠 삭제
+=== HTTP Request example
+include::{snippets}/delete-content/http-request.adoc[]
+=== HTTP Response example
+include::{snippets}/delete-content/http-response.adoc[]
+=== Response fields
+include::{snippets}/delete-content/response-fields.adoc[]
+== 7. 컨텐츠 이미지 삭제
+=== HTTP Request example
+include::{snippets}/delete-image/http-request.adoc[]
+=== HTTP Response example
+include::{snippets}/delete-image/http-response.adoc[]
+=== Response fields
+include::{snippets}/delete-image/response-fields.adoc[]
 ---
 
 = 유저 API

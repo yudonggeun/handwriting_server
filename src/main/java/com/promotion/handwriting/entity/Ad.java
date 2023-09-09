@@ -49,9 +49,9 @@ public class Ad extends BasisEntity {
         this.detail = detail;
     }
 
-    public ContentDto contentDto() {
+    public ContentDto contentDto(String imageUrl) {
         List<ImageUrlDto> dtoImage = getImages().stream()
-                .map(i -> i.urlDto())
+                .map(i -> i.urlDto(imageUrl))
                 .collect(Collectors.toList());
 
         var dto = new ContentDto();
@@ -64,13 +64,11 @@ public class Ad extends BasisEntity {
 
     public Image addImage(MultipartFile file, FileRepository fileRepository) {
         var originalFilename = file.getOriginalFilename();
-        var compressFilename = ImageUtil.compressImageName(originalFilename);
 
         Image image = Image.builder()
                 .content(this)
                 .priority(Integer.MAX_VALUE)
                 .imageName(originalFilename)
-                .compressImageName(compressFilename)
                 .build();
 
         fileRepository.save(image, file);

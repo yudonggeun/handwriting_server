@@ -1,5 +1,6 @@
 package com.promotion.handwriting.dto;
 
+import com.promotion.handwriting.WebConfig;
 import lombok.Data;
 
 /**
@@ -7,6 +8,7 @@ import lombok.Data;
  */
 @Data
 public class ImageUrlDto {
+
     private long id;
     private String original;
     private String compress;

@@ -1,5 +1,6 @@
 package com.promotion.handwriting.api;
 
+import com.promotion.handwriting.WebConfig;
 import com.promotion.handwriting.dto.request.LoginRequest;
 import com.promotion.handwriting.dto.response.LoginSuccessResponse;
 import com.promotion.handwriting.enums.UserType;
@@ -7,6 +8,7 @@ import com.promotion.handwriting.service.business.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -79,7 +81,7 @@ public class UserApiTest extends RestDocs {
                             .contentType("application/json"))
                     .andDo(print())
                     .andExpectAll(
-                            status().isOk(),
+                            status().is4xxClientError(),
                             jsonPath("$.status").value("fail"),
                             jsonPath("$.responseTime").exists(),
                             jsonPath("$.data").value("로그인 실패")

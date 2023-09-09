@@ -11,6 +11,7 @@ spring:
     domain:
       front: "http://localhost:3000"
       back: "http://localhost:8080"
+    gatewayPath: "/api"
     default: ""
     image: "/image"
   # h2 database web으로 확인

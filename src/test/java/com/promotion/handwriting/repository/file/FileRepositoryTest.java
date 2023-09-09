@@ -1,6 +1,8 @@
 package com.promotion.handwriting.repository.file;
 
+import com.nimbusds.oauth2.sdk.dpop.verifiers.DPoPProtectedResourceRequestVerifier;
 import com.promotion.handwriting.TestClass;
+import com.promotion.handwriting.WebConfig;
 import com.promotion.handwriting.entity.Image;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItem;
@@ -20,6 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FileRepositoryTest extends TestClass {
     @Autowired
     FileRepository repository;
+    @Autowired
+    WebConfig config;
     @Value("#{systemProperties['user.dir']}")
     private String resourcePath;
     @Value("${directory.image}")
@@ -32,12 +36,11 @@ class FileRepositoryTest extends TestClass {
         File file = new File(resourcePath + "/src/test/resources/test.jpg");
         Image image = Image.builder()
                 .imageName("original.jpg")
-                .compressImageName("compress.jpg")
                 .build();
         // when : 이미지를 저장하면 이미지 파일이 존재한다.
         repository.save(image, getMultipartFile(file));
-        File origin = new File(resourcePath + imagePath + image.getImageUrl());
-        File compress = new File(resourcePath + imagePath + image.getCompressImageUrl());
+        File origin = new File(resourcePath + imagePath + image.getImagePath());
+        File compress = new File(resourcePath + imagePath + image.getCompressImagePath());
         // then
         assertThat(origin.exists()).isTrue();
         assertThat(compress.exists()).isTrue();

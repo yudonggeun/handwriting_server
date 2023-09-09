@@ -28,7 +28,7 @@ class AdRepositoryTest extends TestClass {
     public void deleteById() {
         // given
         Ad content = saveContent(AdType.CONTENT, "", "");
-        saveImage(content, "zipDeleteById.jpg", "deleteById.jpg");
+        saveImage(content, "deleteById.jpg");
         // when
         imageRepository.deleteAllInBatch();
         adRepository.deleteById(content.getId());
@@ -54,7 +54,7 @@ class AdRepositoryTest extends TestClass {
     public void findById() {
         // given
         Ad content = saveContent(AdType.CONTENT, "", "");
-        saveImage(content, "co.jpg", "image.jpg");
+        saveImage(content, "image.jpg");
         // when
         var findContent = adRepository.findWithImageById(content.getId());
         // then
@@ -62,11 +62,10 @@ class AdRepositoryTest extends TestClass {
         assertThat(findContent.getImages()).hasSize(1);
     }
 
-    private Image saveImage(Ad content, String zipFileName, String fileName) {
+    private Image saveImage(Ad content, String fileName) {
         return imageRepository.saveAndFlush(Image.builder()
                 .content(content)
                 .imageName(fileName)
-                .compressImageName(zipFileName)
                 .priority(1)
                 .build());
     }

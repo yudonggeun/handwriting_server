@@ -9,6 +9,11 @@ spring:
   sql:
     init:
       mode: always
+  url:
+    domain:
+      front: "http://localhost:3000"
+      back: "http://localhost:8080"
+    gatewayPath: "/api"
   servlet:
     multipart:
       enabled: true
