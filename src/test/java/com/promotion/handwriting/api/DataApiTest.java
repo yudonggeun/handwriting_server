@@ -28,8 +28,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -71,6 +70,11 @@ public class DataApiTest extends RestDocs {
                 preprocessResponse(prettyPrint()),
                 pathParameters(
                         parameterWithName("type").optional().description("컨텐츠 조회 타입 (default=CONTENT, INTRO)")
+                ),
+                requestParameters(
+                        parameterWithName("page").description("페이지 인덱스"),
+                        parameterWithName("size").description("페이지 사이즈"),
+                        parameterWithName("type").description("조회 컨텐츠 타입 (CONTENT OR INTRO)")
                 ),
                 responseFields(
                         fields(
@@ -164,6 +168,11 @@ public class DataApiTest extends RestDocs {
                         document("get image list",
                                 preprocessRequest(prettyPrint()),
                                 preprocessResponse(prettyPrint()),
+                                requestParameters(
+                                        parameterWithName("page").description("페이지 인덱스"),
+                                        parameterWithName("size").description("페이지 사이즈"),
+                                        parameterWithName("content_id").description("컨텐츠 id")
+                                ),
                                 responseFields(
                                         fields(
                                                 commonFieldDescriptors(),

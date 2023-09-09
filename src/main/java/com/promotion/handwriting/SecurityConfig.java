@@ -46,10 +46,9 @@ public class  SecurityConfig implements WebSecurityCustomizer {
                 .httpBasic().disable()
 
                 .authorizeRequests()
-                .antMatchers("/**").permitAll()
                 .antMatchers("/image/**").permitAll()
                 .antMatchers("/admin/**").permitAll()
-                .antMatchers("/data/**").access("request.method == 'GET' ? permitAll : hasRole('OWNER')")
+                .antMatchers("/data/**").access("request.method == 'GET' ? permitAll : hasRole('ADMIN')")
                 .and()
 
                 .logout()

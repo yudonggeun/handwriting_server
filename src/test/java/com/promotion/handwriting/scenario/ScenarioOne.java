@@ -6,6 +6,10 @@ import com.promotion.handwriting.TestClass;
 import com.promotion.handwriting.WebConfig;
 import com.promotion.handwriting.dto.request.CreateContentRequest;
 import com.promotion.handwriting.dto.request.SearchContentsRequest;
+import com.promotion.handwriting.entity.User;
+import com.promotion.handwriting.enums.UserType;
+import com.promotion.handwriting.repository.database.UserRepository;
+import com.promotion.handwriting.security.JwtService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -36,17 +41,43 @@ public class ScenarioOne extends TestClass {
     MockMvc mockMvc;
     @Autowired
     ObjectMapper mapper;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    JwtService jwtService;
+    @Autowired
+    PasswordEncoder encoder;
+
+    String token;
+
+    @BeforeEach
+    void initAdminToken() {
+        User adminUser = userRepository.saveAndFlush(User.builder()
+                .userId("test")
+                .password(encoder.encode("1234"))
+                .type(UserType.ADMIN).build());
+        token = "Bearer " + jwtService.createJwt(adminUser.getUserId());
+    }
+
+    @AfterEach
+    void delete(){
+        userRepository.deleteAllInBatch();
+    }
 
     @DisplayName("컨텐츠를 생성하고 조회하면 컨텐츠의 내용이 저장되어야 한다.")
     @Test
     void whenCreateContentAndFindThenMustExistContentExactly() throws Exception {
         // given
+
         var createContent = new CreateContentRequest();
         createContent.setTitle("new content");
         createContent.setDescription("new detail");
         var dto = new MockMultipartFile("dto", "dto", "application/json", mapper.writeValueAsString(createContent).getBytes());
         // when
-        mockMvc.perform(multipart(HttpMethod.PUT, "/data/content").file(dto))
+        mockMvc.perform(multipart(HttpMethod.PUT, "/data/content")
+                        .file(dto)
+                        .header("Authorization", token)
+                )
                 .andExpectAll(
                         status().isOk(),
                         jsonPath("$.status").value("success")
@@ -64,9 +95,9 @@ public class ScenarioOne extends TestClass {
                 );
     }
 
-
     @Nested
     class WhenSaveImageThenCanAccessImageUrl {
+
         @Value("#{systemProperties['user.dir']}")
         private String projectRootPath;
         @Value("${directory.image}")
@@ -76,10 +107,13 @@ public class ScenarioOne extends TestClass {
 
         @BeforeEach
         @AfterEach
-        void beforeAndAfter(){
+        void beforeAndAfter() {
             File dir = new File(config.getImageDirectory());
-            for (File f : dir.listFiles()) { System.out.println(f.delete()); }
+            for (File f : dir.listFiles()) {
+                System.out.println(f.delete());
+            }
         }
+
         @DisplayName("새로운 컨텐츠 생성시 이미지 포함한다면 반환된 이미지 리소스 url 조회시 200 OK 응답을 받아야한다.")
         @Test
         void whenSaveImageThenCanAccessImageUrl() throws Exception {
@@ -94,6 +128,7 @@ public class ScenarioOne extends TestClass {
             MvcResult result = mockMvc.perform(multipart(HttpMethod.PUT, "/data/content")
                             .file(dto)
                             .file(image)
+                            .header("Authorization", token)
                     )
                     .andDo(print())
                     .andExpectAll(
@@ -122,5 +157,7 @@ public class ScenarioOne extends TestClass {
             mockMvc.perform(get(imageUrl + originalUrl)).andExpect(status().isOk());
             mockMvc.perform(get(imageUrl + compressUrl)).andExpect(status().isOk());
         }
+
     }
+
 }

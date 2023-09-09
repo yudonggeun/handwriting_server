@@ -1,6 +1,9 @@
-FROM openjdk
+FROM adoptopenjdk/openjdk11
 CMD ["./mvnw", "clean", "package"]
-COPY ./build/libs/handwriting-0.0.1-SNAPSHOT.jar /spring-webapp.jar
-EXPOSE 8080
-ENTRYPOINT java -jar /spring-webapp.jar
 
+RUN mkdir /app
+EXPOSE 8080
+WORKDIR /app
+
+# secrets 환경 변수 설정, 배포전 환경 변수 설정 셀을 생성해야한다.
+ENTRYPOINT . /app/secrets.sh >> /app/secrets.log && java -jar /app/spring-webapp.jar
