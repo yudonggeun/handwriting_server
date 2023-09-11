@@ -22,3 +22,13 @@ JWT:
   EXPIRE_MINUTE: 60
   ISSUER: "kim yang ja"
   SECRET: jwt secret
+
+server:
+  port: 8888
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,beans,conditions
+        exclude: threaddump, heapdump

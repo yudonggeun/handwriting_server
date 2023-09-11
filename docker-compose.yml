@@ -9,7 +9,6 @@ services:
   backend:
     image: backapp
     build:
-#      dockerfile: Dockerfile
       dockerfile_inline: |
         FROM gradle as builder
         RUN mkdir /myapp

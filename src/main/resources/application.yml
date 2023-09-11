@@ -6,6 +6,9 @@ JWT:
 spring:
   jpa:
     deferDatasourceInitialization: true
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
   sql:
     init:
       mode: always
