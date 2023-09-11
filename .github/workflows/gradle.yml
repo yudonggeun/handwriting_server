@@ -3,9 +3,7 @@ name: Java CI with Gradle
 on:
   push:
     tags:
-      - "v*"
-    branches:
-      - "master"
+      - "release-*"
 
 env:
   AWS_REGION: ap-northeast-2

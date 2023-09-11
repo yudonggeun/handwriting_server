@@ -46,13 +46,20 @@ BACK-END APPLICATION 입니다.
 
 ## 시작 가이드
 
-0. 사전 준비
-    * docker-compose 설치
-1. 앱 실행하기
-- 실행 예제
-docker-compose.yml 존재하는 디렉토리에서 다음 명령어 실행
+* 실행하기
+컴포즈 파일에 gateway service 와 front end service 실행 구문이 포함되어 있다.
 ```bash
 docker compose up
+```
+* 접속 주소
+개시된 컴포즈 파일은 local 에서 실행될 것을 염두에 두고 설정을 하였다.
+```
+http://localhost
+```
+* 초기 관리자 유저
+```
+id=admin
+password=1234
 ```
 ---
 ## 구현 기능
@@ -65,6 +72,10 @@ docker compose up
 
 ## 아키텍처
 * 배포 파이프라인
+
 ![배포 구조](introduce/deploy.PNG)
+
+
 * 서비스 구조
+
 ![서비스 구조](introduce/architecture.PNG)
