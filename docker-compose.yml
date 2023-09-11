@@ -131,7 +131,7 @@ configs:
   https_config:
     file: ./https-config.conf
   kong.yml:
-    file: gateway/kong.yml
+    file: ./gateway/kong.yml
 
 networks:
   handwriting-net:

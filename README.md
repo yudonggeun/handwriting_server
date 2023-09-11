@@ -49,7 +49,6 @@ BACK-END APPLICATION 입니다.
 0. 사전 준비
     * docker-compose 설치
 1. 앱 실행하기
-
 - 실행 예제
 docker-compose.yml 존재하는 디렉토리에서 다음 명령어 실행
 ```bash
@@ -62,16 +61,10 @@ docker compose up
 * JWT를 이용한 사용자 로그인
 * 이미지 압축
 * oath 로그인(구글, 카카오)
-
-## 개발 중
-* 홍보 페이지 image 페이징
 ---
 
 ## 아키텍처
-
 * 배포 파이프라인
-![배포 구조](introduceeploy.PNG)
-
+![배포 구조](introduce/deploy.PNG)
 * 서비스 구조
-
-![서비스 구조](introducerchitecture.PNG)
+![서비스 구조](introduce/architecture.PNG)
