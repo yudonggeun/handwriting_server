@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11
+FROM openjdk
 CMD ["./mvnw", "clean", "package"]
 
 RUN mkdir /app
