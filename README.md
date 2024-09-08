@@ -1,9 +1,7 @@
-# 예쁜 손 글씨 홍보 사이트 입니다.
+# Beautiful Handwriting Promotion Site
+This is a BACK-END APPLICATION created for a promotional website to showcase works utilizing beautiful handwriting, calligraphy, foam art, and total crafts.
 
-예쁜글씨, 캘리그라피, 폼아트, 토탈공예를 활용한 작품를 소개하기위한 홍보사이트를 위해 재작한 
-BACK-END APPLICATION 입니다.
-
-> 웹 사이트 페이지 구성을 위한 FRONT 프로젝트는 [다음](https://github.com/yudonggeun/handwriting-promotion)을 참고해주세요.
+> For the FRONT project for web site page composition, please refer to this [link](https://github.com/yudonggeun/handwriting-promotion).
 
 ## Stacks
 
@@ -23,36 +21,34 @@ BACK-END APPLICATION 입니다.
     <img style="margin-right: 5px;" src="https://img.shields.io/badge/linux-FCC624?style=for-the-badge&logo=linux&logoColor=black">
 </div>
 
-## 시작 가이드
+## Getting Started
 
-* 실행하기
+* To run
 ```bash
 docker compose up
 ```
-* 접속 주소
-개시된 컴포즈 파일은 local 에서 실행될 것을 염두에 두고 설정을 하였다.
+* Access address : The published compose file is configured with local execution in mind.
 ```
 http://localhost
 ```
-* 초기 관리자 유저
+* Initial admin user
 ```
 id=admin
 password=1234
 ```
+## Implemented Features
 
-## 구현 기능
-* 홍보글 CRUD
-* 이미지 파일 관리
-* JWT를 이용한 사용자 로그인
-* 이미지 압축
-* oath 로그인(구글, 카카오)
+* CRUD operations for promotional posts
+* Image file management
+* User login using JWT
+* Image compression
+* OAuth login (Google, Kakao)
 
-## 아키텍처
-### 배포 파이프라인
-
+## Architecture
+### Deployment Pipeline
 ![배포 구조](introduce/deploy.PNG)
 
 
-### 서비스 구조
+### Service Structure
 
 ![서비스 구조](introduce/architecture.PNG)
